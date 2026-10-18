@@ -32,7 +32,13 @@ for a in rules["reserved_resources"]:
 lim = rules["limits"]
 for group in ("stats", "move", "jump", "fly"):
     for k, v in lim[group].items():
-        check(isinstance(v, list) and len(v) == 2 and v[0] <= v[1], "limits.%s.%s 不是 [下限, 上限]" % (group, k))
+        if isinstance(v, list):
+            check(len(v) == 2 and v[0] <= v[1], "limits.%s.%s 不是 [下限, 上限]" % (group, k))
+        else:
+            check(isinstance(v, (int, float)) and v > 0, "limits.%s.%s 应为正数" % (group, k))
+check(sorted(json.load(open(os.path.join(ROOT, "rules", "stage.schema.json"), encoding="utf-8"))["$defs"]["element"]["properties"])
+      == sorted(["id", "rect", "collide", "tile", "climb", "crumble", "bounce", "friction", "conveyor", "move", "damage",
+                 "wind", "water", "blink", "breakable"]), "场景元素字段变化，需要同步校验器与运行时")
 check(set(lim["stats"]) == {"hp", "body_w", "body_h", "weight", "gravity", "max_fall", "air_control"},
       "limits.stats 与 schema stats 字段不一致")
 check(set(defs["form"]["properties"]["stats"]["properties"]) == set(schema["properties"]["stats"]["properties"]),
