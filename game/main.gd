@@ -46,7 +46,7 @@ func _show_menu() -> void:
 	box.add_child(Menus.button("本地对战", _show_versus))
 	box.add_child(Menus.button("角色包", _show_packs))
 	box.add_child(Menus.button("联机延迟测试（ENet）", _show_net))
-	box.add_child(Menus.label("键盘 A：WASD 移动，J 攻击，K 特殊，空格 跳，L 防御，U 大招\n键盘 B：方向键，, 攻击，. 特殊，/ 跳，Shift 防御，' 大招", 20))
+	box.add_child(Menus.label("键盘 A：WASD 移动，J 攻击，K 特殊，空格 跳，L 防御，U 大招\n键盘 B：方向键，, 攻击，. 特殊，/ 跳，Shift 防御，' 大招", 20, true))
 	_set_screen(s[0])
 
 
@@ -61,7 +61,10 @@ func _show_versus() -> void:
 		_set_screen(s[0])
 		return
 	var count_row := HBoxContainer.new()
-	count_row.add_child(Menus.label("人数"))
+	count_row.add_theme_constant_override("separation", 12)
+	var cl := Menus.label("人数")
+	cl.custom_minimum_size.x = 60
+	count_row.add_child(cl)
 	for n in [2, 3, 4]:
 		var b := Menus.button("%d 人" % n, _set_count.bind(n), 120)
 		b.disabled = n == player_count
@@ -128,7 +131,7 @@ func _show_packs() -> void:
 		var name: String = v.data.get("name", p.path.get_file()) if v.data != null and not v.data.is_empty() else p.path.get_file()
 		var text: String = ("✔ " if v.is_valid() else "✘ ") + name + "    " + p.path.get_file()
 		list.add_child(Menus.button(text, _show_report.bind(p), 600))
-	box.add_child(Menus.label("导入：把角色包 zip 拖到窗口上，或放入 %s" % ProjectSettings.globalize_path(PackLibrary.USER), 18))
+	box.add_child(Menus.label("导入：把角色包 zip 拖到窗口上，或放入 %s" % ProjectSettings.globalize_path(PackLibrary.USER), 18, true))
 	box.add_child(Menus.button("返回", _show_menu))
 	_set_screen(s[0])
 

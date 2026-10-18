@@ -26,9 +26,10 @@ static func button(text: String, cb: Callable, min_w := 360) -> Button:
 	return b
 
 
-static func label(text: String, fs := 24) -> Label:
+static func label(text: String, fs := 24, wrap := false) -> Label:
 	var l := Label.new()
 	l.text = text
 	l.add_theme_font_size_override("font_size", fs)
-	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if wrap:
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	return l
