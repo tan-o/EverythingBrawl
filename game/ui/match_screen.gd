@@ -40,7 +40,7 @@ func start(players: Array, stage: PackValidator, p_net: NetSession = null) -> vo
 		mode = "host" if net.is_host else "client"
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var bg := ColorRect.new()
-	bg.color = Color.BLACK
+	bg.color = ArcadeTheme.INK
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
 	viewport.size = Vector2i(int(R.stage.width), int(R.stage.height))
@@ -81,11 +81,10 @@ func start(players: Array, stage: PackValidator, p_net: NetSession = null) -> vo
 
 
 func _build_overlays() -> void:
-	var pb := Button.new()
-	pb.text = "菜单"
+	var pb := Menus.button("菜单", func(): _set_paused(not pause_panel.visible), 110)
+	pb.custom_minimum_size.y = 48
 	pb.position = Vector2(12, 100)
 	pb.focus_mode = Control.FOCUS_NONE
-	pb.pressed.connect(func(): _set_paused(not pause_panel.visible))
 	add_child(pb)
 	var resume := "继续" if mode == "local" else "关闭菜单"
 	var quit := "离开房间" if mode == "client" else "退出对战"
@@ -93,8 +92,11 @@ func _build_overlays() -> void:
 	over_panel = _panel(["离开房间"] if mode == "client" else ["返回"], [_quit])
 	over_label = Label.new()
 	over_label.add_theme_font_size_override("font_size", 48)
-	over_panel.get_child(0).add_child(over_label)
-	over_panel.get_child(0).move_child(over_label, 0)
+	var result_box: VBoxContainer = over_panel.get_meta("content")
+	result_box.add_child(over_label)
+	result_box.move_child(over_label, 1)
+	over_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	over_label.add_theme_color_override("font_color", ArcadeTheme.GOLD)
 	fps_label = Label.new()
 	fps_label.position = Vector2(12, 160)
 	fps_label.add_theme_font_size_override("font_size", 18)
@@ -103,18 +105,33 @@ func _build_overlays() -> void:
 
 
 func _panel(labels: Array, actions: Array) -> Control:
-	var c := CenterContainer.new()
+	var c := Control.new()
 	c.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	c.visible = false
+	var shade := ColorRect.new()
+	shade.color = Color(0.025, 0.04, 0.08, 0.85)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	c.add_child(shade)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	c.add_child(center)
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", ArcadeTheme.plate(ArcadeTheme.PANEL, ArcadeTheme.GOLD, 3, 32))
+	center.add_child(panel)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 16)
-	c.add_child(box)
+	panel.add_child(box)
+	var title := Menus.label("对战菜单" if labels.size() > 1 else "对战结束", 24)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_color_override("font_color", ArcadeTheme.MUTED)
+	box.add_child(title)
+	box.add_child(HSeparator.new())
 	for i in labels.size():
-		var b := Button.new()
-		b.text = labels[i]
-		b.custom_minimum_size = Vector2(320, 72)
-		b.pressed.connect(actions[i])
+		var b := Menus.button(labels[i], actions[i], 360)
+		if i == 0:
+			ArcadeTheme.primary(b)
 		box.add_child(b)
+	c.set_meta("content", box)
 	add_child(c)
 	return c
 

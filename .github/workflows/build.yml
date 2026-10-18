@@ -42,6 +42,28 @@ jobs:
         working-directory: game
         run: godot --headless --import || true
 
+      - name: UI 页面与战斗弹层检查
+        working-directory: game
+        run: |
+          set -o pipefail
+          godot --headless --path . -s res://tests/ui_smoke_test.gd 2>&1 | tee ui-smoke.log
+          grep -q "^OK UI" ui-smoke.log
+          if grep -E "SCRIPT ERROR|ERROR:" ui-smoke.log; then exit 1; fi
+
+      - name: UI 实际渲染截图
+        working-directory: game
+        run: |
+          set -o pipefail
+          xvfb-run -a godot --audio-driver Dummy --path . -s res://tests/ui_smoke_test.gd -- "$RUNNER_TEMP/ui-preview" 2>&1 | tee ui-render.log
+          grep -q "^OK UI" ui-render.log
+          if grep -E "SCRIPT ERROR|ERROR:" ui-render.log; then exit 1; fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EverythingBrawl-ui-preview
+          path: ${{ runner.temp }}/ui-preview/*.png
+          if-no-files-found: error
+
       - name: 游戏内校验器一致性用例
         working-directory: game
         run: godot --headless --path . -s res://tests/run_tests.gd -- conformance ../conformance

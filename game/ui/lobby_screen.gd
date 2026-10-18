@@ -43,16 +43,16 @@ func _build() -> void:
 		my_char = chars[0].path
 	if not stages.any(func(e): return e.path == my_stage) and not stages.is_empty():
 		my_stage = stages[0].path
-	var s := Menus.screen("开始游戏")
+	var s := Menus.screen("准备开战")
 	ui = s[0]
 	var box: VBoxContainer = s[1]
 	var bar: HBoxContainer = s[2]
 	bar.add_child(Menus.button("返回", _back, 160))
 	var content := VBoxContainer.new()
 	content.add_theme_constant_override("separation", 10)
-	content.add_child(Menus.label("我的角色", 26))
+	content.add_child(Menus.label("01 / 选择出战角色", 26))
 	content.add_child(_pick_row(chars, "char"))
-	content.add_child(Menus.label("我的场景（开打时从所有人选的场景里随机一个）", 26))
+	content.add_child(Menus.label("02 / 选择主场（从所有玩家选择中随机抽取）", 26))
 	content.add_child(_pick_row(stages, "stage"))
 	room_box = VBoxContainer.new()
 	room_box.add_theme_constant_override("separation", 10)
@@ -113,9 +113,13 @@ func _refresh_room() -> void:
 
 
 func _room_list() -> void:
-	room_box.add_child(Menus.label("附近的房间", 26))
+	room_box.add_child(Menus.label("03 / 加入擂台", 26))
 	if disc.rooms.is_empty():
-		room_box.add_child(Menus.label("正在搜索同一 WiFi / 热点下的房间……", 22))
+		var empty := PanelContainer.new()
+		var hint := Menus.label("正在寻找附近的擂台…\n连接同一 WiFi / 热点，或创建房间邀请朋友。", 20, true)
+		hint.add_theme_color_override("font_color", ArcadeTheme.MUTED)
+		empty.add_child(hint)
+		room_box.add_child(empty)
 	for ip in disc.rooms:
 		var r: Dictionary = disc.rooms[ip]
 		room_box.add_child(Menus.button("加入 %s（%d/%d 人）" % [r.name, r.players, r.max], _join.bind(ip, r.port), 520))

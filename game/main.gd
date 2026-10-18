@@ -9,9 +9,7 @@ var _import_kind := "character"
 
 
 func _ready() -> void:
-	var theme := Theme.new()
-	theme.default_font_size = 28
-	self.theme = theme
+	self.theme = ArcadeTheme.build()
 	get_window().files_dropped.connect(_on_files_dropped)
 	_show_menu()
 
@@ -28,10 +26,57 @@ func _set_screen(c: Control) -> void:
 func _show_menu() -> void:
 	var s := Menus.screen("像素大乱斗")
 	var box: VBoxContainer = s[1]
-	box.add_child(Menus.button("开始游戏", _show_lobby, 520))
-	box.add_child(Menus.button("管理角色", _show_library.bind("character"), 520))
-	box.add_child(Menus.button("管理场景", _show_library.bind("stage"), 520))
-	box.add_child(Menus.button("网络测试", _show_net, 520))
+	var tag := Menus.label("EVERYTHING BRAWL  /  万物皆可战", 18)
+	tag.add_theme_color_override("font_color", ArcadeTheme.MUTED)
+	s[2].add_child(tag)
+	var row := HBoxContainer.new()
+	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 28)
+	box.add_child(row)
+	var nav := VBoxContainer.new()
+	nav.custom_minimum_size.x = 380
+	nav.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	nav.add_theme_constant_override("separation", 16)
+	row.add_child(nav)
+	var eyebrow := Menus.label("物品觉醒 / 即刻开打", 20)
+	eyebrow.add_theme_color_override("font_color", ArcadeTheme.MINT)
+	nav.add_child(eyebrow)
+	var title := Menus.label("你的日常，\n就是主场。", 48)
+	nav.add_child(title)
+	nav.add_child(ArcadeTheme.primary(Menus.button("开始游戏   >", _show_lobby, 380)))
+	var libraries := HBoxContainer.new()
+	libraries.add_child(Menus.button("管理角色", _show_library.bind("character"), 184))
+	libraries.add_child(Menus.button("管理场景", _show_library.bind("stage"), 184))
+	nav.add_child(libraries)
+	nav.add_child(Menus.button("网络测试", _show_net, 380))
+	var hero := PanelContainer.new()
+	hero.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hero.add_theme_stylebox_override("panel", ArcadeTheme.plate(ArcadeTheme.INK, ArcadeTheme.EDGE, 2, 0))
+	row.add_child(hero)
+	var art := ArcadeBackdrop.new()
+	art.showcase = true
+	art.custom_minimum_size = Vector2(400, 360)
+	hero.add_child(art)
+	var caption := VBoxContainer.new()
+	caption.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	caption.offset_left = 32
+	caption.offset_top = 32
+	caption.offset_right = -32
+	art.add_child(caption)
+	var cap := Menus.label("把身边的东西，变成对手。", 26)
+	caption.add_child(cap)
+	var sub := Menus.label("照片生成角色与场景  /  导入即可加入乱斗", 18, true)
+	sub.add_theme_color_override("font_color", ArcadeTheme.MUTED)
+	caption.add_child(sub)
+	var foot := HBoxContainer.new()
+	var hint := Menus.label("01  导入物品     02  选择场景     03  同屏开战", 18)
+	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hint.add_theme_color_override("font_color", ArcadeTheme.MUTED)
+	foot.add_child(hint)
+	var lan := Menus.label("2 - 4 人 / 局域网对战", 18)
+	lan.add_theme_color_override("font_color", ArcadeTheme.MINT)
+	foot.add_child(lan)
+	box.add_child(foot)
 	_set_screen(s[0])
 
 

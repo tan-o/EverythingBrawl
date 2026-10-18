@@ -31,7 +31,10 @@ func _draw() -> void:
 		var col := Palette.player(i)
 		var x := 20 + i * (pw + 0) + (size.x - 40 - pw * n) / 2.0
 		var r := Rect2(x + 4, y0, pw - 8, 86)
-		draw_rect(r, Color(0, 0, 0, 0.55))
+		draw_rect(Rect2(r.position + Vector2(0, 4), r.size), Color(0, 0, 0, 0.4))
+		draw_rect(r, Color(0.063, 0.082, 0.133, 0.94))
+		draw_rect(r, ArcadeTheme.EDGE, false, 2)
+		draw_rect(Rect2(r.position, Vector2(r.size.x, 3)), col)
 		draw_rect(Rect2(r.position, Vector2(6, r.size.y)), col)
 		var pa: PackAssets = packs[i]
 		var icon := pa.icon_texture()
@@ -40,24 +43,23 @@ func _draw() -> void:
 			draw_texture_rect(icon, Rect2(r.position + Vector2(12, 6), icon.get_size() * s), false)
 		var tx := r.position.x + 74
 		draw_string(font, Vector2(tx, r.position.y + 24), "P%d %s" % [i + 1, names[i]], HORIZONTAL_ALIGNMENT_LEFT, pw - 90, 20, Color.WHITE)
-		var hpmax: float = pa.data.stats.hp
 		var mask: int = fs.mask
 		var bw := pw - 90
 		# 血量
 		var hp_ratio: float = clamp(fs.hp / max(1.0, _hp_max(pa, mask)), 0.0, 1.0)
-		draw_rect(Rect2(tx, r.position.y + 32, bw, 12), Color(0.2, 0.2, 0.2))
-		draw_rect(Rect2(tx, r.position.y + 32, bw * hp_ratio, 12), Color("#63c74d") if hp_ratio > 0.3 else Color("#e43b44"))
+		draw_rect(Rect2(tx, r.position.y + 32, bw, 12), ArcadeTheme.RAISED)
+		draw_rect(Rect2(tx, r.position.y + 32, bw * hp_ratio, 12), ArcadeTheme.MINT if hp_ratio > 0.3 else ArcadeTheme.RED)
 		draw_string(font, Vector2(tx + 4, r.position.y + 43), "%d" % ceil(fs.hp), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color.WHITE)
 		# 护盾
 		draw_rect(Rect2(tx, r.position.y + 47, bw * fs.sh / float(R.combat.shield.max), 4), Palette.SHIELD)
 		# 大招槽
 		var ur: float = fs.ult / float(R.combat.ult.max)
-		draw_rect(Rect2(tx, r.position.y + 54, bw, 6), Color(0.2, 0.2, 0.2))
+		draw_rect(Rect2(tx, r.position.y + 54, bw, 6), ArcadeTheme.RAISED)
 		var uc := Palette.GOLD if ur >= 1.0 and int(snap.frame / 8) % 2 == 0 else Color("#feae34").darkened(0.3)
 		draw_rect(Rect2(tx, r.position.y + 54, bw * ur, 6), uc)
 		# 命数
 		for k in fs.lives:
-			draw_circle(Vector2(r.position.x + 18 + k * 14, r.position.y + 74), 5, col)
+			draw_rect(Rect2(r.position + Vector2(13 + k * 14, 69), Vector2(9, 9)), col)
 		# 资源
 		var rx := tx
 		for rn in pa.data.get("resources", {}):
@@ -67,7 +69,7 @@ func _draw() -> void:
 				continue
 			var v: float = fs.res.get(rn, 0)
 			if hud == "bar":
-				draw_rect(Rect2(rx, r.position.y + 66, 40, 6), Color(0.2, 0.2, 0.2))
+				draw_rect(Rect2(rx, r.position.y + 66, 40, 6), ArcadeTheme.RAISED)
 				draw_rect(Rect2(rx, r.position.y + 66, 40 * v / rd.max, 6), Color("#7fb6ff"))
 				rx += 46
 			elif hud in pa.textures:
@@ -84,6 +86,7 @@ func _draw() -> void:
 		var head := world_to_screen(Vector2(fs.x, fs.y - pa.data.stats.body[1] - 4))
 		var label := "P%d" % (fs.i + 1)
 		var ts := font.get_string_size(label, HORIZONTAL_ALIGNMENT_CENTER, -1, 16)
+		draw_rect(Rect2(head + Vector2(-ts.x / 2.0 - 5, -22), ts + Vector2(10, 2)), ArcadeTheme.INK)
 		draw_string(font, head + Vector2(-ts.x / 2.0, -4), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Palette.player(fs.i))
 
 

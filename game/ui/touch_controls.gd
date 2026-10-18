@@ -79,11 +79,15 @@ func _input(event: InputEvent) -> void:
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	if _stick_touch != -1:
-		draw_circle(_stick_origin, STICK_R, Color(1, 1, 1, 0.12))
-		draw_circle(_stick_origin + stick * STICK_R, 44, Color(1, 1, 1, 0.35))
+		draw_circle(_stick_origin, STICK_R, Color(0.06, 0.08, 0.13, 0.4))
+		draw_arc(_stick_origin, STICK_R, 0, TAU, 32, Color(0.46, 0.87, 0.75, 0.5), 3)
+		draw_circle(_stick_origin + stick * STICK_R, 42, Color(0.46, 0.87, 0.75, 0.6))
+		draw_arc(_stick_origin + stick * STICK_R, 42, 0, TAU, 24, ArcadeTheme.PAPER, 2)
 	else:
 		var hint := Vector2(200, size.y - 180)
-		draw_arc(hint, STICK_R, 0, TAU, 48, Color(1, 1, 1, 0.12), 3)
+		draw_arc(hint, STICK_R, 0, TAU, 32, Color(0.64, 0.71, 0.8, 0.28), 3)
+		draw_line(hint - Vector2(18, 0), hint + Vector2(18, 0), Color(1, 1, 1, 0.25), 3)
+		draw_line(hint - Vector2(0, 18), hint + Vector2(0, 18), Color(1, 1, 1, 0.25), 3)
 	var pressed := {}
 	for k in _btn_touch.values():
 		pressed[k] = true
@@ -91,10 +95,13 @@ func _draw() -> void:
 		if d.key == "ult" and not ult_ready:
 			continue
 		var c := _btn_center(d)
-		var col := Color(1, 1, 1, 0.45 if d.key in pressed else 0.2)
-		if d.key == "ult":
-			col = Color(1, 0.75, 0.2, 0.75 if d.key in pressed else 0.5)
-		draw_circle(c, d.r, col)
+		var accents := {"attack": ArcadeTheme.RED, "special": ArcadeTheme.GOLD, "jump": ArcadeTheme.MINT, "guard": Color("8dbbfa"), "ult": ArcadeTheme.GOLD}
+		var accent: Color = accents[d.key]
+		var active: bool = d.key in pressed
+		draw_circle(c + Vector2(0, 4), d.r, Color(0, 0, 0, 0.3))
+		draw_circle(c, d.r, Color(accent, 0.65) if active else Color(0.06, 0.08, 0.13, 0.65))
+		draw_arc(c, d.r, 0, TAU, 32, Color(accent, 0.95 if active else 0.65), 3)
+		draw_arc(c, d.r - 7, PI * 1.1, PI * 1.8, 12, Color(accent, 0.5), 2)
 		var fs := 34 if d.label.length() == 1 else 26
 		var ts := font.get_string_size(d.label, HORIZONTAL_ALIGNMENT_CENTER, -1, fs)
 		draw_string(font, c + Vector2(-ts.x / 2.0, fs * 0.35), d.label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 1, 1, 0.9))
