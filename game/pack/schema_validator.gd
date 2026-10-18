@@ -123,16 +123,16 @@ func _check(v, s, path: String) -> void:
 			_fail(path, "值应为 %s 之一" % JSON.stringify(s.enum))
 	if is_number(v):
 		if "minimum" in s and v < s.minimum:
-			_fail(path, "应 ≥ %s" % s.minimum)
+			_fail(path, "应 >= %s" % s.minimum)
 		if "maximum" in s and v > s.maximum:
-			_fail(path, "应 ≤ %s" % s.maximum)
+			_fail(path, "应 <= %s" % s.maximum)
 		if "exclusiveMinimum" in s and v <= s.exclusiveMinimum:
 			_fail(path, "应 > %s" % s.exclusiveMinimum)
 	if v is String:
 		if "minLength" in s and v.length() < s.minLength:
-			_fail(path, "长度应 ≥ %d" % s.minLength)
+			_fail(path, "长度应 >= %d" % s.minLength)
 		if "maxLength" in s and v.length() > s.maxLength:
-			_fail(path, "长度应 ≤ %d" % s.maxLength)
+			_fail(path, "长度应 <= %d" % s.maxLength)
 		if "pattern" in s and _regex(s.pattern).search(v) == null:
 			_fail(path, "格式不符合 %s" % s.pattern)
 	if v is Array:

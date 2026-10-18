@@ -1,6 +1,6 @@
 class_name WorldView
 extends Node2D
-## 480×270 逻辑画面：场地、角色、子弹、特效、大招预警、调试叠加。只读快照。
+## 480x270 逻辑画面：场地、角色、子弹、特效、大招预警、调试叠加。只读快照。
 
 var R: Dictionary
 var assets: Array = []          # 每位玩家的 PackAssets
@@ -131,6 +131,11 @@ func _event(e: Dictionary) -> void:
 		"explode":
 			var a: PackAssets = assets[e.i]
 			effects.burst_pixels(a.frame_image(e.anim, e.ai), Vector2(e.x, e.y), a.anchor, e.f)
+		"vfx":
+			if not e.follow:
+				var vf = assets[e.i].fx_frames.get(e.fx)
+				if vf != null:
+					effects.play_fx(vf, Vector2(e.x, e.y), e.f, e.behind)
 		"fx":
 			var fr = assets[e.i].fx_frames.get(e.name)
 			if fr != null:

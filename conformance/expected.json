@@ -963,6 +963,12 @@
   ],
   "valid": false
  },
+ "ref_effect.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
  "ref_frame.zip": {
   "errors": [
    "ref"
@@ -1492,6 +1498,12 @@
  "structure_char_links.zip": {
   "errors": [
    "structure.char_links"
+  ],
+  "valid": false
+ },
+ "structure_effects.zip": {
+  "errors": [
+   "structure.effects"
   ],
   "valid": false
  },

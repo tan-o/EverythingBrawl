@@ -120,7 +120,26 @@ def weapon_images():
             a = k * math.pi / 4
             for t in range(r - 2, r + 1):
                 set_px(spark, [(int(cx + math.cos(a) * t), int(8 + math.sin(a) * t))], GO if i < 2 else W)
-    return {"sword.png": sword, "fist.png": fist, "wave.png": wave, "spark.png": spark}
+    # 大招背景：金色放射光 + 剑影（240x135，游戏里放大 2 倍铺满屏幕；两帧交替闪烁）
+    bd = blank(480, 135)
+    rays = ["#3f3f74", "#5b6ee1", "#fbf236", "#df7126", "#ffffff"]
+    for fr in range(2):
+        ox = fr * 240
+        for y in range(135):
+            for x in range(240):
+                a = math.atan2(y - 67, x - 120)
+                band = int((a + math.pi) / (math.pi / 12) + fr) % 2
+                d = math.hypot(x - 120, y - 67)
+                c = rays[0] if band else rays[1]
+                if d < 30:
+                    c = rays[4] if d < 18 else rays[2]
+                elif d < 44 and band == 0:
+                    c = rays[3]
+                set_px(bd, [(ox + x, y)], c)
+        rect(bd, ox + 116, 10, ox + 123, 100, "#cbdbfc")
+        rect(bd, ox + 104, 96, ox + 135, 101, "#fbf236")
+        rect(bd, ox + 117, 102, ox + 122, 124, "#8f563b")
+    return {"sword.png": sword, "fist.png": fist, "wave.png": wave, "spark.png": spark, "ult_bg.png": bd}
 
 
 def build():
@@ -199,6 +218,7 @@ def build():
             "fist": {"kind": "weapon", "image": "fist.png", "grip": [2, 3], "length": 8, "radius": 5, "hit_range": [0, 1]},
             "wave": {"kind": "projectile", "image": "wave.png", "shape": "rect", "size": [10, 8]},
             "spark": {"kind": "fx", "image": "spark.png", "frames": 3, "durations": [3, 3, 4]},
+            "ult_bg": {"kind": "backdrop", "image": "ult_bg.png", "frames": 2, "durations": [6, 6]},
             "slash": {"kind": "sfx", "params": slash_sfx},
             "heavy": {"kind": "sfx", "params": dict(slash_sfx, p_base_freq=0.45, p_env_decay=0.3, sound_vol=0.4)},
             "zing": {"kind": "sfx", "params": {"wave_type": 1, "p_env_sustain": 0.1, "p_env_decay": 0.2, "p_base_freq": 0.6, "p_freq_ramp": -0.25, "p_duty": 0.3, "sound_vol": 0.25}},
@@ -223,6 +243,7 @@ def build():
                       "startup": 14, "active": 4, "recovery": 22, "damage": 10, "knockback": {"angle": 38, "force": 48},
                       "charge": {"max": 40, "damage": 1.4, "force": 1.3},
                       "motion": [{"frame": 12, "vel": [2.5, 0]}, {"frame": 18, "vel": [0, 0]}],
+                      "effects": [{"fx": "spark", "frame": 14, "offset": [30, 14]}],
                       "sfx": {"start": "heavy"}, "links": [{"when": "on_hit", "fx": "spark"}]},
             "upslash": {"type": "swing", "anim": "upslash", "weapon": "sword", "from": 170, "to": 30, "reach": [0, 2],
                         "startup": 5, "active": 4, "recovery": 12, "damage": 6, "knockback": {"angle": 88, "force": 30},
@@ -239,7 +260,9 @@ def build():
             "rise": {"type": "swing", "anim": "rise", "weapon": "sword", "from": 80, "to": 100, "reach": [0, 2],
                      "startup": 4, "active": 10, "recovery": 18, "damage": 5, "knockback": {"angle": 80, "force": 30},
                      "cooldown": 60, "invuln": [0, 5], "gravity_scale": 0.6,
-                     "motion": [{"frame": 3, "vel": [1.5, 6.5]}, {"frame": 14, "vel": [0.5, 1]}], "sfx": {"start": "zing"}},
+                     "motion": [{"frame": 3, "vel": [1.5, 6.5]}, {"frame": 14, "vel": [0.5, 1]}], "sfx": {"start": "zing"},
+                     "effects": [{"fx": "spark", "frame": 2, "offset": [0, 2], "behind": True},
+                                 {"fx": "spark", "frame": 6, "offset": [4, 30], "follow": True}]},
             "counter": {"type": "swing", "anim": "counter", "weapon": "sword", "from": 60, "to": -30, "reach": [0, 2],
                         "startup": 14, "active": 3, "recovery": 18, "damage": 6, "knockback": {"angle": 40, "force": 30},
                         "armor": [0, 13], "cooldown": 30,
@@ -258,7 +281,8 @@ def build():
                      "knockback": {"angle": 25, "force": 20}, "cooldown": 40, "sfx": {"start": "zing"}},
             "excalibur": {"type": "swing", "anim": "ult", "weapon": "sword", "from": 90, "to": -90, "reach": [0, 6],
                           "startup": 60, "active": 6, "recovery": 30, "damage": 24, "area": "screen", "ultimate": True,
-                          "knockback": {"angle": 60, "force": 72}, "sfx": {"start": "fanfare"}},
+                          "knockback": {"angle": 60, "force": 72}, "sfx": {"start": "fanfare"}, "backdrop": "ult_bg",
+                          "effects": [{"fx": "spark", "frame": 58, "offset": [0, 40], "follow": True}]},
         },
         "input": {
             "attack.neutral": "jab1", "attack.side": "smash", "attack.up": "upslash", "attack.down": "poke",

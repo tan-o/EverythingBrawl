@@ -52,7 +52,7 @@ static func point_box_dist(d: Vector2, h: Vector2) -> float:
 
 
 static func _seg_hits_box(a: Vector2, b: Vector2, h: Vector2) -> bool:
-	# Liang–Barsky
+	# Liang-Barsky
 	var t0 := 0.0
 	var t1 := 1.0
 	var d := b - a

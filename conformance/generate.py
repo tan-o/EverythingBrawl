@@ -249,7 +249,10 @@ def _(c):
     c.acts["jump"]["max_count"] = 2
     c.acts["slash"]["charge"] = {"max": 30, "damage": 1.3, "force": 1.2}
     c.acts["slash"]["status"] = {"type": "slow", "factor": 0.7, "duration": 60}
+    add_fx(c)
     c.acts["heavy"] = {"type": "swing", "anim": "slash", "weapon": "sword", "from": 120, "to": -60, "reach": [0, 6],
+                       "effects": [{"fx": "aura", "frame": 0, "offset": [0, 16], "follow": True, "behind": True},
+                                   {"fx": "aura", "frame": 14, "offset": [20, 12]}],
                        "startup": 14, "active": 4, "recovery": 18, "damage": 12, "armor": [2, 15],
                        "motion": [{"frame": 0, "vel": [3, 0]}, {"frame": 10, "vel": [0, 0]}],
                        "knockback": {"angle": 45, "force": 50}, "sfx": {"start": "whoosh"}}
@@ -870,6 +873,22 @@ def add_backdrop(c, name="sky", size=(240, 135), frames=1, durations=None, n_col
         a["durations"] = durations
     c.d["assets"][name] = a
     c.imgs[name + ".png"] = backdrop_img(size[0] * frames, size[1], n_colors)
+
+
+def add_fx(c, name="aura"):
+    c.d["assets"][name] = {"kind": "fx", "image": name + ".png", "frames": 3, "durations": [4, 4, 4]}
+    c.imgs[name + ".png"] = rect_img(48, 16, C_HAND)
+
+
+@case("ref_effect", ["ref"])
+def _(c):
+    c.acts["slash"]["effects"] = [{"fx": "nope", "frame": 0}]
+
+
+@case("structure_effects", ["structure.effects"])
+def _(c):
+    add_fx(c)
+    c.acts["slash"]["effects"] = [{"fx": "aura", "frame": i} for i in range(5)]
 
 
 @case("ultimate_backdrop", ["ultimate.backdrop"])

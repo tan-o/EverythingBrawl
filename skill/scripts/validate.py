@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""像素大乱斗角色包校验器 —— 游戏内校验器（game/pack/validator.gd）的镜像。
+"""像素大乱斗角色包校验器 -- 游戏内校验器（game/pack/validator.gd）的镜像。
 
 用法:
   python validate.py <角色目录或 zip>          校验并打印错误与点数明细
@@ -57,21 +57,21 @@ class Errors:
 
 def in_range(errs, code, path, v, lim):
     if v < lim[0] or v > lim[1]:
-        errs.add(code, path, "%s = %s，应在 %s–%s" % (path, fmt(v), fmt(lim[0]), fmt(lim[1])))
+        errs.add(code, path, "%s = %s，应在 %s~%s" % (path, fmt(v), fmt(lim[0]), fmt(lim[1])))
         return False
     return True
 
 
 def at_most(errs, code, path, v, hi):
     if v > hi:
-        errs.add(code, path, "%s = %s，应 ≤ %s" % (path, fmt(v), fmt(hi)))
+        errs.add(code, path, "%s = %s，应 <= %s" % (path, fmt(v), fmt(hi)))
         return False
     return True
 
 
 def at_least(errs, code, path, v, lo):
     if v < lo:
-        errs.add(code, path, "%s = %s，应 ≥ %s" % (path, fmt(v), fmt(lo)))
+        errs.add(code, path, "%s = %s，应 >= %s" % (path, fmt(v), fmt(lo)))
         return False
     return True
 
@@ -388,7 +388,7 @@ class Validator:
         fw, fh = d["frame_size"]
         for i, s in enumerate((fw, fh)):
             if s < lp["frame_size"][0] or s > lp["frame_size"][1] or s % lp["frame_size_step"] != 0:
-                e.add("pack.frame_size", "frame_size", "frame_size 每边须为 %d–%d 且为 %d 的倍数" %
+                e.add("pack.frame_size", "frame_size", "frame_size 每边须为 %d~%d 且为 %d 的倍数" %
                       (lp["frame_size"][0], lp["frame_size"][1], lp["frame_size_step"]))
         ax, ay = d["anchor"]
         if ax < 0 or ax > fw or ay < 0 or ay > fh:
@@ -444,13 +444,13 @@ class Validator:
                           (" / ".join("%d×%d" % tuple(x) for x in lp["backdrop_sizes"]), an, w // fr, h))
                 continue
             if w > side or h > side:
-                e.add("pack.asset_side", "assets.%s" % an, "素材图每边 ≤ %d（%s 为 %d×%d）" % (side, an, w, h))
+                e.add("pack.asset_side", "assets.%s" % an, "素材图每边 <= %d（%s 为 %d×%d）" % (side, an, w, h))
             if a["kind"] == "weapon":
                 in_range(e, "weapon.length", "assets.%s.length" % an, a["length"], L["weapon"]["length"])
                 in_range(e, "weapon.radius", "assets.%s.radius" % an, a["radius"], L["weapon"]["radius"])
                 hr = a["hit_range"]
                 if hr[0] < 0 or hr[1] > 1 or hr[0] > hr[1]:
-                    e.add("weapon.hit_range", "assets.%s.hit_range" % an, "hit_range 须满足 0 ≤ a ≤ b ≤ 1")
+                    e.add("weapon.hit_range", "assets.%s.hit_range" % an, "hit_range 须满足 0 <= a <= b <= 1")
             if a["kind"] == "projectile":
                 sw_, sh_ = a["size"]
                 if a["shape"] == "circle" and sw_ != sh_:
@@ -508,9 +508,9 @@ class Validator:
                 e.add("reserved", p, "资源名 %s 为引擎保留" % rn)
             at_most(e, "structure.resource_max", p + ".max", r["max"], ls["resource_max"])
             if r["init"] < 0 or r["init"] > r["max"]:
-                e.add("resource.init", p + ".init", "init 须在 0–max 之间")
+                e.add("resource.init", p + ".init", "init 须在 0~max 之间")
             if abs(r.get("regen", 0)) > ls["resource_regen"]:
-                e.add("structure.resource_regen", p + ".regen", "|regen| 须 ≤ %s" % fmt(ls["resource_regen"]))
+                e.add("structure.resource_regen", p + ".regen", "|regen| 须 <= %s" % fmt(ls["resource_regen"]))
             if "hud" in r and r["hud"] != "bar":
                 self.check_ref(p + ".hud", r["hud"], "icon")
         # 资产引用
@@ -602,6 +602,10 @@ class Validator:
                 self.check_ref(p + ".weapon", a["weapon"], "weapon")
         if "anim" in a and a["anim"] not in self.data["anims"]:
             e.add("ref", p + ".anim", "动画 %s 不存在" % a["anim"])
+        effs = a.get("effects", [])
+        at_most(e, "structure.effects", p + ".effects", len(effs), L["structure"]["effects"])
+        for i, ef in enumerate(effs):
+            self.check_ref("%s.effects.%d.fx" % (p, i), ef["fx"], "fx")
         if "backdrop" in a:
             self.check_ref(p + ".backdrop", a["backdrop"], "backdrop")
             if not a.get("ultimate", False):
@@ -624,7 +628,7 @@ class Validator:
         if ("input" in l or "window" in l) and where != "action":
             e.add("link.input", path, "input / window 只能用于动作联动")
         if "window" in l and l["window"][0] > l["window"][1]:
-            e.add("link.window", path + ".window", "window 须起 ≤ 止")
+            e.add("link.window", path + ".window", "window 须起 <= 止")
         if where == "action" and w == "on_hurt" and "window" not in l:
             e.add("link.window", path, "动作级 on_hurt 必须配 window")
         if "warp" in l and where != "bullet":
@@ -651,7 +655,7 @@ class Validator:
         if "heal" in l:
             at_most(e, "heal.max", path + ".heal", l["heal"], L["heal"]["max"])
             if l["heal"] < 0:
-                e.add("heal.max", path + ".heal", "heal 须 ≥ 0")
+                e.add("heal.max", path + ".heal", "heal 须 >= 0")
             if w == "every":
                 at_least(e, "heal.every_interval_min", path + ".interval", l["interval"], L["heal"]["every_interval_min"])
         if w == "every":
@@ -684,7 +688,7 @@ class Validator:
             color[u] = 1
             for v in goto_g.get(u, []):
                 if color.get(v) == 1:
-                    e.add("structure.goto_cycle", "actions.%s" % u, "goto 成环: %s" % " → ".join(stack + [v]))
+                    e.add("structure.goto_cycle", "actions.%s" % u, "goto 成环: %s" % " -> ".join(stack + [v]))
                     return True
                 if color.get(v) is None and dfs(v, stack + [v]):
                     return True
@@ -940,7 +944,7 @@ class Validator:
                     e.add("armor.window", p + ".armor", "armor 只能落在前摇+生效内")
                 at_least(e, "armor.min_startup", p + ".startup", a["startup"], la["min_startup"])
             else:
-                e.add("armor.min_startup", p + ".armor", "armor 只能用于 startup ≥ %d 的攻击动作" % la["min_startup"])
+                e.add("armor.min_startup", p + ".armor", "armor 只能用于 startup >= %d 的攻击动作" % la["min_startup"])
         for key in ("invuln", "reflect"):
             if key in a:
                 r = a[key]
@@ -1120,7 +1124,7 @@ class Validator:
             at_most(e, "beam.damage", p + ".damage", a["damage"], lb2["damage"] * dmg_mul)
             at_most(e, "beam.turn_rate", p + ".turn_rate", a.get("turn_rate", 0), lb2["turn_rate"])
             if a.get("turn_rate", 0) < 0:
-                e.add("beam.turn_rate", p + ".turn_rate", "turn_rate 须 ≥ 0")
+                e.add("beam.turn_rate", p + ".turn_rate", "turn_rate 须 >= 0")
             at_least(e, "beam.cooldown_min", p + ".cooldown", a.get("cooldown", 0), lb2["cooldown_min"])
         else:
             ld = L["deployable"]
@@ -1600,7 +1604,7 @@ class StageValidator:
             w, h = im.size
             if a["kind"] == "tile":
                 if w > SL["tile_side"] or h > SL["tile_side"]:
-                    e.add("stage.tile_side", "assets.%s" % an, "地形贴图每边 ≤ %d（%s 为 %d×%d）" % (SL["tile_side"], an, w, h))
+                    e.add("stage.tile_side", "assets.%s" % an, "地形贴图每边 <= %d（%s 为 %d×%d）" % (SL["tile_side"], an, w, h))
             else:
                 fr = a.get("frames", 1)
                 ds = a.get("durations", [1])
@@ -1674,7 +1678,7 @@ class StageValidator:
                 in_range(e, "stage.blink_on", p + ".blink.on", el["blink"]["on"], lb["on"])
                 in_range(e, "stage.blink_off", p + ".blink.off", el["blink"]["off"], lb["off"])
                 if (col != "none" or "damage" in el) and el["blink"].get("warn", 0) < lb["warn"]:
-                    e.add("stage.blink_warn", p + ".blink.warn", "会出现的地形或危险物须有 ≥ %d 帧预警" % lb["warn"])
+                    e.add("stage.blink_warn", p + ".blink.warn", "会出现的地形或危险物须有 >= %d 帧预警" % lb["warn"])
         at_most(e, "stage.damage_count", "elements", n_damage, SL["damage"]["count"])
 
     def check_layout(self):
@@ -1684,7 +1688,7 @@ class StageValidator:
         mains = [i for i, el in enumerate(els)
                  if elem_static(el) and elem_standable(el) and el["rect"][2] >= SL["main_width"]]
         if not mains:
-            e.add("stage.main", "elements", "至少要有一块宽 ≥ %d、静止、可站立的主地面" % SL["main_width"])
+            e.add("stage.main", "elements", "至少要有一块宽 >= %d、静止、可站立的主地面" % SL["main_width"])
             return
         for si, (sx, sy) in enumerate(spawns):
             ok = False
@@ -1696,10 +1700,10 @@ class StageValidator:
                 e.add("stage.spawn_ground", "spawns.%d" % si, "出生点必须站在静止的可站立地形上")
             for sj in range(si + 1, len(spawns)):
                 if math.hypot(sx - spawns[sj][0], sy - spawns[sj][1]) < SL["spawn_spacing"]:
-                    e.add("stage.spawn_spacing", "spawns.%d" % si, "出生点之间距离须 ≥ %d" % SL["spawn_spacing"])
+                    e.add("stage.spawn_spacing", "spawns.%d" % si, "出生点之间距离须 >= %d" % SL["spawn_spacing"])
             for i, el in enumerate(els):
                 if "damage" in el and rect_point_dist(*elem_hull(el), sx, sy) < SL["spawn_hazard_distance"]:
-                    e.add("stage.spawn_hazard", "spawns.%d" % si, "出生点距危险物须 ≥ %d" % SL["spawn_hazard_distance"])
+                    e.add("stage.spawn_hazard", "spawns.%d" % si, "出生点距危险物须 >= %d" % SL["spawn_hazard_distance"])
         # 头顶空间
         hr = SL["headroom"]
         for i, el in enumerate(els):
@@ -1720,7 +1724,7 @@ class StageValidator:
                 if not blocked:
                     free += 1
             if free * 2 < len(cols):
-                e.add("stage.headroom", "elements.%d" % i, "可站立地形上方至少一半宽度要留 ≥ %d 像素空间" % hr)
+                e.add("stage.headroom", "elements.%d" % i, "可站立地形上方至少一半宽度要留 >= %d 像素空间" % hr)
         # 可达性
         stand = [i for i, el in enumerate(els) if elem_standable(el)]
         reached = set(mains)
@@ -1738,7 +1742,7 @@ class StageValidator:
         for b in stand:
             if b not in reached:
                 e.add("stage.reach", "elements.%d" % b,
-                      "从主地面跳不上去（上升 ≤ %d、水平间隙 ≤ %d）" % (SL["step_max"], SL["gap_max"]))
+                      "从主地面跳不上去（上升 <= %d、水平间隙 <= %d）" % (SL["step_max"], SL["gap_max"]))
 
     @staticmethod
     def can_reach(a, b):
@@ -1774,7 +1778,7 @@ def print_result(res, out=sys.stdout):
         out.write("点数 形态 %s: 总计 %.2f / %s（hp %.2f，角色级联动 %.2f，形态输入 %.2f）\n" %
                   (label, bd["total"], fmt(P["form_max"]), bd["hp"], bd["links"], bd["forms_input"]))
         for aid, pts in sorted(bd["actions"].items(), key=lambda x: -x[1]):
-            flag = "  ⚠" if pts > P["action_max"] else ""
+            flag = "  超出" if pts > P["action_max"] else ""
             out.write("    %-20s %6.2f%s\n" % (aid, pts, flag))
 
 

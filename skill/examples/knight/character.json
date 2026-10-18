@@ -69,6 +69,15 @@
     4
    ]
   },
+  "ult_bg": {
+   "kind": "backdrop",
+   "image": "ult_bg.png",
+   "frames": 2,
+   "durations": [
+    6,
+    6
+   ]
+  },
   "slash": {
    "kind": "sfx",
    "params": {
@@ -915,6 +924,16 @@
      ]
     }
    ],
+   "effects": [
+    {
+     "fx": "spark",
+     "frame": 14,
+     "offset": [
+      30,
+      14
+     ]
+    }
+   ],
    "sfx": {
     "start": "heavy"
    },
@@ -1059,7 +1078,27 @@
    ],
    "sfx": {
     "start": "zing"
-   }
+   },
+   "effects": [
+    {
+     "fx": "spark",
+     "frame": 2,
+     "offset": [
+      0,
+      2
+     ],
+     "behind": true
+    },
+    {
+     "fx": "spark",
+     "frame": 6,
+     "offset": [
+      4,
+      30
+     ],
+     "follow": true
+    }
+   ]
   },
   "counter": {
    "type": "swing",
@@ -1209,7 +1248,19 @@
    },
    "sfx": {
     "start": "fanfare"
-   }
+   },
+   "backdrop": "ult_bg",
+   "effects": [
+    {
+     "fx": "spark",
+     "frame": 58,
+     "offset": [
+      0,
+      40
+     ],
+     "follow": true
+    }
+   ]
   }
  },
  "input": {

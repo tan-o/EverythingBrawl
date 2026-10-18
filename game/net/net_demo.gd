@@ -102,7 +102,7 @@ func _join() -> void:
 		return
 	role = "客户端"
 	_setup_mp()
-	status.text = "客户端：连接中…"
+	status.text = "客户端：连接中..."
 
 
 func _close() -> void:

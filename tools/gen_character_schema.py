@@ -48,7 +48,10 @@ COMMON = {"type": None, "anim": STR, "require": {"enum": ["ground", "air", "any"
                                                 "properties": {"frame": NONNEG, "vel": vec(), "mode": {"enum": ["set", "add"]}}}},
           "gravity_scale": NUM, "armor": RANGE, "invuln": RANGE, "reflect": RANGE,
           "sfx": {"type": "object", "additionalProperties": False, "properties": {"start": STR, "hit": STR}},
-          "ultimate": BOOL}
+          "ultimate": BOOL,
+          "effects": {"type": "array", "items": {"type": "object", "required": ["fx", "frame"], "additionalProperties": False,
+                                                 "properties": {"fx": STR, "frame": NONNEG, "offset": vec(), "follow": BOOL,
+                                                                "behind": BOOL}}}}
 ATTACK = {"startup": POS, "active": POS, "recovery": POS, "damage": NUM, "knockback": KB, "hit_interval": NONNEG,
           "status": {"$ref": "#/$defs/status"},
           "charge": {"type": "object", "required": ["max", "damage", "force"], "additionalProperties": False,

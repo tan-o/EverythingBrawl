@@ -1,6 +1,6 @@
 class_name PackValidator
 extends RefCounted
-## 角色包加载时校验 —— 权威实现。skill/scripts/validate.py 是它的镜像，
+## 角色包加载时校验 -- 权威实现。skill/scripts/validate.py 是它的镜像，
 ## 两者由 conformance/ 下同一组用例保证一致。任何一项违规都拒绝整个包。
 
 var pack: PackReader
@@ -63,21 +63,21 @@ static func fmt(v) -> String:
 
 func in_range(code: String, path: String, v: float, lim: Array) -> bool:
 	if v < lim[0] or v > lim[1]:
-		add(code, path, "%s = %s，应在 %s–%s" % [path, fmt(v), fmt(lim[0]), fmt(lim[1])])
+		add(code, path, "%s = %s，应在 %s~%s" % [path, fmt(v), fmt(lim[0]), fmt(lim[1])])
 		return false
 	return true
 
 
 func at_most(code: String, path: String, v: float, hi: float) -> bool:
 	if v > hi:
-		add(code, path, "%s = %s，应 ≤ %s" % [path, fmt(v), fmt(hi)])
+		add(code, path, "%s = %s，应 <= %s" % [path, fmt(v), fmt(hi)])
 		return false
 	return true
 
 
 func at_least(code: String, path: String, v: float, lo: float) -> bool:
 	if v < lo:
-		add(code, path, "%s = %s，应 ≥ %s" % [path, fmt(v), fmt(lo)])
+		add(code, path, "%s = %s，应 >= %s" % [path, fmt(v), fmt(lo)])
 		return false
 	return true
 
@@ -212,7 +212,7 @@ func check_art() -> void:
 	var fh := int(d.frame_size[1])
 	for s in [fw, fh]:
 		if s < lp.frame_size[0] or s > lp.frame_size[1] or s % int(lp.frame_size_step) != 0:
-			add("pack.frame_size", "frame_size", "frame_size 每边须为 %d–%d 且为 %d 的倍数" % [lp.frame_size[0], lp.frame_size[1], lp.frame_size_step])
+			add("pack.frame_size", "frame_size", "frame_size 每边须为 %d~%d 且为 %d 的倍数" % [lp.frame_size[0], lp.frame_size[1], lp.frame_size_step])
 	var ax: float = d.anchor[0]
 	var ay: float = d.anchor[1]
 	if ax < 0 or ax > fw or ay < 0 or ay > fh:
@@ -221,7 +221,7 @@ func check_art() -> void:
 	var sw := sheet.get_width()
 	var sh := sheet.get_height()
 	if sw > lp.sheet_side or sh > lp.sheet_side:
-		add("pack.sheet_side", "sheet.png", "sheet.png 不得超过 %d×%d" % [lp.sheet_side, lp.sheet_side])
+		add("pack.sheet_side", "sheet.png", "sheet.png 不得超过 %dx%d" % [lp.sheet_side, lp.sheet_side])
 	if sw % fw != 0 or sh % fh != 0:
 		add("pack.sheet_grid", "sheet.png", "sheet.png 尺寸须为 frame_size 的整数倍")
 	at_most("pack.total_frames", "sheet.png", total_frames(), lp.total_frames)
@@ -278,16 +278,16 @@ func check_art() -> void:
 				if w / bf == int(sz[0]) and h == int(sz[1]):
 					ok_size = true
 			if not ok_size:
-				add("pack.backdrop_size", "assets.%s" % an, "backdrop 每帧尺寸不符合要求（%s 为 %d×%d）" % [an, w / bf, h])
+				add("pack.backdrop_size", "assets.%s" % an, "backdrop 每帧尺寸不符合要求（%s 为 %dx%d）" % [an, w / bf, h])
 			continue
 		if w > side or h > side:
-			add("pack.asset_side", "assets.%s" % an, "素材图每边 ≤ %d（%s 为 %d×%d）" % [side, an, w, h])
+			add("pack.asset_side", "assets.%s" % an, "素材图每边 <= %d（%s 为 %dx%d）" % [side, an, w, h])
 		if a.kind == "weapon":
 			in_range("weapon.length", "assets.%s.length" % an, a.length, L.weapon.length)
 			in_range("weapon.radius", "assets.%s.radius" % an, a.radius, L.weapon.radius)
 			var hr: Array = a.hit_range
 			if hr[0] < 0 or hr[1] > 1 or hr[0] > hr[1]:
-				add("weapon.hit_range", "assets.%s.hit_range" % an, "hit_range 须满足 0 ≤ a ≤ b ≤ 1")
+				add("weapon.hit_range", "assets.%s.hit_range" % an, "hit_range 须满足 0 <= a <= b <= 1")
 		if a.kind == "projectile":
 			var sw_: float = a.size[0]
 			var sh_: float = a.size[1]
@@ -301,7 +301,7 @@ func check_art() -> void:
 			else:
 				ok = abs(bb.x - sw_) <= tol * sw_ and abs(bb.y - sh_) <= tol * sh_
 			if not ok:
-				add("pack.projectile_bbox", "assets.%s" % an, "子弹图非透明区域 %d×%d 与 size %s×%s 相差超过 %d%%" % [bb.x, bb.y, fmt(sw_), fmt(sh_), int(tol * 100)])
+				add("pack.projectile_bbox", "assets.%s" % an, "子弹图非透明区域 %dx%d 与 size %sx%s 相差超过 %d%%" % [bb.x, bb.y, fmt(sw_), fmt(sh_), int(tol * 100)])
 
 
 # ---------------------------------------------------------------- 结构与引用
@@ -349,9 +349,9 @@ func check_structure() -> void:
 			add("reserved", p, "资源名 %s 为引擎保留" % rn)
 		at_most("structure.resource_max", p + ".max", r.max, ls.resource_max)
 		if r.init < 0 or r.init > r.max:
-			add("resource.init", p + ".init", "init 须在 0–max 之间")
+			add("resource.init", p + ".init", "init 须在 0~max 之间")
 		if abs(r.get("regen", 0)) > ls.resource_regen:
-			add("structure.resource_regen", p + ".regen", "|regen| 须 ≤ %s" % fmt(ls.resource_regen))
+			add("structure.resource_regen", p + ".regen", "|regen| 须 <= %s" % fmt(ls.resource_regen))
 		if "hud" in r and r.hud != "bar":
 			check_ref(p + ".hud", r.hud, "icon")
 	if d.get("held") != null:
@@ -454,6 +454,10 @@ func check_action_refs(aid: String, a: Dictionary) -> void:
 			check_ref(p + ".weapon", a.weapon, "weapon")
 	if "anim" in a and not (a.anim in data.anims):
 		add("ref", p + ".anim", "动画 %s 不存在" % a.anim)
+	var effs: Array = a.get("effects", [])
+	at_most("structure.effects", p + ".effects", effs.size(), L.structure.effects)
+	for i in effs.size():
+		check_ref("%s.effects.%d.fx" % [p, i], effs[i].fx, "fx")
 	if "backdrop" in a:
 		check_ref(p + ".backdrop", a.backdrop, "backdrop")
 		if not a.get("ultimate", false):
@@ -477,7 +481,7 @@ func check_link(path: String, l: Dictionary, where: String) -> void:
 	if ("input" in l or "window" in l) and where != "action":
 		add("link.input", path, "input / window 只能用于动作联动")
 	if "window" in l and l.window[0] > l.window[1]:
-		add("link.window", path + ".window", "window 须起 ≤ 止")
+		add("link.window", path + ".window", "window 须起 <= 止")
 	if where == "action" and w == "on_hurt" and not ("window" in l):
 		add("link.window", path, "动作级 on_hurt 必须配 window")
 	if "warp" in l and where != "bullet":
@@ -505,7 +509,7 @@ func check_link(path: String, l: Dictionary, where: String) -> void:
 	if "heal" in l:
 		at_most("heal.max", path + ".heal", l.heal, L.heal.max)
 		if l.heal < 0:
-			add("heal.max", path + ".heal", "heal 须 ≥ 0")
+			add("heal.max", path + ".heal", "heal 须 >= 0")
 		if w == "every":
 			at_least("heal.every_interval_min", path + ".interval", l.interval, L.heal.every_interval_min)
 	if w == "every":
@@ -540,7 +544,7 @@ func _goto_dfs(u: String, stack: Array) -> bool:
 	_color[u] = 1
 	for v in _goto_g.get(u, []):
 		if _color.get(v) == 1:
-			add("structure.goto_cycle", "actions.%s" % u, "goto 成环: %s" % " → ".join(PackedStringArray(stack + [v])))
+			add("structure.goto_cycle", "actions.%s" % u, "goto 成环: %s" % " -> ".join(PackedStringArray(stack + [v])))
 			return true
 		if _color.get(v) == null and _goto_dfs(v, stack + [v]):
 			return true
@@ -601,7 +605,7 @@ func check_sfx() -> void:
 			add("pack.sfx_seconds", "assets.%s" % k, "音效 %s 时长 %.2f 秒，超过 %s 秒" % [k, secs, fmt(lp.sfx_seconds)])
 
 
-# ---------------------------------------------------------------- 形态 × 动作
+# ---------------------------------------------------------------- 形态 x 动作
 
 func form_masks() -> Array:
 	var conds := []
@@ -759,7 +763,7 @@ func check_form(eff: Dictionary) -> void:
 		var ib := frame_bbox(int(idle.frames[0]))
 		var tol: float = lp.idle_body_tolerance
 		if abs(ib.x - bw) > tol * bw or abs(ib.y - bh) > tol * bh:
-			add("pack.idle_body", "anims.idle", "idle 第 0 帧非透明区域 %d×%d 与 body %d×%d 相差超过 %d%%" % [ib.x, ib.y, bw, bh, int(tol * 100)])
+			add("pack.idle_body", "anims.idle", "idle 第 0 帧非透明区域 %dx%d 与 body %dx%d 相差超过 %d%%" % [ib.x, ib.y, bw, bh, int(tol * 100)])
 	var used := {}
 	for n in plain_r.keys() + attack_r.keys():
 		var anim = d.anims.get(n)
@@ -773,7 +777,7 @@ func check_form(eff: Dictionary) -> void:
 	for f in ul:
 		var b := frame_bbox(f)
 		if b.x > ratio * bw or b.y > ratio * bh:
-			add("pack.frame_body", "sheet.png#%d" % f, "第 %d 帧非透明区域 %d×%d 超过 body 的 %s 倍" % [f, b.x, b.y, fmt(ratio)])
+			add("pack.frame_body", "sheet.png#%d" % f, "第 %d 帧非透明区域 %dx%d 超过 body 的 %s 倍" % [f, b.x, b.y, fmt(ratio)])
 
 
 func check_action(aid: String, a: Dictionary, eff: Dictionary, upgraded: bool) -> void:
@@ -823,7 +827,7 @@ func check_action(aid: String, a: Dictionary, eff: Dictionary, upgraded: bool) -
 				add("armor.window", p + ".armor", "armor 只能落在前摇+生效内")
 			at_least("armor.min_startup", p + ".startup", a.startup, la.min_startup)
 		else:
-			add("armor.min_startup", p + ".armor", "armor 只能用于 startup ≥ %d 的攻击动作" % la.min_startup)
+			add("armor.min_startup", p + ".armor", "armor 只能用于 startup >= %d 的攻击动作" % la.min_startup)
 	for key in ["invuln", "reflect"]:
 		if key in a:
 			var r: Array = a[key]
@@ -892,9 +896,9 @@ func check_attack(aid: String, a: Dictionary, eff: Dictionary) -> void:
 		var lim_d: float = ds.base + ds.per_startup * v[2]
 		var lim_f: float = fs.base + fs.per_startup * v[2]
 		if v[0] > lim_d + 1e-9:
-			add("attack.damage_startup", p + ".damage", "damage %s%s 超过 6 + 0.6 × startup = %s" % [fmt(v[0]), v[3], fmt(lim_d)])
+			add("attack.damage_startup", p + ".damage", "damage %s%s 超过 6 + 0.6 x startup = %s" % [fmt(v[0]), v[3], fmt(lim_d)])
 		if v[1] > lim_f + 1e-9:
-			add("attack.force_startup", p + ".knockback.force", "force %s%s 超过 20 + 2.5 × startup = %s" % [fmt(v[1]), v[3], fmt(lim_f)])
+			add("attack.force_startup", p + ".knockback.force", "force %s%s 超过 20 + 2.5 x startup = %s" % [fmt(v[1]), v[3], fmt(lim_f)])
 	if "status" in a:
 		var st: Dictionary = a.status
 		var lst: Dictionary = L.status[st.type]
@@ -969,7 +973,7 @@ func check_shoot(aid: String, a: Dictionary, eff: Dictionary, size_mul: float, d
 		if proj.shape == "circle":
 			in_range("bullet.circle_d", p + ".projectile", msw, [lb.circle_d[0], lb.circle_d[1] * size_mul])
 		elif msw > lb.rect_max[0] * size_mul or msh > lb.rect_max[1] * size_mul:
-			add("bullet.rect_max", p + ".projectile", "rect 子弹（含缩放）不得超过 %s×%s" % [fmt(lb.rect_max[0] * size_mul), fmt(lb.rect_max[1] * size_mul)])
+			add("bullet.rect_max", p + ".projectile", "rect 子弹（含缩放）不得超过 %sx%s" % [fmt(lb.rect_max[0] * size_mul), fmt(lb.rect_max[1] * size_mul)])
 		in_range("bullet.speed", p + ".speed", a.speed, lb.speed)
 		var longest: float = max(msw, msh)
 		if a.speed > lb.speed_side * size_mul / longest + 1e-9:
@@ -992,15 +996,15 @@ func check_shoot(aid: String, a: Dictionary, eff: Dictionary, size_mul: float, d
 		at_most("beam.damage", p + ".damage", a.damage, lb2.damage * dmg_mul)
 		at_most("beam.turn_rate", p + ".turn_rate", a.get("turn_rate", 0), lb2.turn_rate)
 		if a.get("turn_rate", 0) < 0:
-			add("beam.turn_rate", p + ".turn_rate", "turn_rate 须 ≥ 0")
+			add("beam.turn_rate", p + ".turn_rate", "turn_rate 须 >= 0")
 		at_least("beam.cooldown_min", p + ".cooldown", a.get("cooldown", 0), lb2.cooldown_min)
 	else:
 		var ld: Dictionary = L.deployable
 		if a.get("solid", false):
 			if msw > ld.solid_size[0] * size_mul or msh > ld.solid_size[1] * size_mul:
-				add("deployable.solid_size", p + ".projectile", "solid 布置物（含缩放）不得超过 %s×%s" % [fmt(ld.solid_size[0] * size_mul), fmt(ld.solid_size[1] * size_mul)])
+				add("deployable.solid_size", p + ".projectile", "solid 布置物（含缩放）不得超过 %sx%s" % [fmt(ld.solid_size[0] * size_mul), fmt(ld.solid_size[1] * size_mul)])
 		elif msw > ld.size[0] * size_mul or msh > ld.size[1] * size_mul:
-			add("deployable.size", p + ".projectile", "布置物（含缩放）不得超过 %s×%s" % [fmt(ld.size[0] * size_mul), fmt(ld.size[1] * size_mul)])
+			add("deployable.size", p + ".projectile", "布置物（含缩放）不得超过 %sx%s" % [fmt(ld.size[0] * size_mul), fmt(ld.size[1] * size_mul)])
 		in_range("deployable.lifetime", p + ".lifetime", a.lifetime, ld.lifetime)
 		if not ("hp" in a):
 			add("deployable.hp", p + ".hp", "布置物必须填写 hp")
@@ -1115,5 +1119,5 @@ func report() -> String:
 		var ids: Array = bd.actions.keys()
 		ids.sort_custom(func(x, y): return bd.actions[x] > bd.actions[y])
 		for aid in ids:
-			lines.append("    %s  %.2f%s" % [aid, bd.actions[aid], "  ⚠" if bd.actions[aid] > P.action_max else ""])
+			lines.append("    %s  %.2f%s" % [aid, bd.actions[aid], "  超出" if bd.actions[aid] > P.action_max else ""])
 	return "\n".join(lines)

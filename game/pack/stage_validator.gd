@@ -90,7 +90,7 @@ func _check_art() -> void:
 		var h := im.get_height()
 		if a.kind == "tile":
 			if w > SL.tile_side or h > SL.tile_side:
-				v.add("stage.tile_side", "assets.%s" % an, "地形贴图每边 ≤ %d（%s 为 %d×%d）" % [SL.tile_side, an, w, h])
+				v.add("stage.tile_side", "assets.%s" % an, "地形贴图每边 <= %d（%s 为 %dx%d）" % [SL.tile_side, an, w, h])
 		else:
 			var fr := int(a.get("frames", 1))
 			var ds: Array = a.get("durations", [1])
@@ -167,7 +167,7 @@ func _check_elements() -> void:
 			v.in_range("stage.blink_on", p + ".blink.on", el.blink.on, lb.on)
 			v.in_range("stage.blink_off", p + ".blink.off", el.blink.off, lb.off)
 			if (col != "none" or "damage" in el) and el.blink.get("warn", 0) < lb.warn:
-				v.add("stage.blink_warn", p + ".blink.warn", "会出现的地形或危险物须有 ≥ %d 帧预警" % lb.warn)
+				v.add("stage.blink_warn", p + ".blink.warn", "会出现的地形或危险物须有 >= %d 帧预警" % lb.warn)
 	v.at_most("stage.damage_count", "elements", n_damage, SL.damage.count)
 
 
@@ -180,7 +180,7 @@ func _check_layout() -> void:
 		if StageDef.is_static(el) and StageDef.is_standable(el) and el.rect[2] >= SL.main_width:
 			mains.append(i)
 	if mains.is_empty():
-		v.add("stage.main", "elements", "至少要有一块宽 ≥ %d、静止、可站立的主地面" % SL.main_width)
+		v.add("stage.main", "elements", "至少要有一块宽 >= %d、静止、可站立的主地面" % SL.main_width)
 		return
 	for si in spawns.size():
 		var sx: float = spawns[si][0]
@@ -194,14 +194,14 @@ func _check_layout() -> void:
 			v.add("stage.spawn_ground", "spawns.%d" % si, "出生点必须站在静止的可站立地形上")
 		for sj in range(si + 1, spawns.size()):
 			if Vector2(sx - spawns[sj][0], sy - spawns[sj][1]).length() < SL.spawn_spacing:
-				v.add("stage.spawn_spacing", "spawns.%d" % si, "出生点之间距离须 ≥ %d" % SL.spawn_spacing)
+				v.add("stage.spawn_spacing", "spawns.%d" % si, "出生点之间距离须 >= %d" % SL.spawn_spacing)
 		for el in els:
 			if "damage" in el:
 				var hr := StageDef.hull(el)
 				var dx: float = max(hr.position.x - sx, 0.0, sx - hr.end.x)
 				var dy: float = max(hr.position.y - sy, 0.0, sy - hr.end.y)
 				if Vector2(dx, dy).length() < SL.spawn_hazard_distance:
-					v.add("stage.spawn_hazard", "spawns.%d" % si, "出生点距危险物须 ≥ %d" % SL.spawn_hazard_distance)
+					v.add("stage.spawn_hazard", "spawns.%d" % si, "出生点距危险物须 >= %d" % SL.spawn_hazard_distance)
 	var head: float = SL.headroom
 	for i in els.size():
 		var el: Dictionary = els[i]
@@ -229,7 +229,7 @@ func _check_layout() -> void:
 			if not blocked:
 				free += 1
 		if free * 2 < cols.size():
-			v.add("stage.headroom", "elements.%d" % i, "可站立地形上方至少一半宽度要留 ≥ %d 像素空间" % head)
+			v.add("stage.headroom", "elements.%d" % i, "可站立地形上方至少一半宽度要留 >= %d 像素空间" % head)
 	var stand := []
 	for i in els.size():
 		if StageDef.is_standable(els[i]):
@@ -250,7 +250,7 @@ func _check_layout() -> void:
 					break
 	for bi in stand:
 		if not (bi in reached):
-			v.add("stage.reach", "elements.%d" % bi, "从主地面跳不上去（上升 ≤ %d、水平间隙 ≤ %d）" % [SL.step_max, SL.gap_max])
+			v.add("stage.reach", "elements.%d" % bi, "从主地面跳不上去（上升 <= %d、水平间隙 <= %d）" % [SL.step_max, SL.gap_max])
 
 
 func _can_reach(a: Dictionary, b: Dictionary) -> bool:

@@ -38,11 +38,14 @@ func fire(at: Vector2, width: float) -> void:
 		parts.append({"p": p, "v": Vector2(rng.randf_range(-0.2, 0.2), rng.randf_range(-1.2, -0.5)), "c": Palette.FIRE[rng.randi() % 3], "life": rng.randi_range(10, 20), "g": 0.0})
 
 
-func play_fx(frames: SpriteFrames, at: Vector2, facing: int) -> void:
+func play_fx(frames: SpriteFrames, at: Vector2, facing: int, behind := false) -> void:
 	var s := AnimatedSprite2D.new()
 	s.sprite_frames = frames
 	s.position = at.round()
 	s.scale.x = facing
+	if behind:
+		s.z_as_relative = false
+		s.z_index = 3
 	add_child(s)
 	s.animation_finished.connect(s.queue_free)
 	s.play("default")

@@ -580,6 +580,17 @@ func _start_action(aid: String, btn: int, from_goto: bool) -> bool:
 	return true
 
 
+## 动作附带的纯视觉特效（无判定）。
+func _play_effects(a: Dictionary, f: int) -> void:
+	for ef in a.get("effects", []):
+		if int(ef.frame) != f:
+			continue
+		var off: Array = ef.get("offset", [0, 0])
+		var at := pos + Vector2(off[0] * facing, -off[1])
+		sim.emit({"t": "vfx", "i": idx, "fx": ef.fx, "x": at.x, "y": at.y, "ox": off[0], "oy": off[1], "f": facing,
+			"follow": ef.get("follow", false), "behind": ef.get("behind", false)})
+
+
 static func _has_when(links: Array, w: String) -> bool:
 	for l in links:
 		if l.when == w:
@@ -634,6 +645,7 @@ func _update_action() -> void:
 				vel = mv
 			act.motion_active = true
 	_act_trigger("on_frame")
+	_play_effects(a, f)
 	_every_tick()
 	_input_links()
 	if act.is_empty() or state != "action":
@@ -689,6 +701,7 @@ func _fly_tick(a: Dictionary) -> void:
 					if state == "action":
 						_update_action()
 					return
+	_play_effects(a, act.frame)
 	_every_tick()
 	act.t += 1
 	act.frame += 1

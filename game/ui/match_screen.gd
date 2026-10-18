@@ -1,28 +1,43 @@
 class_name MatchScreen
 extends Control
-## 本地对战：模拟 → 快照 → 渲染 / HUD / 音效。480×270 画面经 SubViewport 最近邻整数放大。
+## 对战画面：模拟 -> 快照 -> 渲染 / HUD / 音效。480x270 画面经 SubViewport 最近邻整数放大。
+## 三种模式：本地（自己跑模拟）、联机房主（跑模拟并下发快照）、联机客户端（只上传输入，按快照插值显示）。
 
 signal exited
 
+const INTERP_DELAY := 2
+
 var sim: MatchSim
+var net: NetSession
+var mode := "local"            # local / host / client
 var world := WorldView.new()
 var hud := Hud.new()
 var touch := TouchControls.new()
 var sfx := SfxPlayer.new()
 var viewport := SubViewport.new()
 var view := TextureRect.new()
-var inputs_cfg: Array = []
+var inputs_cfg: Array = []     # 每位玩家的输入来源：touch / kb1 / kb2 / cpu / dummy / net / remote
+var peers: Array = []          # 联机时每位玩家的 peer id
+var names: Array = []
 var input_provider: Callable   # 测试用：返回 Array[InputFrame]，设置后替代键盘/触屏
+var cpus := {}                 # 玩家下标 -> CpuInput
 var paused := false
 var pause_panel: Control
 var over_panel: Control
 var over_label: Label
+var fps_label: Label
 var R: Dictionary
+var _render_frame := -1
+var _last_event_frame := 0
 
 
-## players: [{"validator": PackValidator, "input": "touch"/"kb1"/"kb2"/"none"}]；stage：场景包校验器
-func start(players: Array, stage: PackValidator) -> void:
+## players: [{"validator": PackValidator, "input": 输入来源, "peer": 联机 id（可选）}]；stage：场景包校验器；
+## p_net 非空时为联机对战。
+func start(players: Array, stage: PackValidator, p_net: NetSession = null) -> void:
 	R = Rules.data()
+	net = p_net
+	if net != null:
+		mode = "host" if net.is_host else "client"
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var bg := ColorRect.new()
 	bg.color = Color.BLACK
@@ -40,14 +55,17 @@ func start(players: Array, stage: PackValidator) -> void:
 	add_child(view)
 	var chars := []
 	var assets := []
-	var names := []
 	for p in players:
 		var v: PackValidator = p.validator
 		chars.append(CharRuntime.new(v.data))
 		assets.append(PackAssets.build(v))
 		names.append(v.data.name)
 		inputs_cfg.append(p.input)
-	sim = MatchSim.new(chars, stage.data)
+		peers.append(p.get("peer", 0))
+		if p.input in ["cpu", "dummy"]:
+			cpus[inputs_cfg.size() - 1] = CpuInput.new(1 if p.input == "cpu" else 0, inputs_cfg.size())
+	if mode != "client":
+		sim = MatchSim.new(chars, stage.data)
 	world.setup(assets, StageView.build(stage))
 	viewport.add_child(world)
 	hud.names = names
@@ -64,17 +82,24 @@ func start(players: Array, stage: PackValidator) -> void:
 
 func _build_overlays() -> void:
 	var pb := Button.new()
-	pb.text = "暂停"
+	pb.text = "菜单"
 	pb.position = Vector2(12, 100)
 	pb.focus_mode = Control.FOCUS_NONE
-	pb.pressed.connect(func(): _set_paused(not paused))
+	pb.pressed.connect(func(): _set_paused(not pause_panel.visible))
 	add_child(pb)
-	pause_panel = _panel(["继续", "调试显示", "退出对战"], [_set_paused.bind(false), _toggle_debug, _quit])
-	over_panel = _panel(["返回"], [_quit])
+	var resume := "继续" if mode == "local" else "关闭菜单"
+	var quit := "离开房间" if mode == "client" else "退出对战"
+	pause_panel = _panel([resume, "调试显示", quit], [_set_paused.bind(false), _toggle_debug, _quit])
+	over_panel = _panel(["离开房间"] if mode == "client" else ["返回"], [_quit])
 	over_label = Label.new()
 	over_label.add_theme_font_size_override("font_size", 48)
 	over_panel.get_child(0).add_child(over_label)
 	over_panel.get_child(0).move_child(over_label, 0)
+	fps_label = Label.new()
+	fps_label.position = Vector2(12, 160)
+	fps_label.add_theme_font_size_override("font_size", 18)
+	fps_label.visible = false
+	add_child(fps_label)
 
 
 func _panel(labels: Array, actions: Array) -> Control:
@@ -96,16 +121,20 @@ func _panel(labels: Array, actions: Array) -> Control:
 
 func _toggle_debug() -> void:
 	world.show_debug = not world.show_debug
-	sim.debug = world.show_debug
+	fps_label.visible = world.show_debug
+	if sim != null:
+		sim.debug = world.show_debug
 
 
 func _set_paused(p: bool) -> void:
-	paused = p
+	# 联机时菜单不暂停对战
+	paused = p and mode == "local"
 	pause_panel.visible = p
 
 
 func _quit() -> void:
-	sim.dispose()
+	if sim != null:
+		sim.dispose()
 	exited.emit()
 
 
@@ -124,7 +153,29 @@ func _layout() -> void:
 	hud.view_scale = vs.x / W
 
 
+func _local_input(src: String) -> InputFrame:
+	var stick := Vector2.ZERO
+	var b := 0
+	if src == "touch":
+		stick = touch.stick
+		b = touch.buttons()
+		var kb := KeyboardInput.read("kb1")
+		if kb[0] != Vector2.ZERO:
+			stick = kb[0]
+		b |= kb[1]
+	elif src in KeyboardInput.SCHEMES:
+		var kb := KeyboardInput.read(src)
+		stick = kb[0]
+		b = kb[1]
+	return InputFrame.make(stick, b)
+
+
 func _physics_process(_d: float) -> void:
+	if fps_label.visible:
+		fps_label.text = "FPS %d" % Engine.get_frames_per_second()
+	if mode == "client":
+		_client_tick()
+		return
 	if sim == null or paused:
 		return
 	var inputs := []
@@ -132,29 +183,95 @@ func _physics_process(_d: float) -> void:
 		inputs = input_provider.call(sim)
 	for i in range(inputs.size(), inputs_cfg.size()):
 		var src: String = inputs_cfg[i]
-		var stick := Vector2.ZERO
-		var b := 0
-		if src == "touch":
-			stick = touch.stick
-			b = touch.buttons()
-			var kb := KeyboardInput.read("kb1")
-			if kb[0] != Vector2.ZERO:
-				stick = kb[0]
-			b |= kb[1]
-		elif src in KeyboardInput.SCHEMES:
-			var kb := KeyboardInput.read(src)
-			stick = kb[0]
-			b = kb[1]
-		inputs.append(InputFrame.make(stick, b))
+		if i in cpus:
+			inputs.append(cpus[i].next(sim, i))
+		elif src == "net":
+			inputs.append(net.input_for(peers[i]))
+		else:
+			inputs.append(_local_input(src))
 	sim.step(inputs)
 	var s := sim.snapshot()
+	if mode == "host":
+		net.send_snapshot(s)
+	_show(s)
+	if s.over and sim.over_t > 90 and not over_panel.visible:
+		_game_over(s)
+
+
+func _show(s: Dictionary) -> void:
 	world.apply(s)
 	sfx.handle(s.events)
 	hud.snap = s
 	hud.queue_redraw()
 	var ti := inputs_cfg.find("touch")
-	if ti >= 0:
+	if ti >= 0 and ti < s.fighters.size():
 		touch.ult_ready = s.fighters[ti].ultready
-	if s.over and sim.over_t > 90 and not over_panel.visible:
-		over_label.text = "P%d %s 获胜！" % [s.winner + 1, sim.fighters[s.winner].ch.name] if s.winner >= 0 else "平局"
-		over_panel.visible = true
+
+
+func _game_over(s: Dictionary) -> void:
+	over_label.text = ("P%d %s 获胜" % [s.winner + 1, names[s.winner]]) if s.winner >= 0 else "平局"
+	if mode == "client":
+		over_label.text += "\n等待房主返回大厅"
+	over_panel.visible = true
+
+
+# ---------------------------------------------------------------- 客户端：上传输入、插值显示快照
+
+func _client_tick() -> void:
+	var me := inputs_cfg.find("touch")
+	net.send_input(_local_input("touch") if me >= 0 else InputFrame.new())
+	var snaps: Array = net.snaps
+	if snaps.is_empty():
+		return
+	var newest: int = snaps[-1].frame
+	if _render_frame < 0:
+		_render_frame = newest - INTERP_DELAY
+	else:
+		_render_frame += 1
+	if newest - _render_frame > INTERP_DELAY + 4:
+		_render_frame = newest - INTERP_DELAY   # 落后太多：追上
+	if _render_frame > newest:
+		_render_frame = newest                  # 没收到新快照：停在最新
+	var a: Dictionary = snaps[0]
+	var b = null
+	for s in snaps:
+		if s.frame <= _render_frame:
+			a = s
+		elif b == null:
+			b = s
+	var out := a.duplicate(true)
+	if b != null and b.frame > a.frame and _render_frame > a.frame:
+		_lerp_into(out, b, float(_render_frame - a.frame) / float(b.frame - a.frame))
+	# 事件：从所有已到达的快照里补齐，按帧去重
+	var events := []
+	var max_ev := _last_event_frame
+	for s in snaps:
+		if s.frame > _render_frame:
+			continue
+		for pair in s.ev:
+			if pair[0] > _last_event_frame and pair[0] <= _render_frame:
+				events.append_array(pair[1])
+				max_ev = max(max_ev, pair[0])
+	_last_event_frame = max_ev
+	out["events"] = events
+	while snaps.size() > 2 and snaps[1].frame <= _render_frame:
+		snaps.pop_front()
+	_show(out)
+	if out.over and not over_panel.visible:
+		_game_over(out)
+
+
+static func _lerp_into(out: Dictionary, b: Dictionary, k: float) -> void:
+	for i in min(out.fighters.size(), b.fighters.size()):
+		var fa: Dictionary = out.fighters[i]
+		var fb: Dictionary = b.fighters[i]
+		if fa.st == fb.st:
+			fa.x = lerp(float(fa.x), float(fb.x), k)
+			fa.y = lerp(float(fa.y), float(fb.y), k)
+	var by_id := {}
+	for p in b.proj:
+		by_id[p.id] = p
+	for p in out.proj:
+		if p.id in by_id:
+			p.x = lerp(float(p.x), float(by_id[p.id].x), k)
+			p.y = lerp(float(p.y), float(by_id[p.id].y), k)

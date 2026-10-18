@@ -34,6 +34,20 @@ func setup(p_assets: PackAssets, p_idx: int) -> void:
 
 func on_event(e: Dictionary) -> void:
 	match e.t:
+		"vfx":
+			if e.follow:
+				var fr = assets.fx_frames.get(e.fx)
+				if fr != null:
+					var sp := AnimatedSprite2D.new()
+					sp.sprite_frames = fr
+					sp.position = Vector2(e.ox, -e.oy)
+					sp.z_index = -1 if e.behind else 1
+					sp.z_as_relative = true
+					flipper.add_child(sp)
+					if e.behind:
+						flipper.move_child(sp, 0)
+					sp.animation_finished.connect(sp.queue_free)
+					sp.play("default")
 		"jump":
 			squash = Vector2(0.85, 1.18)
 		"explode", "blast":

@@ -1,6 +1,6 @@
 class_name PackLibrary
 extends RefCounted
-## 角色包 / 场景包库：内置示例（res://data/…）+ 用户导入（user://…）+ 联机收到的缓存（user://cache）。
+## 角色包 / 场景包库：内置示例（res://data/...）+ 用户导入（user://...）+ 联机收到的缓存（user://cache）。
 ## 校验结果按 SHA-256 缓存。
 
 const DIRS := {
@@ -69,6 +69,8 @@ static func remove(path: String) -> void:
 
 ## 联机缓存：按 SHA-256 存取包内容。
 static func cache_has(sha: String) -> bool:
+	if sha == "":
+		return false
 	return FileAccess.file_exists(CACHE.path_join(sha + ".zip")) or find_local(sha) != ""
 
 
@@ -92,14 +94,18 @@ static func cache_validator(sha: String) -> PackValidator:
 	return _validated(PackReader.from_bytes(cache_get(sha)))
 
 
-## 在本地库里按 SHA-256 找包。
+static var _index := {}   # sha -> 本地库里的路径
+
+
+## 在本地库里按 SHA-256 找包（找不到时重建一次索引）。
 static func find_local(sha: String) -> String:
+	if sha in _index and FileAccess.file_exists(_index[sha]):
+		return _index[sha]
+	_index.clear()
 	for kind in DIRS:
 		for p in paths(kind):
-			var r := PackReader.from_file(p)
-			if r.sha256 == sha:
-				return p
-	return ""
+			_index[PackReader.hash_bytes(FileAccess.get_file_as_bytes(p))] = p
+	return _index.get(sha, "")
 
 
 static func _write(path: String, bytes: PackedByteArray) -> void:

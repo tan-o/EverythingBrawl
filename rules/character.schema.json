@@ -622,6 +622,46 @@
        "ultimate": {
         "type": "boolean"
        },
+       "effects": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "fx",
+          "frame"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "fx": {
+           "type": "string",
+           "minLength": 1
+          },
+          "frame": {
+           "type": "integer",
+           "minimum": 0
+          },
+          "offset": {
+           "type": "array",
+           "prefixItems": [
+            {
+             "type": "number"
+            },
+            {
+             "type": "number"
+            }
+           ],
+           "items": false,
+           "minItems": 2
+          },
+          "follow": {
+           "type": "boolean"
+          },
+          "behind": {
+           "type": "boolean"
+          }
+         }
+        }
+       },
        "speed": {
         "type": "number"
        },
@@ -789,6 +829,46 @@
        },
        "ultimate": {
         "type": "boolean"
+       },
+       "effects": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "fx",
+          "frame"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "fx": {
+           "type": "string",
+           "minLength": 1
+          },
+          "frame": {
+           "type": "integer",
+           "minimum": 0
+          },
+          "offset": {
+           "type": "array",
+           "prefixItems": [
+            {
+             "type": "number"
+            },
+            {
+             "type": "number"
+            }
+           ],
+           "items": false,
+           "minItems": 2
+          },
+          "follow": {
+           "type": "boolean"
+          },
+          "behind": {
+           "type": "boolean"
+          }
+         }
+        }
        },
        "velocity": {
         "type": "number"
@@ -963,6 +1043,46 @@
        },
        "ultimate": {
         "type": "boolean"
+       },
+       "effects": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "fx",
+          "frame"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "fx": {
+           "type": "string",
+           "minLength": 1
+          },
+          "frame": {
+           "type": "integer",
+           "minimum": 0
+          },
+          "offset": {
+           "type": "array",
+           "prefixItems": [
+            {
+             "type": "number"
+            },
+            {
+             "type": "number"
+            }
+           ],
+           "items": false,
+           "minItems": 2
+          },
+          "follow": {
+           "type": "boolean"
+          },
+          "behind": {
+           "type": "boolean"
+          }
+         }
+        }
        },
        "duration": {
         "type": "integer",
@@ -1146,6 +1266,46 @@
        },
        "ultimate": {
         "type": "boolean"
+       },
+       "effects": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "fx",
+          "frame"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "fx": {
+           "type": "string",
+           "minLength": 1
+          },
+          "frame": {
+           "type": "integer",
+           "minimum": 0
+          },
+          "offset": {
+           "type": "array",
+           "prefixItems": [
+            {
+             "type": "number"
+            },
+            {
+             "type": "number"
+            }
+           ],
+           "items": false,
+           "minItems": 2
+          },
+          "follow": {
+           "type": "boolean"
+          },
+          "behind": {
+           "type": "boolean"
+          }
+         }
+        }
        },
        "startup": {
         "type": "integer",
@@ -1409,6 +1569,46 @@
        },
        "ultimate": {
         "type": "boolean"
+       },
+       "effects": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "fx",
+          "frame"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "fx": {
+           "type": "string",
+           "minLength": 1
+          },
+          "frame": {
+           "type": "integer",
+           "minimum": 0
+          },
+          "offset": {
+           "type": "array",
+           "prefixItems": [
+            {
+             "type": "number"
+            },
+            {
+             "type": "number"
+            }
+           ],
+           "items": false,
+           "minItems": 2
+          },
+          "follow": {
+           "type": "boolean"
+          },
+          "behind": {
+           "type": "boolean"
+          }
+         }
+        }
        },
        "startup": {
         "type": "integer",
@@ -1708,6 +1908,46 @@
        },
        "ultimate": {
         "type": "boolean"
+       },
+       "effects": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "fx",
+          "frame"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "fx": {
+           "type": "string",
+           "minLength": 1
+          },
+          "frame": {
+           "type": "integer",
+           "minimum": 0
+          },
+          "offset": {
+           "type": "array",
+           "prefixItems": [
+            {
+             "type": "number"
+            },
+            {
+             "type": "number"
+            }
+           ],
+           "items": false,
+           "minItems": 2
+          },
+          "follow": {
+           "type": "boolean"
+          },
+          "behind": {
+           "type": "boolean"
+          }
+         }
+        }
        },
        "throw": {
         "type": "object",

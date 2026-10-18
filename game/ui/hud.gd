@@ -5,7 +5,7 @@ extends Control
 var names: Array = []
 var packs: Array = []     # PackAssets
 var snap := {}
-var view_rect := Rect2()  # 480×270 画面在屏幕上的位置
+var view_rect := Rect2()  # 480x270 画面在屏幕上的位置
 var view_scale := 1.0
 
 
