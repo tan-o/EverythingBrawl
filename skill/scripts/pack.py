@@ -20,7 +20,10 @@ def pack(src, out=None, check=True):
     names = sorted(n for n in os.listdir(src) if n == "character.json" or n.endswith(".png"))
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
         for n in names:
-            z.write(os.path.join(src, n), n)
+            # 固定时间戳，保证同样的内容打出同样的 zip（SHA-256 相同，联机缓存可复用）
+            info = zipfile.ZipInfo(n, date_time=(1980, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            z.writestr(info, open(os.path.join(src, n), "rb").read())
     if check:
         res = validate.validate_path(out)
         validate.print_result(res)

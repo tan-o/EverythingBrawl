@@ -1,0 +1,145 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.7.2"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python 依赖
+        run: pip install pillow jsonschema
+
+      - name: 规则副本一致性 / 规则与 schema 一致性
+        run: |
+          python tools/sync_rules.py --check
+          python tools/check_rules.py
+
+      - name: validate.py 一致性用例
+        run: python skill/scripts/validate.py --conformance conformance
+
+      - name: 示例角色可重新生成且通过校验
+        run: python tools/build_examples.py
+
+      - name: 安装 Godot
+        uses: ./.github/actions/setup-godot
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          templates: "false"
+
+      - name: 导入项目
+        working-directory: game
+        run: godot --headless --import || true
+
+      - name: 游戏内校验器一致性用例
+        working-directory: game
+        run: godot --headless --path . -s res://tests/run_tests.gd -- conformance ../conformance
+
+      - name: 模拟冒烟测试（示例角色两两对战）
+        working-directory: game
+        run: |
+          set -e
+          packs=(knight swissknife toolbox bulb)
+          for a in "${packs[@]}"; do for b in "${packs[@]}"; do
+            if [ "$a" != "$b" ]; then
+              echo "== $a vs $b"
+              godot --headless --path . -s res://tests/run_tests.gd -- sim data/packs/$a.zip data/packs/$b.zip 12000
+            fi
+          done; done
+
+  export:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: 安装 Godot 与导出模板
+        uses: ./.github/actions/setup-godot
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          templates: "true"
+
+      - name: Android 调试签名与编辑器设置
+        run: |
+          set -e
+          keytool -genkeypair -v -keystore "$RUNNER_TEMP/debug.keystore" -storepass android -keypass android \
+            -alias androiddebugkey -dname "CN=Android Debug,O=Android,C=US" -keyalg RSA -keysize 2048 -validity 10000
+          mkdir -p ~/.config/godot
+          cat > ~/.config/godot/editor_settings-4.7.tres <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/java_sdk_path = "$JAVA_HOME"
+          export/android/debug_keystore = "$RUNNER_TEMP/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          EOF
+          sed -i 's/^          //' ~/.config/godot/editor_settings-4.7.tres
+          cat ~/.config/godot/editor_settings-4.7.tres
+          ls "$ANDROID_HOME/build-tools"
+
+      - name: 导入项目
+        working-directory: game
+        run: godot --headless --import || true
+
+      - name: 导出 Android APK
+        working-directory: game
+        env:
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ runner.temp }}/debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-debug "Android" build/EverythingBrawl.apk
+          ls -la build
+
+      - name: 导出 Windows / Linux
+        working-directory: game
+        run: |
+          godot --headless --path . --export-release "Windows" build/EverythingBrawl.exe
+          godot --headless --path . --export-release "Linux" build/EverythingBrawl.x86_64
+          ls -la build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EverythingBrawl-android-apk
+          path: game/build/EverythingBrawl.apk
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EverythingBrawl-windows
+          path: game/build/EverythingBrawl.exe
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EverythingBrawl-linux
+          path: game/build/EverythingBrawl.x86_64
+          if-no-files-found: error
+
+      - name: 打包 skill
+        run: |
+          cd skill && zip -r ../skill.zip SKILL.md rules.json character.schema.json scripts examples -x "*/__pycache__/*"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: skill
+          path: skill.zip

@@ -1352,16 +1352,21 @@ def build(fn):
     fn(c)
     buf = io.BytesIO()
     method = zipfile.ZIP_STORED if c.stored else zipfile.ZIP_DEFLATED
+    def put(z, name, data):
+        info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+        info.compress_type = method
+        z.writestr(info, data)
+
     with zipfile.ZipFile(buf, "w", method) as z:
         if not c.drop_json:
             text = c.json_text if c.json_text is not None else json.dumps(c.d, ensure_ascii=False, indent=1)
-            z.writestr("character.json", text)
+            put(z, "character.json", text)
         for name in sorted(c.imgs):
             b = io.BytesIO()
             c.imgs[name].save(b, "PNG")
-            z.writestr(name, b.getvalue())
+            put(z, name, b.getvalue())
         for name in sorted(c.raw):
-            z.writestr(name, c.raw[name])
+            put(z, name, c.raw[name])
     return buf.getvalue()
 
 
