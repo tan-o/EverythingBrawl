@@ -9,7 +9,7 @@
    - 大的水平面（桌面、台面、地面）：`solid` 主地面
    - 薄的、可以从下面跳上去的（砧板、书本边、铅笔、架子）：`platform`
    - 竖着的（盒子、书堆、瓶子）：`solid`，加 `climb` 可以贴墙攀爬
-   - 脆的（饼干、薄冰、纸）：加 `crumble` 站久会碎
+   - 脆的（饼干、薄冰、纸）：加 `crumble` 站久会碎，也能被攻击打碎
    - 有弹性的（弹簧、面包机、蹦床、海绵）：加 `bounce`
    - 滑的（冰、玻璃、肥皂）：`friction` < 1；黏的（胶带、蜂蜜）：`friction` > 1
    - 会带人走的（键盘、传送带、河流表面）：`conveyor`
@@ -65,7 +65,7 @@ zip 内只有 `stage.json` 与 `.png`。
 | 字段 | 用在 | 效果 |
 |---|---|---|
 | `climb: {max}` | solid | 两侧可贴墙攀爬，最多 `max` 帧，之后必须离开（落地才恢复）。可上爬、下滑、蹬墙跳 |
-| `crumble: {after, respawn}` | solid / platform | 被站累计 `after` 帧后碎裂（快碎时会抖），`respawn` 帧后恢复 |
+| `crumble: {after, respawn}` | solid / platform | 被站累计 `after` 帧后碎裂（快碎时会抖），`respawn` 帧后恢复；任何人的攻击打到它也会推进碎裂（每 1 点伤害算 6 帧） |
 | `bounce: {velocity}` | solid / platform | 踩上去以 `velocity` 向上弹起 |
 | `friction` | solid / platform | 地面摩擦倍率：0.3 很滑，2 很黏 |
 | `conveyor` | solid / platform | 站在上面每帧被带着移动的像素（正数向右） |

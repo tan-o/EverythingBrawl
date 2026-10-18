@@ -245,12 +245,12 @@ func in_solid(p: Vector2) -> bool:
 	return false
 
 
-## 可破坏地形挨打。
+## 可破坏 / 会碎的地形挨打（自己和对方的攻击都算）。
 func hit_stage(shape: Dictionary, dmg: float, hits: Dictionary, hi: int) -> bool:
 	var any := false
 	for i in stage.colliders():
 		var e: Dictionary = stage.els[i]
-		if not ("breakable" in e.def):
+		if not Stage.hittable(e.def):
 			continue
 		var key := "e%d" % i
 		if not _can_hit(hits, key, hi, frame) or not Geom.overlap(shape, Geom.aabb(e.rect)):

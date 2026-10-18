@@ -68,17 +68,30 @@ func stood_on(i: int) -> void:
 	els[i].stand += 1
 
 
-## 被攻击（可破坏元素）。返回是否被打碎。
+## 被攻击（任何人的攻击都算，包括自己的）。可破坏元素扣血；会碎的元素按伤害推进碎裂进度。
+## 返回是否被打碎。
 func damage(i: int, amount: float) -> bool:
 	var e: Dictionary = els[i]
-	if not ("breakable" in e.def) or not e.present:
+	if not e.present:
 		return false
-	e.hp -= amount
-	if e.hp <= 0:
-		e.broken = int(e.def.breakable.respawn)
-		e.present = false
-		return true
+	if "breakable" in e.def:
+		e.hp -= amount
+		if e.hp <= 0:
+			e.broken = int(e.def.breakable.respawn)
+			e.present = false
+			return true
+	elif "crumble" in e.def:
+		e.stand += int(ceil(amount * float(Rules.data().stage.crumble_frames_per_damage)))
+		if e.stand >= int(e.def.crumble.after):
+			e.broken = int(e.def.crumble.respawn)
+			e.present = false
+			return true
 	return false
+
+
+## 能被攻击打到的元素（可破坏 / 会碎）。
+static func hittable(el: Dictionary) -> bool:
+	return "breakable" in el or "crumble" in el
 
 
 func colliders() -> Array:

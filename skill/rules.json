@@ -40,7 +40,8 @@
   "stage": {
     "width": 480,
     "height": 270,
-    "blast_margin": 48
+    "blast_margin": 48,
+    "crumble_frames_per_damage": 6
   },
 
   "runtime": {
