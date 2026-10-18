@@ -58,6 +58,10 @@ jobs:
             fi
           done; done
 
+      - name: ENet 延迟测试自检（本机回环）
+        working-directory: game
+        run: godot --headless --path . -s res://tests/net_test.gd | tee net.log && grep -q "^OK" net.log
+
   export:
     needs: test
     runs-on: ubuntu-latest
