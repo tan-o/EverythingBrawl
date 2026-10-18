@@ -4,9 +4,11 @@ extends RefCounted
 
 const RULES_PATH := "res://data/rules.json"
 const SCHEMA_PATH := "res://data/character.schema.json"
+const STAGE_SCHEMA_PATH := "res://data/stage.schema.json"
 
 static var _rules: Dictionary
 static var _schema: Dictionary
+static var _stage_schema: Dictionary
 
 
 static func data() -> Dictionary:
@@ -19,6 +21,12 @@ static func schema() -> Dictionary:
 	if _schema.is_empty():
 		_schema = _load(SCHEMA_PATH)
 	return _schema
+
+
+static func stage_schema() -> Dictionary:
+	if _stage_schema.is_empty():
+		_stage_schema = _load(STAGE_SCHEMA_PATH)
+	return _stage_schema
 
 
 static func _load(path: String) -> Dictionary:

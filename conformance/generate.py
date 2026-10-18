@@ -267,13 +267,16 @@ def _(c):
               knockback={"angle": 90, "force": 10})
     add_shoot(c, "blink", damage=2, speed=5, lifetime=30, cooldown=120,
               links=[{"when": "projectile_expire", "warp": "projectile"}])
-    add_ult(c, area="screen", active=8, damage=25, startup=60, knockback={"angle": 70, "force": 80})
+    add_backdrop(c, "sky", size=(240, 135), frames=2, durations=[20, 20], n_colors=6)
+    add_ult(c, area="screen", active=8, damage=25, startup=60, knockback={"angle": 70, "force": 80}, backdrop="sky")
     d["assets"]["whoosh"] = {"kind": "sfx", "params": {"wave_type": 3, "p_env_sustain": 0.1, "p_env_decay": 0.2,
                                                        "p_base_freq": 0.6, "p_freq_ramp": -0.3}}
     d["assets"]["spark"] = {"kind": "fx", "image": "spark.png", "frames": 3, "durations": [3, 3, 3]}
     c.imgs["spark.png"] = rect_img(24, 8, C_HAND)
     d["links"] = [{"when": "every", "interval": 300, "heal": 3, "fx": "spark"},
                   {"when": "resource_full", "resource": "mana", "sfx": "whoosh"}]
+    c.acts["slash"]["links"] = [{"when": "on_hit", "input": "attack.up", "window": [6, 20], "goto": "heavy"}]
+    d["input"].update({"grab": "grab", "attack.dash": "heavy"})
     d["input"].update({"attack.side": "heavy", "attack.down": "grab", "special.side": "beam",
                        "special.down": "turret", "special.up": "fly", "attack.up": "bomb",
                        "special.neutral.air": "blink", "attack.neutral.air": "dodge", "attack.down.air": "mirror"})
@@ -726,7 +729,7 @@ def _(c):
     c.d["stats"]["weight"] = 0.5
 
 
-@case("stats_gravity", ["stats.gravity"])
+@case("stats_gravity", ["stats.gravity", "jump.height_min", "jump.reach_min"])
 def _(c):
     c.d["stats"]["gravity"] = 0.7
 
@@ -812,7 +815,7 @@ def _(c):
     c.acts["move"]["accel"] = 1.1
 
 
-@case("jump_velocity", ["jump.velocity"])
+@case("jump_velocity", ["jump.velocity", "jump.height_min", "jump.reach_min"])
 def _(c):
     c.acts["jump"]["velocity"] = 3.9
 
@@ -821,6 +824,88 @@ def _(c):
 def _(c):
     c.acts["jump"]["max_count"] = 4
     c.d["anims"]["double_jump"] = anim()
+
+
+@case("jump_height_min", ["jump.height_min"])
+def _(c):
+    c.acts["jump"]["velocity"] = 5
+    c.acts["move"]["speed"] = 3.5
+
+
+@case("jump_reach_min", ["jump.reach_min"])
+def _(c):
+    c.acts["move"]["speed"] = 1.2
+
+
+@case("jump_height_form", ["jump.height_min", "jump.reach_min"])
+def _(c):
+    add_res(c, "r")
+    c.d["forms"] = [{"if": {"r": ">=3"}, "stats": {"gravity": 0.6}}]
+
+
+@case("schema_input_key", ["schema"])
+def _(c):
+    c.d["input"]["attack.dash.air"] = "slash"
+
+
+@case("schema_link_input", ["schema"])
+def _(c):
+    c.acts["slash"]["links"] = [{"when": "on_hit", "input": "attack.forward", "window": [4, 16], "goto": "shot"}]
+
+
+def backdrop_img(w, h, n_colors=4):
+    im = blank(w, h)
+    for y in range(h):
+        c = (20 + (y * n_colors // h) * 7 % 256, 40, 90)
+        for x in range(w):
+            im.putpixel((x, y), c + (255,))
+    return im
+
+
+def add_backdrop(c, name="sky", size=(240, 135), frames=1, durations=None, n_colors=4):
+    a = {"kind": "backdrop", "image": name + ".png"}
+    if frames > 1:
+        a["frames"] = frames
+    if durations is not None:
+        a["durations"] = durations
+    c.d["assets"][name] = a
+    c.imgs[name + ".png"] = backdrop_img(size[0] * frames, size[1], n_colors)
+
+
+@case("ultimate_backdrop", ["ultimate.backdrop"])
+def _(c):
+    add_backdrop(c)
+    c.acts["slash"]["backdrop"] = "sky"
+
+
+@case("ref_backdrop", ["ref"])
+def _(c):
+    add_ult(c, backdrop="ball")
+
+
+@case("pack_backdrop_size", ["pack.backdrop_size"])
+def _(c):
+    add_backdrop(c, size=(200, 100))
+    add_ult(c, backdrop="sky")
+
+
+@case("asset_backdrop_frames", ["asset.backdrop_frames"])
+def _(c):
+    add_backdrop(c, frames=2, durations=[10])
+    add_ult(c, backdrop="sky")
+
+
+@case("pack_backdrop_colors", ["pack.backdrop_colors"])
+def _(c):
+    add_backdrop(c, n_colors=40)
+    add_ult(c, backdrop="sky")
+
+
+@case("pack_backdrop_count", ["pack.backdrop_count"])
+def _(c):
+    add_backdrop(c, "sky")
+    add_backdrop(c, "sky2")
+    add_ult(c, backdrop="sky")
 
 
 def add_fly(c, **kw):
@@ -1377,9 +1462,9 @@ def main():
     if os.path.exists(EXPECTED):
         old = json.load(open(EXPECTED, encoding="utf-8"))
     for f in os.listdir(OUT):
-        if f.endswith(".zip") and not f.startswith("example_"):
+        if f.endswith(".zip") and not f.startswith("example_") and not f.startswith("stage_"):
             os.remove(os.path.join(OUT, f))
-    exp = {k: v for k, v in old.items() if k.startswith("example_")}
+    exp = {k: v for k, v in old.items() if k.startswith("example_") or k.startswith("stage_")}
     names = set()
     for name, fn, codes in CASES:
         assert name not in names, name

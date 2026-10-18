@@ -4,6 +4,7 @@ extends RefCounted
 ## 两者由 conformance/ 下同一组用例保证一致。任何一项违规都拒绝整个包。
 
 var pack: PackReader
+var kind := "character"       # character / stage
 var errors: Array = []        # [{code, path, msg}]
 var _seen := {}
 var images := {}              # 文件名 -> Image(RGBA8)
@@ -97,6 +98,10 @@ func run() -> void:
 	var lp: Dictionary = L.pack
 	if pack.error != "":
 		add("pack.read", "zip", pack.error)
+		return
+	if "stage.json" in pack.files and not ("character.json" in pack.files):
+		kind = "stage"
+		StageValidator.new(self).run()
 		return
 	at_most("pack.zip_bytes", "zip", pack.zip_size, lp.zip_bytes)
 	if not ("character.json" in pack.files):
@@ -220,11 +225,17 @@ func check_art() -> void:
 	if sw % fw != 0 or sh % fh != 0:
 		add("pack.sheet_grid", "sheet.png", "sheet.png 尺寸须为 frame_size 的整数倍")
 	at_most("pack.total_frames", "sheet.png", total_frames(), lp.total_frames)
+	var backdrop_imgs := {}
+	for a in d.assets.values():
+		if a.kind == "backdrop":
+			backdrop_imgs[a.image] = true
 	var colors := {}
+	var bd_colors := {}
 	for n in _sorted_keys(images):
 		var im: Image = images[n]
 		var bytes := im.get_data()
 		var bad_alpha := false
+		var target: Dictionary = bd_colors if n in backdrop_imgs else colors
 		for i in range(0, bytes.size(), 4):
 			var a := bytes[i + 3]
 			if a == 0:
@@ -232,10 +243,12 @@ func check_art() -> void:
 			if a != 255:
 				bad_alpha = true
 				continue
-			colors[(bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]] = true
+			target[(bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]] = true
 		if bad_alpha:
 			add("pack.alpha", n, "%s 含半透明像素（alpha 只能是 0 或 255）" % n)
 	at_most("pack.colors", "colors", colors.size(), lp.colors)
+	at_most("pack.backdrop_colors", "backdrop", bd_colors.size(), lp.backdrop_colors)
+	at_most("pack.backdrop_count", "assets", backdrop_imgs.size(), lp.backdrop_count)
 	var side: int = lp.asset_side
 	for an in _sorted_keys(d.assets):
 		var a: Dictionary = d.assets[an]
@@ -252,6 +265,21 @@ func check_art() -> void:
 			w = w / fr
 			for i in a.durations.size():
 				in_range("pack.duration", "assets.%s.durations.%d" % [an, i], a.durations[i], lp.duration)
+		if a.kind == "backdrop":
+			var bf := int(a.get("frames", 1))
+			var bds: Array = a.get("durations", [1])
+			if w % bf != 0 or bds.size() != bf:
+				add("asset.backdrop_frames", "assets.%s" % an, "backdrop 图宽须能被 frames 整除，多帧时 durations 数量须等于 frames")
+				continue
+			for i in a.get("durations", []).size():
+				in_range("pack.duration", "assets.%s.durations.%d" % [an, i], a.durations[i], lp.duration)
+			var ok_size := false
+			for sz in lp.backdrop_sizes:
+				if w / bf == int(sz[0]) and h == int(sz[1]):
+					ok_size = true
+			if not ok_size:
+				add("pack.backdrop_size", "assets.%s" % an, "backdrop 每帧尺寸不符合要求（%s 为 %d×%d）" % [an, w / bf, h])
+			continue
 		if w > side or h > side:
 			add("pack.asset_side", "assets.%s" % an, "素材图每边 ≤ %d（%s 为 %d×%d）" % [side, an, w, h])
 		if a.kind == "weapon":
@@ -426,6 +454,10 @@ func check_action_refs(aid: String, a: Dictionary) -> void:
 			check_ref(p + ".weapon", a.weapon, "weapon")
 	if "anim" in a and not (a.anim in data.anims):
 		add("ref", p + ".anim", "动画 %s 不存在" % a.anim)
+	if "backdrop" in a:
+		check_ref(p + ".backdrop", a.backdrop, "backdrop")
+		if not a.get("ultimate", false):
+			add("ultimate.backdrop", p + ".backdrop", "backdrop（大招背景）只能用于大招动作")
 	if t == "jump" and "extra_anim" in a and not (a.extra_anim in data.anims):
 		add("ref", p + ".extra_anim", "动画 %s 不存在" % a.extra_anim)
 	var links: Array = a.get("links", [])
@@ -763,6 +795,9 @@ func check_action(aid: String, a: Dictionary, eff: Dictionary, upgraded: bool) -
 	elif t == "jump":
 		in_range("jump.velocity", p + ".velocity", a.velocity, L.jump.velocity)
 		in_range("jump.max_count", p + ".max_count", a.max_count, L.jump.max_count)
+		var arc := PackPoints.jump_arc(a.velocity, eff.stats.gravity, eff.stats.max_fall)
+		at_least("jump.height_min", p + ".velocity", r6(arc[0]), L.jump.height_min)
+		at_least("jump.reach_min", p, r6(PackPoints.min_move_speed(d) * arc[1]), L.jump.reach_min)
 	elif t == "fly":
 		for k in ["duration", "rise_speed", "control"]:
 			in_range("fly." + k, p + "." + k, a[k], L.fly[k])

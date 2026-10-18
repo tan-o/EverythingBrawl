@@ -26,6 +26,33 @@ static func motion_distance(a: Dictionary, total: int) -> float:
 	return dist
 
 
+## 一次起跳（与引擎相同的逐帧积分）：[最高点高度, 回到起跳高度前的滞空帧数]。
+static func jump_arc(v: float, g: float, max_fall: float) -> Array:
+	var vy := -v
+	var y := 0.0
+	var top := 0.0
+	var frames := 0
+	while frames < 1000:
+		vy = min(vy + g, max_fall)
+		y += vy
+		frames += 1
+		top = min(top, y)
+		if y >= 0:
+			break
+	return [-top, frames]
+
+
+## move 动作在所有升级组合下的最小速度。
+static func min_move_speed(d: Dictionary) -> float:
+	for a in d.actions.values():
+		if a.type == "move":
+			var best := INF
+			for m in range(1 << CharDef.upgrade_count(a)):
+				best = min(best, float(CharDef.apply_upgrades(a, m).speed))
+			return best
+	return 0.0
+
+
 static func burn_total(a: Dictionary) -> float:
 	var st = a.get("status")
 	if st == null or st.type != "burn":

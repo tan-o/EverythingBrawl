@@ -672,7 +672,7 @@
  "actions": {
   "move": {
    "type": "move",
-   "speed": 1.9,
+   "speed": 2.0,
    "accel": 0.35
   },
   "jump": {

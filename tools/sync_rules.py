@@ -10,7 +10,7 @@ import shutil
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FILES = ["rules.json", "character.schema.json"]
+FILES = ["rules.json", "character.schema.json", "stage.schema.json"]
 TARGETS = [os.path.join(ROOT, "skill"), os.path.join(ROOT, "game", "data")]
 
 

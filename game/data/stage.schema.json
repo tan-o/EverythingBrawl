@@ -1,0 +1,383 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "stage.schema.json",
+ "title": "像素大乱斗场景包 stage.json (format 1)",
+ "type": "object",
+ "required": [
+  "format",
+  "kind",
+  "name",
+  "background",
+  "spawns",
+  "assets",
+  "elements"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "format": {
+   "const": 1
+  },
+  "kind": {
+   "const": "stage"
+  },
+  "name": {
+   "type": "string",
+   "minLength": 1,
+   "maxLength": 24
+  },
+  "background": {
+   "type": "string",
+   "minLength": 1
+  },
+  "spawns": {
+   "type": "array",
+   "items": {
+    "type": "array",
+    "prefixItems": [
+     {
+      "type": "number"
+     },
+     {
+      "type": "number"
+     }
+    ],
+    "items": false,
+    "minItems": 2
+   },
+   "minItems": 4,
+   "maxItems": 4
+  },
+  "assets": {
+   "type": "object",
+   "additionalProperties": {
+    "$ref": "#/$defs/asset"
+   }
+  },
+  "elements": {
+   "type": "array",
+   "items": {
+    "$ref": "#/$defs/element"
+   },
+   "minItems": 1
+  }
+ },
+ "$defs": {
+  "element": {
+   "type": "object",
+   "required": [
+    "rect",
+    "collide"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string",
+     "minLength": 1
+    },
+    "rect": {
+     "type": "array",
+     "prefixItems": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "number"
+      },
+      {
+       "type": "number",
+       "exclusiveMinimum": 0
+      },
+      {
+       "type": "number",
+       "exclusiveMinimum": 0
+      }
+     ],
+     "items": false,
+     "minItems": 4
+    },
+    "collide": {
+     "enum": [
+      "solid",
+      "platform",
+      "none"
+     ]
+    },
+    "tile": {
+     "type": "string",
+     "minLength": 1
+    },
+    "climb": {
+     "type": "object",
+     "required": [
+      "max"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "max": {
+       "type": "integer",
+       "minimum": 1
+      }
+     }
+    },
+    "crumble": {
+     "type": "object",
+     "required": [
+      "after",
+      "respawn"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "after": {
+       "type": "integer",
+       "minimum": 1
+      },
+      "respawn": {
+       "type": "integer",
+       "minimum": 1
+      }
+     }
+    },
+    "bounce": {
+     "type": "object",
+     "required": [
+      "velocity"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "velocity": {
+       "type": "number"
+      }
+     }
+    },
+    "friction": {
+     "type": "number"
+    },
+    "conveyor": {
+     "type": "number"
+    },
+    "move": {
+     "type": "object",
+     "required": [
+      "path",
+      "period"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "path": {
+       "type": "array",
+       "items": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "number"
+         },
+         {
+          "type": "number"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "minItems": 2
+      },
+      "period": {
+       "type": "integer",
+       "minimum": 1
+      },
+      "mode": {
+       "enum": [
+        "loop",
+        "pingpong"
+       ]
+      }
+     }
+    },
+    "damage": {
+     "type": "object",
+     "required": [
+      "damage",
+      "interval",
+      "knockback"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "damage": {
+       "type": "number"
+      },
+      "interval": {
+       "type": "integer",
+       "minimum": 1
+      },
+      "knockback": {
+       "type": "object",
+       "required": [
+        "angle",
+        "force"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "angle": {
+         "type": "number"
+        },
+        "force": {
+         "type": "number"
+        }
+       }
+      }
+     }
+    },
+    "wind": {
+     "type": "array",
+     "prefixItems": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "number"
+      }
+     ],
+     "items": false,
+     "minItems": 2
+    },
+    "water": {
+     "type": "object",
+     "required": [
+      "gravity_mul",
+      "drag"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "gravity_mul": {
+       "type": "number"
+      },
+      "drag": {
+       "type": "number"
+      }
+     }
+    },
+    "blink": {
+     "type": "object",
+     "required": [
+      "on",
+      "off"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "on": {
+       "type": "integer",
+       "minimum": 1
+      },
+      "off": {
+       "type": "integer",
+       "minimum": 1
+      },
+      "offset": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "warn": {
+       "type": "integer",
+       "minimum": 0
+      }
+     }
+    },
+    "breakable": {
+     "type": "object",
+     "required": [
+      "hp",
+      "respawn"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "hp": {
+       "type": "number"
+      },
+      "respawn": {
+       "type": "integer",
+       "minimum": 1
+      }
+     }
+    }
+   }
+  },
+  "asset": {
+   "type": "object",
+   "required": [
+    "kind"
+   ],
+   "properties": {
+    "kind": {
+     "enum": [
+      "background",
+      "tile"
+     ]
+    }
+   },
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "background"
+       }
+      }
+     },
+     "then": {
+      "type": "object",
+      "required": [
+       "kind",
+       "image"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "kind": {
+        "const": "background"
+       },
+       "image": {
+        "type": "string",
+        "minLength": 1
+       },
+       "frames": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "durations": {
+        "type": "array",
+        "items": {
+         "type": "integer"
+        },
+        "minItems": 1
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "tile"
+       }
+      }
+     },
+     "then": {
+      "type": "object",
+      "required": [
+       "kind",
+       "image"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "kind": {
+        "const": "tile"
+       },
+       "image": {
+        "type": "string",
+        "minLength": 1
+       }
+      }
+     }
+    }
+   ]
+  }
+ }
+}

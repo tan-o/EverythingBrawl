@@ -324,12 +324,8 @@
      "minLength": 1
     },
     "input": {
-     "enum": [
-      "attack",
-      "special",
-      "jump",
-      "guard"
-     ]
+     "type": "string",
+     "pattern": "^(attack|special|jump|guard)(\\.(neutral|side|up|down))?$"
     },
     "window": {
      "type": "array",
@@ -1213,6 +1209,10 @@
        "area": {
         "const": "screen"
        },
+       "backdrop": {
+        "type": "string",
+        "minLength": 1
+       },
        "weapon": {
         "type": "string",
         "minLength": 1
@@ -1471,6 +1471,10 @@
        },
        "area": {
         "const": "screen"
+       },
+       "backdrop": {
+        "type": "string",
+        "minLength": 1
        },
        "projectile": {
         "type": "string",
@@ -1756,6 +1760,7 @@
       "projectile",
       "fx",
       "icon",
+      "backdrop",
       "sfx"
      ]
     }
@@ -1928,6 +1933,41 @@
        },
        "kind": {
         "const": "icon"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "backdrop"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "image"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "image": {
+        "type": "string",
+        "minLength": 1
+       },
+       "frames": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "durations": {
+        "type": "array",
+        "items": {
+         "type": "integer"
+        },
+        "minItems": 1
+       },
+       "kind": {
+        "const": "backdrop"
        }
       }
      }
@@ -2240,7 +2280,7 @@
    "type": "object",
    "additionalProperties": false,
    "patternProperties": {
-    "^((attack|special)\\.(neutral|side|up|down)(\\.air)?|jump)$": {
+    "^((attack|special)\\.(neutral|side|up|down)(\\.air)?|attack\\.dash|grab|jump)$": {
      "type": "string",
      "minLength": 1
     }

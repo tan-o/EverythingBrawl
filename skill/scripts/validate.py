@@ -24,6 +24,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL_DIR = os.path.dirname(HERE)
 RULES = json.load(open(os.path.join(SKILL_DIR, "rules.json"), encoding="utf-8"))
 SCHEMA = json.load(open(os.path.join(SKILL_DIR, "character.schema.json"), encoding="utf-8"))
+STAGE_SCHEMA = json.load(open(os.path.join(SKILL_DIR, "stage.schema.json"), encoding="utf-8"))
 L = RULES["limits"]
 P = RULES["points"]
 
@@ -277,6 +278,11 @@ class Validator:
         e = self.errs
         lp = L["pack"]
         files = self.pack.files
+        if "stage.json" in files and "character.json" not in files:
+            sv = StageValidator(self.pack)
+            res = sv.run()
+            self.kind = "stage"
+            return res
         at_most(e, "pack.zip_bytes", "zip", self.pack.zip_size, lp["zip_bytes"])
         if "character.json" not in files:
             e.add("pack.read", "character.json", "缺少 character.json")
@@ -394,20 +400,25 @@ class Validator:
         if fw > 0 and fh > 0 and (sw % fw != 0 or sh % fh != 0):
             e.add("pack.sheet_grid", "sheet.png", "sheet.png 尺寸须为 frame_size 的整数倍")
         at_most(e, "pack.total_frames", "sheet.png", self.total_frames(), lp["total_frames"])
+        backdrop_imgs = set(a["image"] for a in d["assets"].values() if a["kind"] == "backdrop")
         colors = set()
+        bd_colors = set()
         for n in sorted(self.images):
             im = self.images[n]
             bad_alpha = False
+            target = bd_colors if n in backdrop_imgs else colors
             for r, g, b, a in (im.get_flattened_data() if hasattr(im, 'get_flattened_data') else im.getdata()):
                 if a == 0:
                     continue
                 if a != 255:
                     bad_alpha = True
                     continue
-                colors.add((r, g, b))
+                target.add((r, g, b))
             if bad_alpha:
                 e.add("pack.alpha", n, "%s 含半透明像素（alpha 只能是 0 或 255）" % n)
         at_most(e, "pack.colors", "colors", len(colors), lp["colors"])
+        at_most(e, "pack.backdrop_colors", "backdrop", len(bd_colors), lp["backdrop_colors"])
+        at_most(e, "pack.backdrop_count", "assets", len(backdrop_imgs), lp["backdrop_count"])
         side = lp["asset_side"]
         for an, a in sorted(d["assets"].items()):
             if "image" not in a:
@@ -421,8 +432,17 @@ class Validator:
                 w = w // a["frames"]
                 for i, du in enumerate(a["durations"]):
                     in_range(e, "pack.duration", "assets.%s.durations.%d" % (an, i), du, lp["duration"])
-            if a["kind"] == "projectile" and a.get("tile") == "repeat_x":
-                pass
+            if a["kind"] == "backdrop":
+                fr = a.get("frames", 1)
+                if w % fr != 0 or (fr > 1 and len(a.get("durations", [])) != fr) or (fr == 1 and len(a.get("durations", [1])) != 1):
+                    e.add("asset.backdrop_frames", "assets.%s" % an, "backdrop 图宽须能被 frames 整除，多帧时 durations 数量须等于 frames")
+                    continue
+                for i, du in enumerate(a.get("durations", [])):
+                    in_range(e, "pack.duration", "assets.%s.durations.%d" % (an, i), du, lp["duration"])
+                if [w // fr, h] not in lp["backdrop_sizes"]:
+                    e.add("pack.backdrop_size", "assets.%s" % an, "backdrop 每帧须为 %s 之一（%s 为 %d×%d）" %
+                          (" / ".join("%d×%d" % tuple(x) for x in lp["backdrop_sizes"]), an, w // fr, h))
+                continue
             if w > side or h > side:
                 e.add("pack.asset_side", "assets.%s" % an, "素材图每边 ≤ %d（%s 为 %d×%d）" % (side, an, w, h))
             if a["kind"] == "weapon":
@@ -582,6 +602,10 @@ class Validator:
                 self.check_ref(p + ".weapon", a["weapon"], "weapon")
         if "anim" in a and a["anim"] not in self.data["anims"]:
             e.add("ref", p + ".anim", "动画 %s 不存在" % a["anim"])
+        if "backdrop" in a:
+            self.check_ref(p + ".backdrop", a["backdrop"], "backdrop")
+            if not a.get("ultimate", False):
+                e.add("ultimate.backdrop", p + ".backdrop", "backdrop（大招背景）只能用于大招动作")
         if t == "jump" and "extra_anim" in a and a["extra_anim"] not in self.data["anims"]:
             e.add("ref", p + ".extra_anim", "动画 %s 不存在" % a["extra_anim"])
         links = a.get("links", [])
@@ -885,6 +909,11 @@ class Validator:
         elif t == "jump":
             in_range(e, "jump.velocity", p + ".velocity", a["velocity"], L["jump"]["velocity"])
             in_range(e, "jump.max_count", p + ".max_count", a["max_count"], L["jump"]["max_count"])
+            st = eff["stats"]
+            h, air = jump_arc(a["velocity"], st["gravity"], st["max_fall"])
+            at_least(e, "jump.height_min", p + ".velocity", round(h, 6), L["jump"]["height_min"])
+            reach = min_move_speed(d) * air
+            at_least(e, "jump.reach_min", p, round(reach, 6), L["jump"]["reach_min"])
         elif t == "fly":
             for k in ("duration", "rise_speed", "control"):
                 in_range(e, "fly." + k, p + "." + k, a[k], L["fly"][k])
@@ -1212,6 +1241,30 @@ def motion_distance(a, total):
     return dist
 
 
+def jump_arc(v, g, max_fall):
+    """一次起跳（与引擎相同的逐帧积分）：返回 (最高点高度, 回到起跳高度前的滞空帧数)。"""
+    vy = -float(v)
+    y = 0.0
+    top = 0.0
+    frames = 0
+    while frames < 1000:
+        vy = min(vy + g, max_fall)
+        y += vy
+        frames += 1
+        top = min(top, y)
+        if y >= 0:
+            break
+    return -top, frames
+
+
+def min_move_speed(d):
+    """move 动作在所有升级组合下的最小速度（跳跃水平距离按最慢情况算）。"""
+    for a in d["actions"].values():
+        if a["type"] == "move":
+            return min(apply_upgrades(a, m)["speed"] for m in range(1 << len(a.get("upgrades", []))))
+    return 0.0
+
+
 def burn_total(a):
     st = a.get("status")
     if st is None or st["type"] != "burn":
@@ -1411,6 +1464,297 @@ def form_points(d, eff, n_input_forms):
     extra = P["form_input"] * n_input_forms
     total = hp + sum(acts.values()) + links + extra
     return {"total": total, "hp": hp, "actions": acts, "links": links, "forms_input": extra}
+
+
+# ---------------------------------------------------------------- 场景包
+
+SL = RULES["stage_limits"]
+STAGE_BEHAVIORS = ["climb", "crumble", "bounce", "friction", "conveyor", "move", "damage", "wind", "water", "blink", "breakable"]
+
+
+def elem_offsets(el):
+    return [tuple(o) for o in el["move"]["path"]] if "move" in el else [(0.0, 0.0)]
+
+
+def elem_static(el):
+    return not any(k in el for k in ("move", "crumble", "blink", "breakable"))
+
+
+def elem_standable(el):
+    return el["collide"] in ("solid", "platform") and "damage" not in el
+
+
+def elem_hull(el):
+    x, y, w, h = el["rect"]
+    offs = elem_offsets(el)
+    x0 = min(x + dx for dx, dy in offs)
+    y0 = min(y + dy for dx, dy in offs)
+    x1 = max(x + dx + w for dx, dy in offs)
+    y1 = max(y + dy + h for dx, dy in offs)
+    return x0, y0, x1, y1
+
+
+def path_length(el):
+    pts = el["move"]["path"]
+    n = len(pts)
+    total = 0.0
+    for i in range(n - 1):
+        total += math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1])
+    if el["move"].get("mode", "loop") == "loop":
+        total += math.hypot(pts[0][0] - pts[-1][0], pts[0][1] - pts[-1][1])
+    else:
+        total *= 2
+    return total
+
+
+def rect_point_dist(x0, y0, x1, y1, px, py):
+    dx = max(x0 - px, 0, px - x1)
+    dy = max(y0 - py, 0, py - y1)
+    return math.hypot(dx, dy)
+
+
+class StageValidator:
+    def __init__(self, pack):
+        self.pack = pack
+        self.errs = Errors()
+        self.images = {}
+        self.data = None
+
+    def result(self):
+        return {"valid": not self.errs.items, "errors": self.errs.items, "points": {}, "kind": "stage"}
+
+    def run(self):
+        e = self.errs
+        files = self.pack.files
+        at_most(e, "stage.zip_bytes", "zip", self.pack.zip_size, SL["zip_bytes"])
+        try:
+            data = json.loads(files["stage.json"].decode("utf-8"))
+        except Exception as ex:  # noqa
+            e.add("pack.read", "stage.json", "JSON 解析失败: %s" % ex)
+            return self.result()
+        for name in files:
+            if name != "stage.json" and not name.endswith(".png"):
+                e.add("pack.files", name, "包内只能有 stage.json 与 .png 文件")
+        if not isinstance(data, dict) or data.get("format") != 1:
+            e.add("format", "format", "format 必须为 1")
+            return self.result()
+        v = jsonschema.Draft202012Validator(STAGE_SCHEMA)
+        serr = sorted(v.iter_errors(data), key=lambda x: list(x.absolute_path))
+        for se in serr:
+            e.add("schema", ".".join(str(p) for p in se.absolute_path) or "(root)", se.message)
+        if serr:
+            return self.result()
+        self.data = data
+        if not self.load_images():
+            return self.result()
+        self.check_art()
+        self.check_elements()
+        if not e.items:
+            self.check_layout()
+        return self.result()
+
+    def load_images(self):
+        ok = True
+        for n in sorted(self.pack.files):
+            if not n.endswith(".png"):
+                continue
+            try:
+                im = Image.open(io.BytesIO(self.pack.files[n]))
+                im.load()
+                self.images[n] = im.convert("RGBA")
+            except Exception as ex:  # noqa
+                self.errs.add("pack.read", n, "PNG 读取失败: %s" % ex)
+                ok = False
+        for an, a in sorted(self.data["assets"].items()):
+            if a["image"] not in self.images:
+                self.errs.add("ref", "assets.%s.image" % an, "缺少图片 %s" % a["image"])
+                ok = False
+        return ok
+
+    def check_ref(self, path, name, kind):
+        a = self.data["assets"].get(name)
+        if a is None or a["kind"] != kind:
+            self.errs.add("ref", path, "%s 引用的 %s 不存在或不是 %s" % (path, name, kind))
+            return False
+        return True
+
+    def check_art(self):
+        e = self.errs
+        d = self.data
+        colors = set()
+        for n in sorted(self.images):
+            bad = False
+            im = self.images[n]
+            for r, g, b, a in (im.get_flattened_data() if hasattr(im, "get_flattened_data") else im.getdata()):
+                if a == 0:
+                    continue
+                if a != 255:
+                    bad = True
+                    continue
+                colors.add((r, g, b))
+            if bad:
+                e.add("pack.alpha", n, "%s 含半透明像素（alpha 只能是 0 或 255）" % n)
+        at_most(e, "stage.colors", "colors", len(colors), SL["colors"])
+        for an, a in sorted(d["assets"].items()):
+            im = self.images[a["image"]]
+            w, h = im.size
+            if a["kind"] == "tile":
+                if w > SL["tile_side"] or h > SL["tile_side"]:
+                    e.add("stage.tile_side", "assets.%s" % an, "地形贴图每边 ≤ %d（%s 为 %d×%d）" % (SL["tile_side"], an, w, h))
+            else:
+                fr = a.get("frames", 1)
+                ds = a.get("durations", [1])
+                if w % fr != 0 or len(ds) != fr:
+                    e.add("stage.background_frames", "assets.%s" % an, "背景图宽须能被 frames 整除，durations 数量须等于 frames")
+                    continue
+                for i, du in enumerate(a.get("durations", [])):
+                    in_range(e, "pack.duration", "assets.%s.durations.%d" % (an, i), du, L["pack"]["duration"])
+                if [w // fr, h] not in SL["background_sizes"]:
+                    e.add("stage.background_size", "assets.%s" % an, "背景每帧须为 %s 之一" %
+                          " / ".join("%d×%d" % tuple(x) for x in SL["background_sizes"]))
+        self.check_ref("background", d["background"], "background")
+
+    def check_elements(self):
+        e = self.errs
+        els = self.data["elements"]
+        at_most(e, "stage.elements", "elements", len(els), SL["elements"])
+        n_damage = 0
+        bx0, by0, bx1, by1 = SL["bounds"]
+        for i, el in enumerate(els):
+            p = "elements.%d" % i
+            col = el["collide"]
+            if "tile" not in el:
+                e.add("stage.invisible", p, "每个元素都必须有贴图（不能有看不见的地形）")
+            else:
+                self.check_ref(p + ".tile", el["tile"], "tile")
+            x0, y0, x1, y1 = elem_hull(el)
+            if x0 < bx0 or y0 < by0 or x1 > bx1 or y1 > by1:
+                e.add("stage.bounds", p, "元素（含移动路径）须在 %s 范围内" % SL["bounds"])
+            if "climb" in el and col != "solid":
+                e.add("stage.behavior", p + ".climb", "climb 只能用于 solid")
+            for k in ("crumble", "bounce", "friction", "conveyor", "breakable"):
+                if k in el and col == "none":
+                    e.add("stage.behavior", p + "." + k, "%s 只能用于 solid / platform" % k)
+            for k in ("wind", "water"):
+                if k in el and col != "none":
+                    e.add("stage.behavior", p + "." + k, "%s 只能用于 collide: none 的区域" % k)
+            if "climb" in el:
+                in_range(e, "stage.climb_max", p + ".climb.max", el["climb"]["max"], SL["climb_max"])
+            if "crumble" in el:
+                in_range(e, "stage.crumble_after", p + ".crumble.after", el["crumble"]["after"], SL["crumble_after"])
+                in_range(e, "stage.respawn", p + ".crumble.respawn", el["crumble"]["respawn"], SL["respawn"])
+            if "breakable" in el:
+                in_range(e, "stage.breakable_hp", p + ".breakable.hp", el["breakable"]["hp"], SL["breakable"]["hp"])
+                in_range(e, "stage.respawn", p + ".breakable.respawn", el["breakable"]["respawn"], SL["respawn"])
+            if "bounce" in el:
+                in_range(e, "stage.bounce", p + ".bounce.velocity", el["bounce"]["velocity"], SL["bounce"])
+            if "friction" in el:
+                in_range(e, "stage.friction", p + ".friction", el["friction"], SL["friction"])
+            if "conveyor" in el:
+                at_most(e, "stage.conveyor", p + ".conveyor", abs(el["conveyor"]), SL["conveyor"])
+            if "move" in el:
+                lm = SL["move"]
+                at_most(e, "stage.move_points", p + ".move.path", len(el["move"]["path"]), lm["points"])
+                in_range(e, "stage.move_period", p + ".move.period", el["move"]["period"], lm["period"])
+                at_most(e, "stage.move_speed", p + ".move", round(path_length(el) / el["move"]["period"], 6), lm["speed"])
+            if "damage" in el:
+                n_damage += 1
+                ld = SL["damage"]
+                in_range(e, "stage.damage", p + ".damage.damage", el["damage"]["damage"], ld["damage"])
+                at_least(e, "stage.damage_interval", p + ".damage.interval", el["damage"]["interval"], ld["interval_min"])
+                in_range(e, "stage.damage_force", p + ".damage.knockback.force", el["damage"]["knockback"]["force"], ld["force"])
+            if "wind" in el:
+                at_most(e, "stage.wind", p + ".wind", round(math.hypot(*el["wind"]), 6), SL["wind"])
+            if "water" in el:
+                lw = SL["water"]
+                in_range(e, "stage.water_gravity", p + ".water.gravity_mul", el["water"]["gravity_mul"], lw["gravity_mul"])
+                in_range(e, "stage.water_drag", p + ".water.drag", el["water"]["drag"], lw["drag"])
+            if "blink" in el:
+                lb = SL["blink"]
+                in_range(e, "stage.blink_on", p + ".blink.on", el["blink"]["on"], lb["on"])
+                in_range(e, "stage.blink_off", p + ".blink.off", el["blink"]["off"], lb["off"])
+                if (col != "none" or "damage" in el) and el["blink"].get("warn", 0) < lb["warn"]:
+                    e.add("stage.blink_warn", p + ".blink.warn", "会出现的地形或危险物须有 ≥ %d 帧预警" % lb["warn"])
+        at_most(e, "stage.damage_count", "elements", n_damage, SL["damage"]["count"])
+
+    def check_layout(self):
+        e = self.errs
+        els = self.data["elements"]
+        spawns = self.data["spawns"]
+        mains = [i for i, el in enumerate(els)
+                 if elem_static(el) and elem_standable(el) and el["rect"][2] >= SL["main_width"]]
+        if not mains:
+            e.add("stage.main", "elements", "至少要有一块宽 ≥ %d、静止、可站立的主地面" % SL["main_width"])
+            return
+        for si, (sx, sy) in enumerate(spawns):
+            ok = False
+            for el in els:
+                x, y, w, h = el["rect"]
+                if elem_static(el) and elem_standable(el) and "bounce" not in el and abs(sy - y) <= 1 and x <= sx <= x + w:
+                    ok = True
+            if not ok:
+                e.add("stage.spawn_ground", "spawns.%d" % si, "出生点必须站在静止的可站立地形上")
+            for sj in range(si + 1, len(spawns)):
+                if math.hypot(sx - spawns[sj][0], sy - spawns[sj][1]) < SL["spawn_spacing"]:
+                    e.add("stage.spawn_spacing", "spawns.%d" % si, "出生点之间距离须 ≥ %d" % SL["spawn_spacing"])
+            for i, el in enumerate(els):
+                if "damage" in el and rect_point_dist(*elem_hull(el), sx, sy) < SL["spawn_hazard_distance"]:
+                    e.add("stage.spawn_hazard", "spawns.%d" % si, "出生点距危险物须 ≥ %d" % SL["spawn_hazard_distance"])
+        # 头顶空间
+        hr = SL["headroom"]
+        for i, el in enumerate(els):
+            if not elem_standable(el):
+                continue
+            x, y, w, h = el["rect"]
+            cols = list(range(int(x) + 2, int(x + w), 4)) or [int(x + w / 2)]
+            free = 0
+            for cx in cols:
+                blocked = False
+                for j, o in enumerate(els):
+                    if j == i or o["collide"] != "solid":
+                        continue
+                    ox, oy, ow, oh = o["rect"]
+                    if ox <= cx <= ox + ow and oy < y and oy + oh > y - hr:
+                        blocked = True
+                        break
+                if not blocked:
+                    free += 1
+            if free * 2 < len(cols):
+                e.add("stage.headroom", "elements.%d" % i, "可站立地形上方至少一半宽度要留 ≥ %d 像素空间" % hr)
+        # 可达性
+        stand = [i for i, el in enumerate(els) if elem_standable(el)]
+        reached = set(mains)
+        changed = True
+        while changed:
+            changed = False
+            for b in stand:
+                if b in reached:
+                    continue
+                for a in list(reached):
+                    if self.can_reach(els[a], els[b]):
+                        reached.add(b)
+                        changed = True
+                        break
+        for b in stand:
+            if b not in reached:
+                e.add("stage.reach", "elements.%d" % b,
+                      "从主地面跳不上去（上升 ≤ %d、水平间隙 ≤ %d）" % (SL["step_max"], SL["gap_max"]))
+
+    @staticmethod
+    def can_reach(a, b):
+        for adx, ady in elem_offsets(a):
+            ax, ay, aw, ah = a["rect"]
+            ax += adx
+            ay += ady
+            for bdx, bdy in elem_offsets(b):
+                bx, by, bw, bh = b["rect"]
+                bx += bdx
+                by += bdy
+                rise = ay - by
+                gap = max(0, bx - (ax + aw), ax - (bx + bw))
+                if rise <= SL["step_max"] and gap <= SL["gap_max"]:
+                    return True
+        return False
 
 
 # ---------------------------------------------------------------- CLI

@@ -101,6 +101,12 @@
   ],
   "valid": false
  },
+ "asset_backdrop_frames.zip": {
+  "errors": [
+   "asset.backdrop_frames"
+  ],
+  "valid": false
+ },
  "asset_fx_frames.zip": {
   "errors": [
    "asset.fx_frames"
@@ -534,12 +540,12 @@
      "craft": 0.0,
      "gather": 0.0,
      "jump": -0.2,
-     "move": -0.6,
+     "move": 0.0,
      "nail": 1.9174,
      "swingup": 2.8146,
      "turret": 4.594
     },
-    "total": 18.7464
+    "total": 19.3464
    },
    "0+1": {
     "actions": {
@@ -548,12 +554,12 @@
      "craft": 0.0,
      "gather": 0.0,
      "jump": -0.2,
-     "move": -0.6,
+     "move": 0.0,
      "nail": 1.9174,
      "swingup": 2.8146,
      "turret": 4.594
     },
-    "total": 18.7464
+    "total": 19.3464
    },
    "base": {
     "actions": {
@@ -562,12 +568,12 @@
      "craft": 0.0,
      "gather": 0.0,
      "jump": -0.2,
-     "move": -0.6,
+     "move": 0.0,
      "nail": 1.9174,
      "swingup": 2.8146,
      "turret": 4.594
     },
-    "total": 18.7464
+    "total": 19.3464
    }
   },
   "valid": true
@@ -668,14 +674,35 @@
   ],
   "valid": false
  },
+ "jump_height_form.zip": {
+  "errors": [
+   "jump.height_min",
+   "jump.reach_min"
+  ],
+  "valid": false
+ },
+ "jump_height_min.zip": {
+  "errors": [
+   "jump.height_min"
+  ],
+  "valid": false
+ },
  "jump_max_count.zip": {
   "errors": [
    "jump.max_count"
   ],
   "valid": false
  },
+ "jump_reach_min.zip": {
+  "errors": [
+   "jump.reach_min"
+  ],
+  "valid": false
+ },
  "jump_velocity.zip": {
   "errors": [
+   "jump.height_min",
+   "jump.reach_min",
    "jump.velocity"
   ],
   "valid": false
@@ -773,6 +800,24 @@
  "pack_attack_anim_frames.zip": {
   "errors": [
    "pack.attack_anim_frames"
+  ],
+  "valid": false
+ },
+ "pack_backdrop_colors.zip": {
+  "errors": [
+   "pack.backdrop_colors"
+  ],
+  "valid": false
+ },
+ "pack_backdrop_count.zip": {
+  "errors": [
+   "pack.backdrop_count"
+  ],
+  "valid": false
+ },
+ "pack_backdrop_size.zip": {
+  "errors": [
+   "pack.backdrop_size"
   ],
   "valid": false
  },
@@ -902,6 +947,12 @@
   ],
   "valid": false
  },
+ "ref_backdrop.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
  "ref_frame.zip": {
   "errors": [
    "ref"
@@ -986,6 +1037,18 @@
   ],
   "valid": false
  },
+ "schema_input_key.zip": {
+  "errors": [
+   "schema"
+  ],
+  "valid": false
+ },
+ "schema_link_input.zip": {
+  "errors": [
+   "schema"
+  ],
+  "valid": false
+ },
  "schema_status.zip": {
   "errors": [
    "schema"
@@ -1016,6 +1079,296 @@
   ],
   "valid": false
  },
+ "stage_alpha.zip": {
+  "errors": [
+   "pack.alpha"
+  ],
+  "valid": false
+ },
+ "stage_background_frames.zip": {
+  "errors": [
+   "stage.background_frames"
+  ],
+  "valid": false
+ },
+ "stage_background_size.zip": {
+  "errors": [
+   "stage.background_size"
+  ],
+  "valid": false
+ },
+ "stage_behavior_climb.zip": {
+  "errors": [
+   "stage.behavior"
+  ],
+  "valid": false
+ },
+ "stage_behavior_none.zip": {
+  "errors": [
+   "stage.behavior"
+  ],
+  "valid": false
+ },
+ "stage_behavior_zone.zip": {
+  "errors": [
+   "stage.behavior"
+  ],
+  "valid": false
+ },
+ "stage_blink_off.zip": {
+  "errors": [
+   "stage.blink_off"
+  ],
+  "valid": false
+ },
+ "stage_blink_on.zip": {
+  "errors": [
+   "stage.blink_on"
+  ],
+  "valid": false
+ },
+ "stage_blink_warn.zip": {
+  "errors": [
+   "stage.blink_warn"
+  ],
+  "valid": false
+ },
+ "stage_bounce.zip": {
+  "errors": [
+   "stage.bounce"
+  ],
+  "valid": false
+ },
+ "stage_bounds.zip": {
+  "errors": [
+   "stage.bounds"
+  ],
+  "valid": false
+ },
+ "stage_bounds_move.zip": {
+  "errors": [
+   "stage.bounds"
+  ],
+  "valid": false
+ },
+ "stage_breakable_hp.zip": {
+  "errors": [
+   "stage.breakable_hp"
+  ],
+  "valid": false
+ },
+ "stage_climb_max.zip": {
+  "errors": [
+   "stage.climb_max"
+  ],
+  "valid": false
+ },
+ "stage_colors.zip": {
+  "errors": [
+   "stage.colors"
+  ],
+  "valid": false
+ },
+ "stage_conveyor.zip": {
+  "errors": [
+   "stage.conveyor"
+  ],
+  "valid": false
+ },
+ "stage_crumble_after.zip": {
+  "errors": [
+   "stage.crumble_after"
+  ],
+  "valid": false
+ },
+ "stage_damage.zip": {
+  "errors": [
+   "stage.damage"
+  ],
+  "valid": false
+ },
+ "stage_damage_count.zip": {
+  "errors": [
+   "stage.damage_count"
+  ],
+  "valid": false
+ },
+ "stage_damage_force.zip": {
+  "errors": [
+   "stage.damage_force"
+  ],
+  "valid": false
+ },
+ "stage_damage_interval.zip": {
+  "errors": [
+   "stage.damage_interval"
+  ],
+  "valid": false
+ },
+ "stage_elements.zip": {
+  "errors": [
+   "stage.elements"
+  ],
+  "valid": false
+ },
+ "stage_format.zip": {
+  "errors": [
+   "format"
+  ],
+  "valid": false
+ },
+ "stage_friction.zip": {
+  "errors": [
+   "stage.friction"
+  ],
+  "valid": false
+ },
+ "stage_headroom.zip": {
+  "errors": [
+   "stage.headroom"
+  ],
+  "valid": false
+ },
+ "stage_invisible.zip": {
+  "errors": [
+   "stage.invisible"
+  ],
+  "valid": false
+ },
+ "stage_main.zip": {
+  "errors": [
+   "stage.main"
+  ],
+  "valid": false
+ },
+ "stage_move_period.zip": {
+  "errors": [
+   "stage.move_period"
+  ],
+  "valid": false
+ },
+ "stage_move_points.zip": {
+  "errors": [
+   "stage.move_points"
+  ],
+  "valid": false
+ },
+ "stage_move_speed.zip": {
+  "errors": [
+   "stage.move_speed"
+  ],
+  "valid": false
+ },
+ "stage_pack_files.zip": {
+  "errors": [
+   "pack.files"
+  ],
+  "valid": false
+ },
+ "stage_reach.zip": {
+  "errors": [
+   "stage.reach"
+  ],
+  "valid": false
+ },
+ "stage_reach_gap.zip": {
+  "errors": [
+   "stage.reach"
+  ],
+  "valid": false
+ },
+ "stage_ref_background.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "stage_ref_image.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "stage_ref_tile.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "stage_respawn.zip": {
+  "errors": [
+   "stage.respawn"
+  ],
+  "valid": false
+ },
+ "stage_schema.zip": {
+  "errors": [
+   "schema"
+  ],
+  "valid": false
+ },
+ "stage_schema_spawns.zip": {
+  "errors": [
+   "schema"
+  ],
+  "valid": false
+ },
+ "stage_spawn_ground.zip": {
+  "errors": [
+   "stage.spawn_ground"
+  ],
+  "valid": false
+ },
+ "stage_spawn_hazard.zip": {
+  "errors": [
+   "stage.spawn_hazard"
+  ],
+  "valid": false
+ },
+ "stage_spawn_spacing.zip": {
+  "errors": [
+   "stage.spawn_spacing"
+  ],
+  "valid": false
+ },
+ "stage_tile_side.zip": {
+  "errors": [
+   "stage.tile_side"
+  ],
+  "valid": false
+ },
+ "stage_valid_base.zip": {
+  "errors": [],
+  "valid": true
+ },
+ "stage_valid_full.zip": {
+  "errors": [],
+  "valid": true
+ },
+ "stage_water_drag.zip": {
+  "errors": [
+   "stage.water_drag"
+  ],
+  "valid": false
+ },
+ "stage_water_gravity.zip": {
+  "errors": [
+   "stage.water_gravity"
+  ],
+  "valid": false
+ },
+ "stage_wind.zip": {
+  "errors": [
+   "stage.wind"
+  ],
+  "valid": false
+ },
+ "stage_zip_bytes.zip": {
+  "errors": [
+   "stage.zip_bytes"
+  ],
+  "valid": false
+ },
  "stats_air_control.zip": {
   "errors": [
    "stats.air_control"
@@ -1042,6 +1395,8 @@
  },
  "stats_gravity.zip": {
   "errors": [
+   "jump.height_min",
+   "jump.reach_min",
    "stats.gravity"
   ],
   "valid": false
@@ -1202,6 +1557,12 @@
   ],
   "valid": false
  },
+ "ultimate_backdrop.zip": {
+  "errors": [
+   "ultimate.backdrop"
+  ],
+  "valid": false
+ },
  "ultimate_count.zip": {
   "errors": [
    "ultimate.count"
@@ -1316,11 +1677,11 @@
      "mirror": 3.2,
      "move": 0.0,
      "shot": 2.9343,
-     "slash": 3.1448,
+     "slash": 3.9448,
      "throw": 2.1,
      "turret": 3.6776
     },
-    "total": 41.5614
+    "total": 42.3614
    }
   },
   "valid": true

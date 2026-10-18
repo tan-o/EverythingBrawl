@@ -10,6 +10,8 @@ var proj_layer := Node2D.new()
 var fighter_layer := Node2D.new()
 var effects := EffectsLayer.new()
 var dim := ColorRect.new()
+var backdrop := AnimatedSprite2D.new()
+var backdrop_key := ""
 var debug_layer := DebugLayer.new()
 var show_debug := false
 var last := {}
@@ -22,6 +24,10 @@ func setup(p_assets: Array) -> void:
 	dim.size = Vector2(R.stage.width, R.stage.height)
 	dim.visible = false
 	dim.z_index = 10
+	backdrop.centered = false
+	backdrop.z_index = 2
+	backdrop.visible = false
+	add_child(backdrop)
 	proj_layer.z_index = 5
 	fighter_layer.z_index = 4
 	effects.z_index = 20
@@ -45,10 +51,13 @@ func apply(s: Dictionary) -> void:
 	for fs in s.fighters:
 		var v: FighterView = fviews[fs.i]
 		v.apply(fs)
-		v.z_index = 20 if s.dim == fs.i else 0
+		var caster: int = s.dim if s.dim >= 0 else s.get("ultbg", {}).get("i", -1)
+		v.z_index = 20 if caster == fs.i else 0
 		if "burn" in fs.status and v.visible:
 			effects.fire(Vector2(fs.x, fs.y - 4), assets[fs.i].data.stats.body[0])
-	dim.visible = s.dim >= 0
+	_update_backdrop(s.get("ultbg", {}))
+	dim.visible = s.dim >= 0 or backdrop.visible
+	dim.color = Color(0, 0, 0, 0.35 if backdrop.visible else 0.6)
 	var seen := {}
 	for ps in s.proj:
 		seen[ps.id] = true
@@ -69,6 +78,25 @@ func apply(s: Dictionary) -> void:
 		debug_layer.snap = s
 		debug_layer.queue_redraw()
 	queue_redraw()
+
+
+## 大招背景：施放者的 backdrop 盖住场地背景，其他角色被压暗、施放者高亮。
+func _update_backdrop(bg: Dictionary) -> void:
+	if bg.is_empty():
+		backdrop.visible = false
+		backdrop_key = ""
+		return
+	var b = assets[bg.i].backdrops.get(bg.as)
+	if b == null:
+		backdrop.visible = false
+		return
+	var key := "%d|%s" % [bg.i, bg.as]
+	if key != backdrop_key:
+		backdrop_key = key
+		backdrop.sprite_frames = b.frames
+		backdrop.scale = Vector2(b.scale, b.scale)
+		backdrop.play("default")
+	backdrop.visible = true
 
 
 ## 反射后归属会变，但贴图仍属于最初的角色包：按资产名在各包里找。

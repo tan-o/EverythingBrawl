@@ -243,7 +243,7 @@ def build():
         },
         "anims": anims,
         "actions": {
-            "move": {"type": "move", "speed": 1.9, "accel": 0.35},
+            "move": {"type": "move", "speed": 2.0, "accel": 0.35},
             "jump": {"type": "jump", "velocity": 6.4, "max_count": 2},
             "bonk": {"type": "swing", "anim": "bonk", "weapon": "hammer1", "from": 110, "to": -30, "reach": [0, 2],
                      "startup": 8, "active": 4, "recovery": 14, "damage": 6, "knockback": {"angle": 40, "force": 26},

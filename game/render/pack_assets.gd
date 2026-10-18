@@ -9,6 +9,7 @@ var frames: SpriteFrames            # 动画名 -> 帧
 var textures := {}                  # 资产名 -> ImageTexture（weapon / projectile / icon）
 var fx_frames := {}                 # 资产名 -> SpriteFrames（动画名 "fx"）
 var sounds := {}                    # 资产名 -> AudioStreamWAV
+var backdrops := {}                 # 资产名 -> {"frames": SpriteFrames, "scale": float}
 var frame_size: Vector2i
 var anchor: Vector2
 
@@ -58,6 +59,21 @@ func _build(d: Dictionary, images: Dictionary) -> void:
 				fx_frames[k] = sf
 			"sfx":
 				sounds[k] = Sfxr.generate(as_.params)
+			"backdrop":
+				var img: Image = images[as_.image]
+				var tex := ImageTexture.create_from_image(img)
+				var n := int(as_.get("frames", 1))
+				var fw := img.get_width() / n
+				var sf := SpriteFrames.new()
+				sf.set_animation_loop("default", true)
+				sf.set_animation_speed("default", 60.0)
+				var durs: Array = as_.get("durations", [1])
+				for i in n:
+					var at := AtlasTexture.new()
+					at.atlas = tex
+					at.region = Rect2(i * fw, 0, fw, img.get_height())
+					sf.add_frame("default", at, float(durs[i]))
+				backdrops[k] = {"frames": sf, "scale": float(Rules.data().stage.width) / fw}
 
 
 ## 某动画某帧的像素图（用于击倒粒子）。

@@ -585,6 +585,17 @@ func ult_dim_owner() -> int:
 	return -1
 
 
+## 大招背景：施放者在大招前摇与生效期间，若动作带 backdrop，返回 {i, as, t}。
+func ult_backdrop() -> Dictionary:
+	for f in fighters:
+		if f.act.is_empty() or not f.act.def.get("ultimate", false) or not ("backdrop" in f.act.def):
+			continue
+		var ph: String = f.act_phase()
+		if ph == "startup" or ph == "active":
+			return {"i": f.idx, "as": f.act.def.backdrop, "t": f.act.t}
+	return {}
+
+
 func snapshot() -> Dictionary:
 	var fs := []
 	for f in fighters:
@@ -612,4 +623,4 @@ func snapshot() -> Dictionary:
 			"ang": p.dir.angle(), "len": p.length(), "sc": p.scale(), "hp": p.hp,
 			"life": 1.0 - float(p.age) / max(1, p.lifetime), "shape": p.hit_shape() if debug else {},
 		})
-	return {"frame": frame, "fighters": fs, "proj": ps, "dim": ult_dim_owner(), "over": over, "winner": winner, "events": events}
+	return {"frame": frame, "fighters": fs, "proj": ps, "dim": ult_dim_owner(), "ultbg": ult_backdrop(), "over": over, "winner": winner, "events": events}
