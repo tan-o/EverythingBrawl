@@ -1,0 +1,970 @@
+{
+ "format": 1,
+ "name": "工具箱",
+ "frame_size": [
+  48,
+  48
+ ],
+ "anchor": [
+  24,
+  48
+ ],
+ "stats": {
+  "hp": 110,
+  "body": [
+   24,
+   26
+  ],
+  "weight": 6,
+  "gravity": 0.4,
+  "max_fall": 5.5,
+  "air_control": 0.5
+ },
+ "held": "hammer1",
+ "resources": {
+  "wood": {
+   "init": 0,
+   "max": 9,
+   "hud": "wood"
+  },
+  "tier": {
+   "init": 0,
+   "max": 2,
+   "hud": "gem"
+  },
+  "dur": {
+   "init": 0,
+   "max": 10,
+   "hud": "bar"
+  }
+ },
+ "assets": {
+  "hammer1": {
+   "kind": "weapon",
+   "image": "hammer1.png",
+   "grip": [
+    1,
+    5
+   ],
+   "length": 18,
+   "radius": 5,
+   "hit_range": [
+    0.6,
+    1
+   ]
+  },
+  "hammer2": {
+   "kind": "weapon",
+   "image": "hammer2.png",
+   "grip": [
+    1,
+    5
+   ],
+   "length": 18,
+   "radius": 5,
+   "hit_range": [
+    0.6,
+    1
+   ]
+  },
+  "hammer3": {
+   "kind": "weapon",
+   "image": "hammer3.png",
+   "grip": [
+    1,
+    5
+   ],
+   "length": 18,
+   "radius": 5,
+   "hit_range": [
+    0.6,
+    1
+   ]
+  },
+  "wood": {
+   "kind": "icon",
+   "image": "wood.png"
+  },
+  "gem": {
+   "kind": "icon",
+   "image": "gem.png"
+  },
+  "turret": {
+   "kind": "projectile",
+   "image": "turret.png",
+   "shape": "rect",
+   "size": [
+    14,
+    12
+   ]
+  },
+  "nail": {
+   "kind": "projectile",
+   "image": "nail.png",
+   "shape": "rect",
+   "size": [
+    8,
+    3
+   ]
+  },
+  "puff": {
+   "kind": "fx",
+   "image": "puff.png",
+   "frames": 3,
+   "durations": [
+    4,
+    4,
+    6
+   ]
+  },
+  "chop": {
+   "kind": "sfx",
+   "params": {
+    "wave_type": 3,
+    "p_env_sustain": 0.03,
+    "p_env_decay": 0.12,
+    "p_base_freq": 0.4,
+    "sound_vol": 0.3
+   }
+  },
+  "ding": {
+   "kind": "sfx",
+   "params": {
+    "wave_type": 2,
+    "p_env_sustain": 0.1,
+    "p_env_decay": 0.4,
+    "p_base_freq": 0.7,
+    "p_arp_mod": 0.3,
+    "p_arp_speed": 0.6,
+    "sound_vol": 0.3
+   }
+  },
+  "crack": {
+   "kind": "sfx",
+   "params": {
+    "wave_type": 3,
+    "p_env_sustain": 0.15,
+    "p_env_decay": 0.3,
+    "p_base_freq": 0.2,
+    "p_freq_ramp": -0.15,
+    "sound_vol": 0.4
+   }
+  }
+ },
+ "anims": {
+  "idle": {
+   "frames": [
+    0,
+    1,
+    0
+   ],
+   "durations": [
+    22,
+    14,
+    22
+   ],
+   "loop": true,
+   "hand": [
+    [
+     37,
+     36
+    ],
+    [
+     37,
+     37
+    ],
+    [
+     37,
+     36
+    ]
+   ]
+  },
+  "walk": {
+   "frames": [
+    2,
+    0,
+    3,
+    0
+   ],
+   "durations": [
+    6,
+    6,
+    6,
+    6
+   ],
+   "loop": true,
+   "hand": [
+    [
+     37,
+     35
+    ],
+    [
+     37,
+     36
+    ],
+    [
+     37,
+     35
+    ],
+    [
+     37,
+     36
+    ]
+   ]
+  },
+  "jump": {
+   "frames": [
+    4,
+    4,
+    4
+   ],
+   "durations": [
+    4,
+    4,
+    4
+   ],
+   "loop": false,
+   "hand": [
+    [
+     37,
+     33
+    ],
+    [
+     37,
+     33
+    ],
+    [
+     37,
+     33
+    ]
+   ]
+  },
+  "double_jump": {
+   "frames": [
+    4,
+    5,
+    4
+   ],
+   "durations": [
+    3,
+    3,
+    3
+   ],
+   "loop": false,
+   "hand": [
+    [
+     37,
+     33
+    ],
+    [
+     37,
+     33
+    ],
+    [
+     37,
+     33
+    ]
+   ]
+  },
+  "fall": {
+   "frames": [
+    5,
+    5,
+    5
+   ],
+   "durations": [
+    6,
+    6,
+    6
+   ],
+   "loop": true,
+   "hand": [
+    [
+     37,
+     35
+    ],
+    [
+     37,
+     35
+    ],
+    [
+     37,
+     35
+    ]
+   ]
+  },
+  "land": {
+   "frames": [
+    6,
+    1,
+    0
+   ],
+   "durations": [
+    4,
+    3,
+    3
+   ],
+   "loop": false,
+   "hand": [
+    [
+     37,
+     40
+    ],
+    [
+     37,
+     37
+    ],
+    [
+     37,
+     36
+    ]
+   ]
+  },
+  "hurt": {
+   "frames": [
+    7,
+    7,
+    7
+   ],
+   "durations": [
+    5,
+    5,
+    5
+   ],
+   "loop": true,
+   "hand": [
+    [
+     33,
+     35
+    ],
+    [
+     33,
+     35
+    ],
+    [
+     33,
+     35
+    ]
+   ]
+  },
+  "guard": {
+   "frames": [
+    8,
+    8,
+    8
+   ],
+   "durations": [
+    10,
+    10,
+    10
+   ],
+   "loop": true,
+   "hand": [
+    [
+     34,
+     38
+    ],
+    [
+     34,
+     38
+    ],
+    [
+     34,
+     38
+    ]
+   ]
+  },
+  "ko": {
+   "frames": [
+    7,
+    12,
+    13
+   ],
+   "durations": [
+    10,
+    10,
+    30
+   ],
+   "loop": false,
+   "hand": [
+    [
+     33,
+     35
+    ],
+    [
+     31,
+     38
+    ],
+    [
+     30,
+     45
+    ]
+   ]
+  },
+  "charge": {
+   "frames": [
+    9,
+    10,
+    9
+   ],
+   "durations": [
+    8,
+    8,
+    8
+   ],
+   "loop": true,
+   "hand": [
+    [
+     33,
+     30
+    ],
+    [
+     39,
+     38
+    ],
+    [
+     33,
+     30
+    ]
+   ]
+  },
+  "gather": {
+   "frames": [
+    9,
+    10,
+    11
+   ],
+   "durations": [
+    8,
+    8,
+    8
+   ],
+   "loop": false,
+   "hand": [
+    [
+     33,
+     30
+    ],
+    [
+     39,
+     38
+    ],
+    [
+     38,
+     39
+    ]
+   ]
+  },
+  "craft": {
+   "frames": [
+    14,
+    15,
+    14
+   ],
+   "durations": [
+    10,
+    14,
+    10
+   ],
+   "loop": false,
+   "hand": [
+    [
+     30,
+     30
+    ],
+    [
+     30,
+     26
+    ],
+    [
+     30,
+     30
+    ]
+   ]
+  },
+  "levelup": {
+   "frames": [
+    15,
+    14,
+    15
+   ],
+   "durations": [
+    8,
+    8,
+    8
+   ],
+   "loop": false,
+   "hand": [
+    [
+     30,
+     26
+    ],
+    [
+     30,
+     30
+    ],
+    [
+     30,
+     26
+    ]
+   ]
+  },
+  "break": {
+   "frames": [
+    16,
+    16,
+    1
+   ],
+   "durations": [
+    10,
+    14,
+    10
+   ],
+   "loop": false,
+   "hand": [
+    [
+     33,
+     40
+    ],
+    [
+     33,
+     40
+    ],
+    [
+     33,
+     40
+    ]
+   ]
+  },
+  "victory": {
+   "frames": [
+    15,
+    0,
+    15
+   ],
+   "durations": [
+    12,
+    12,
+    12
+   ],
+   "loop": true,
+   "hand": [
+    [
+     30,
+     26
+    ],
+    [
+     37,
+     36
+    ],
+    [
+     30,
+     26
+    ]
+   ]
+  },
+  "bonk": {
+   "frames": [
+    9,
+    10,
+    11
+   ],
+   "hand": [
+    [
+     32,
+     27
+    ],
+    [
+     39,
+     34
+    ],
+    [
+     38,
+     38
+    ]
+   ]
+  },
+  "swingup": {
+   "frames": [
+    11,
+    10,
+    9
+   ],
+   "hand": [
+    [
+     36,
+     38
+    ],
+    [
+     37,
+     27
+    ],
+    [
+     34,
+     28
+    ]
+   ]
+  },
+  "build": {
+   "frames": [
+    9,
+    11,
+    11
+   ],
+   "hand": [
+    [
+     34,
+     36
+    ],
+    [
+     38,
+     38
+    ],
+    [
+     38,
+     38
+    ]
+   ]
+  },
+  "nailgun": {
+   "frames": [
+    9,
+    10,
+    11
+   ],
+   "hand": [
+    [
+     34,
+     36
+    ],
+    [
+     38,
+     36
+    ],
+    [
+     37,
+     36
+    ]
+   ]
+  },
+  "bigbonk": {
+   "frames": [
+    15,
+    10,
+    11
+   ],
+   "hand": [
+    [
+     30,
+     20
+    ],
+    [
+     40,
+     34
+    ],
+    [
+     38,
+     38
+    ]
+   ]
+  }
+ },
+ "actions": {
+  "move": {
+   "type": "move",
+   "speed": 1.9,
+   "accel": 0.35
+  },
+  "jump": {
+   "type": "jump",
+   "velocity": 6.4,
+   "max_count": 2
+  },
+  "bonk": {
+   "type": "swing",
+   "anim": "bonk",
+   "weapon": "hammer1",
+   "from": 110,
+   "to": -30,
+   "reach": [
+    0,
+    2
+   ],
+   "startup": 8,
+   "active": 4,
+   "recovery": 14,
+   "damage": 6,
+   "knockback": {
+    "angle": 40,
+    "force": 26
+   },
+   "upgrades": [
+    {
+     "if": {
+      "tier": ">=1"
+     },
+     "set": {
+      "weapon": "hammer2",
+      "damage": 8,
+      "knockback": {
+       "angle": 40,
+       "force": 32
+      }
+     }
+    },
+    {
+     "if": {
+      "tier": ">=2"
+     },
+     "set": {
+      "weapon": "hammer3",
+      "damage": 9,
+      "reach": [
+       0,
+       4
+      ],
+      "status": {
+       "type": "stun",
+       "duration": 20
+      }
+     }
+    }
+   ],
+   "links": [
+    {
+     "when": "on_hit",
+     "gain": {
+      "wood": 1
+     }
+    },
+    {
+     "when": "on_hit",
+     "if": {
+      "tier": ">=1"
+     },
+     "spend": {
+      "dur": 1
+     }
+    }
+   ]
+  },
+  "swingup": {
+   "type": "swing",
+   "anim": "swingup",
+   "weapon": "hammer1",
+   "from": -20,
+   "to": 130,
+   "reach": [
+    0,
+    2
+   ],
+   "startup": 7,
+   "active": 4,
+   "recovery": 14,
+   "damage": 5,
+   "knockback": {
+    "angle": 85,
+    "force": 30
+   },
+   "upgrades": [
+    {
+     "if": {
+      "tier": ">=1"
+     },
+     "set": {
+      "weapon": "hammer2",
+      "damage": 7
+     }
+    },
+    {
+     "if": {
+      "tier": ">=2"
+     },
+     "set": {
+      "weapon": "hammer3",
+      "damage": 8
+     }
+    }
+   ],
+   "links": [
+    {
+     "when": "on_hit",
+     "if": {
+      "tier": ">=1"
+     },
+     "spend": {
+      "dur": 1
+     }
+    }
+   ]
+  },
+  "gather": {
+   "type": "pose",
+   "anim": "gather",
+   "require": "ground",
+   "links": [
+    {
+     "when": "every",
+     "interval": 40,
+     "gain": {
+      "wood": 1
+     },
+     "fx": "puff",
+     "sfx": "chop"
+    },
+    {
+     "when": "on_release",
+     "fx": "puff"
+    }
+   ]
+  },
+  "craft": {
+   "type": "pose",
+   "anim": "craft",
+   "cost": {
+    "wood": 3
+   },
+   "cooldown": 30,
+   "require": "ground",
+   "sfx": {
+    "start": "ding"
+   },
+   "links": [
+    {
+     "when": "on_end",
+     "gain": {
+      "tier": 1
+     }
+    },
+    {
+     "when": "on_end",
+     "set": {
+      "dur": 10
+     }
+    }
+   ]
+  },
+  "break": {
+   "type": "pose",
+   "anim": "break",
+   "sfx": {
+    "start": "crack"
+   },
+   "links": [
+    {
+     "when": "on_start",
+     "fx": "puff"
+    }
+   ]
+  },
+  "turret": {
+   "type": "shoot",
+   "anim": "build",
+   "projectile": "turret",
+   "aim": "fixed",
+   "angle": 0,
+   "speed": 0,
+   "lifetime": 300,
+   "hp": 6,
+   "startup": 14,
+   "active": 2,
+   "recovery": 14,
+   "damage": 2,
+   "cost": {
+    "wood": 2
+   },
+   "cooldown": 120,
+   "knockback": {
+    "angle": 45,
+    "force": 15
+   },
+   "links": [
+    {
+     "when": "every",
+     "interval": 60,
+     "spawn": "nail"
+    }
+   ]
+  },
+  "nail": {
+   "type": "shoot",
+   "anim": "nailgun",
+   "projectile": "nail",
+   "aim": "fixed",
+   "angle": 0,
+   "speed": 5,
+   "lifetime": 50,
+   "startup": 6,
+   "active": 2,
+   "recovery": 10,
+   "damage": 3,
+   "knockback": {
+    "angle": 10,
+    "force": 12
+   }
+  },
+  "mega_bonk": {
+   "type": "swing",
+   "anim": "bigbonk",
+   "weapon": "hammer3",
+   "from": 150,
+   "to": -60,
+   "reach": [
+    0,
+    4
+   ],
+   "startup": 45,
+   "active": 5,
+   "recovery": 26,
+   "damage": 30,
+   "ultimate": true,
+   "knockback": {
+    "angle": 45,
+    "force": 90
+   },
+   "sfx": {
+    "hit": "crack"
+   }
+  }
+ },
+ "forms": [
+  {
+   "if": {
+    "tier": ">=1"
+   },
+   "held": "hammer2"
+  },
+  {
+   "if": {
+    "tier": ">=2"
+   },
+   "held": "hammer3"
+  }
+ ],
+ "links": [
+  {
+   "when": "resource_empty",
+   "resource": "dur",
+   "set": {
+    "tier": 0
+   },
+   "goto": "break"
+  },
+  {
+   "when": "every",
+   "interval": 300,
+   "heal": 2
+  }
+ ],
+ "input": {
+  "attack.neutral": "bonk",
+  "attack.side": "bonk",
+  "attack.up": "swingup",
+  "attack.neutral.air": "swingup",
+  "special.neutral": "gather",
+  "special.down": "craft",
+  "special.side": "turret",
+  "special.up": "nail",
+  "jump": "jump"
+ }
+}

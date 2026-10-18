@@ -438,6 +438,140 @@
   ],
   "valid": false
  },
+ "example_bulb.zip": {
+  "errors": [],
+  "points": {
+   "base": {
+    "actions": {
+     "blink": 6.2344,
+     "fireball": 4.164,
+     "fly": 2.0,
+     "frost": 2.8902,
+     "hush": 4.0853,
+     "jump": -0.6,
+     "light_beam": 2.0775,
+     "mirror": 3.8,
+     "move": -1.2,
+     "ring": 4.6941,
+     "spark": 4.9174,
+     "vine_trap": 5.2559
+    },
+    "total": 36.3187
+   }
+  },
+  "valid": true
+ },
+ "example_knight.zip": {
+  "errors": [],
+  "points": {
+   "base": {
+    "actions": {
+     "counter": 4.9941,
+     "grab": 1.791,
+     "jab1": 2.6942,
+     "jab2": 2.7908,
+     "jab3": 3.2011,
+     "jump": 0.2,
+     "meteor": 3.2888,
+     "move": 1.2,
+     "poke": 2.4433,
+     "riposte": 3.3658,
+     "rise": 6.533,
+     "smash": 3.5938,
+     "spin": 2.6314,
+     "throw": 2.5375,
+     "upslash": 2.8615,
+     "wave": 1.7473
+    },
+    "total": 46.8734
+   }
+  },
+  "valid": true
+ },
+ "example_swissknife.zip": {
+  "errors": [],
+  "points": {
+   "0": {
+    "actions": {
+     "axe_chop": 7.9934,
+     "axe_sweep": 3.7805,
+     "jump": -4.0,
+     "move": 0.6,
+     "switch": 0.0
+    },
+    "total": 12.3739
+   },
+   "1": {
+    "actions": {
+     "arrow": 4.7969,
+     "jump": -4.0,
+     "move": 0.6,
+     "switch": 0.0,
+     "volley": 3.2414
+    },
+    "total": 8.6383
+   },
+   "base": {
+    "actions": {
+     "jump": -4.0,
+     "move": 0.6,
+     "switch": 0.0,
+     "sword_cut": 2.6504,
+     "sword_lunge": 4.5543
+    },
+    "total": 7.8047
+   }
+  },
+  "valid": true
+ },
+ "example_toolbox.zip": {
+  "errors": [],
+  "points": {
+   "0": {
+    "actions": {
+     "bonk": 6.0204,
+     "break": 0.0,
+     "craft": 0.0,
+     "gather": 0.0,
+     "jump": -0.2,
+     "move": -0.6,
+     "nail": 1.9174,
+     "swingup": 2.8146,
+     "turret": 4.594
+    },
+    "total": 18.7464
+   },
+   "0+1": {
+    "actions": {
+     "bonk": 6.0204,
+     "break": 0.0,
+     "craft": 0.0,
+     "gather": 0.0,
+     "jump": -0.2,
+     "move": -0.6,
+     "nail": 1.9174,
+     "swingup": 2.8146,
+     "turret": 4.594
+    },
+    "total": 18.7464
+   },
+   "base": {
+    "actions": {
+     "bonk": 6.0204,
+     "break": 0.0,
+     "craft": 0.0,
+     "gather": 0.0,
+     "jump": -0.2,
+     "move": -0.6,
+     "nail": 1.9174,
+     "swingup": 2.8146,
+     "turret": 4.594
+    },
+    "total": 18.7464
+   }
+  },
+  "valid": true
+ },
  "fly_control.zip": {
   "errors": [
    "fly.control"

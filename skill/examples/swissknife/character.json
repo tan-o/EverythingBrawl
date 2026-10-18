@@ -1,0 +1,824 @@
+{
+ "format": 1,
+ "name": "瑞士军刀",
+ "frame_size": [
+  48,
+  48
+ ],
+ "anchor": [
+  24,
+  48
+ ],
+ "stats": {
+  "hp": 100,
+  "body": [
+   20,
+   30
+  ],
+  "weight": 5,
+  "gravity": 0.38,
+  "max_fall": 5,
+  "air_control": 0.6
+ },
+ "held": "sword",
+ "resources": {
+  "slot": {
+   "init": 0,
+   "max": 2,
+   "wrap": true,
+   "keep_on_ko": true,
+   "hud": "slot"
+  }
+ },
+ "assets": {
+  "sword": {
+   "kind": "weapon",
+   "image": "sword.png",
+   "grip": [
+    1,
+    3
+   ],
+   "length": 20,
+   "radius": 3,
+   "hit_range": [
+    0.2,
+    1
+   ]
+  },
+  "axe": {
+   "kind": "weapon",
+   "image": "axe.png",
+   "grip": [
+    1,
+    7
+   ],
+   "length": 20,
+   "radius": 6,
+   "hit_range": [
+    0.6,
+    1
+   ]
+  },
+  "bow": {
+   "kind": "weapon",
+   "image": "bow.png",
+   "grip": [
+    2,
+    13
+   ],
+   "length": 6,
+   "radius": 2,
+   "hit_range": [
+    0,
+    1
+   ]
+  },
+  "arrow": {
+   "kind": "projectile",
+   "image": "arrow.png",
+   "shape": "rect",
+   "size": [
+    16,
+    4
+   ]
+  },
+  "bigarrow": {
+   "kind": "projectile",
+   "image": "bigarrow.png",
+   "shape": "rect",
+   "size": [
+    60,
+    16
+   ]
+  },
+  "slot": {
+   "kind": "icon",
+   "image": "slot.png"
+  },
+  "click": {
+   "kind": "sfx",
+   "params": {
+    "wave_type": 0,
+    "p_env_sustain": 0.03,
+    "p_env_decay": 0.08,
+    "p_base_freq": 0.8,
+    "p_duty": 0.5,
+    "sound_vol": 0.25
+   }
+  },
+  "twang": {
+   "kind": "sfx",
+   "params": {
+    "wave_type": 1,
+    "p_env_sustain": 0.05,
+    "p_env_decay": 0.25,
+    "p_base_freq": 0.5,
+    "p_freq_ramp": -0.2,
+    "p_vib_strength": 0.3,
+    "p_vib_speed": 0.6,
+    "sound_vol": 0.3
+   }
+  },
+  "whack": {
+   "kind": "sfx",
+   "params": {
+    "wave_type": 3,
+    "p_env_sustain": 0.06,
+    "p_env_decay": 0.25,
+    "p_base_freq": 0.3,
+    "p_freq_ramp": -0.2,
+    "sound_vol": 0.4
+   }
+  }
+ },
+ "anims": {
+  "idle": {
+   "frames": [
+    0,
+    1,
+    0
+   ],
+   "durations": [
+    20,
+    14,
+    20
+   ],
+   "loop": true,
+   "hand": [
+    [
+     35,
+     34
+    ],
+    [
+     35,
+     35
+    ],
+    [
+     35,
+     34
+    ]
+   ]
+  },
+  "idle_heavy": {
+   "frames": [
+    2,
+    1,
+    2
+   ],
+   "durations": [
+    24,
+    16,
+    24
+   ],
+   "loop": true,
+   "hand": [
+    [
+     35,
+     36
+    ],
+    [
+     35,
+     36
+    ],
+    [
+     35,
+     36
+    ]
+   ]
+  },
+  "walk": {
+   "frames": [
+    3,
+    0,
+    4,
+    0
+   ],
+   "durations": [
+    6,
+    6,
+    6,
+    6
+   ],
+   "loop": true,
+   "hand": [
+    [
+     35,
+     33
+    ],
+    [
+     35,
+     34
+    ],
+    [
+     35,
+     33
+    ],
+    [
+     35,
+     34
+    ]
+   ]
+  },
+  "jump": {
+   "frames": [
+    5,
+    5,
+    5
+   ],
+   "durations": [
+    4,
+    4,
+    4
+   ],
+   "loop": false,
+   "hand": [
+    [
+     35,
+     31
+    ],
+    [
+     35,
+     31
+    ],
+    [
+     35,
+     31
+    ]
+   ]
+  },
+  "fall": {
+   "frames": [
+    6,
+    6,
+    6
+   ],
+   "durations": [
+    6,
+    6,
+    6
+   ],
+   "loop": true,
+   "hand": [
+    [
+     35,
+     33
+    ],
+    [
+     35,
+     33
+    ],
+    [
+     35,
+     33
+    ]
+   ]
+  },
+  "land": {
+   "frames": [
+    7,
+    1,
+    0
+   ],
+   "durations": [
+    4,
+    3,
+    3
+   ],
+   "loop": false,
+   "hand": [
+    [
+     35,
+     38
+    ],
+    [
+     35,
+     35
+    ],
+    [
+     35,
+     34
+    ]
+   ]
+  },
+  "hurt": {
+   "frames": [
+    8,
+    8,
+    8
+   ],
+   "durations": [
+    5,
+    5,
+    5
+   ],
+   "loop": true,
+   "hand": [
+    [
+     31,
+     33
+    ],
+    [
+     31,
+     33
+    ],
+    [
+     31,
+     33
+    ]
+   ]
+  },
+  "guard": {
+   "frames": [
+    9,
+    9,
+    9
+   ],
+   "durations": [
+    10,
+    10,
+    10
+   ],
+   "loop": true,
+   "hand": [
+    [
+     32,
+     36
+    ],
+    [
+     32,
+     36
+    ],
+    [
+     32,
+     36
+    ]
+   ]
+  },
+  "ko": {
+   "frames": [
+    8,
+    13,
+    14
+   ],
+   "durations": [
+    10,
+    10,
+    30
+   ],
+   "loop": false,
+   "hand": [
+    [
+     31,
+     33
+    ],
+    [
+     29,
+     36
+    ],
+    [
+     30,
+     44
+    ]
+   ]
+  },
+  "switch": {
+   "frames": [
+    15,
+    7,
+    15
+   ],
+   "durations": [
+    8,
+    6,
+    10
+   ],
+   "loop": false,
+   "hand": [
+    [
+     35,
+     30
+    ],
+    [
+     35,
+     38
+    ],
+    [
+     35,
+     30
+    ]
+   ]
+  },
+  "victory": {
+   "frames": [
+    16,
+    0,
+    16
+   ],
+   "durations": [
+    12,
+    12,
+    12
+   ],
+   "loop": true,
+   "hand": [
+    [
+     35,
+     26
+    ],
+    [
+     35,
+     34
+    ],
+    [
+     35,
+     26
+    ]
+   ]
+  },
+  "slash": {
+   "frames": [
+    10,
+    11,
+    12
+   ],
+   "hand": [
+    [
+     32,
+     30
+    ],
+    [
+     38,
+     31
+    ],
+    [
+     37,
+     34
+    ]
+   ]
+  },
+  "lunge": {
+   "frames": [
+    10,
+    11,
+    12
+   ],
+   "hand": [
+    [
+     31,
+     34
+    ],
+    [
+     40,
+     33
+    ],
+    [
+     38,
+     34
+    ]
+   ]
+  },
+  "chop": {
+   "frames": [
+    10,
+    11,
+    12
+   ],
+   "hand": [
+    [
+     30,
+     24
+    ],
+    [
+     39,
+     32
+    ],
+    [
+     38,
+     38
+    ]
+   ]
+  },
+  "sweep": {
+   "frames": [
+    10,
+    11,
+    12
+   ],
+   "hand": [
+    [
+     31,
+     36
+    ],
+    [
+     39,
+     38
+    ],
+    [
+     38,
+     38
+    ]
+   ]
+  },
+  "draw": {
+   "frames": [
+    10,
+    12,
+    12
+   ],
+   "hand": [
+    [
+     34,
+     33
+    ],
+    [
+     36,
+     32
+    ],
+    [
+     36,
+     33
+    ]
+   ]
+  },
+  "volley": {
+   "frames": [
+    10,
+    12,
+    12
+   ],
+   "hand": [
+    [
+     34,
+     30
+    ],
+    [
+     36,
+     28
+    ],
+    [
+     36,
+     30
+    ]
+   ]
+  },
+  "ultdraw": {
+   "frames": [
+    16,
+    11,
+    12
+   ],
+   "hand": [
+    [
+     34,
+     28
+    ],
+    [
+     37,
+     32
+    ],
+    [
+     36,
+     33
+    ]
+   ]
+  }
+ },
+ "actions": {
+  "move": {
+   "type": "move",
+   "speed": 2.1,
+   "accel": 0.4
+  },
+  "jump": {
+   "type": "jump",
+   "velocity": 6.5,
+   "max_count": 1
+  },
+  "switch": {
+   "type": "pose",
+   "anim": "switch",
+   "cooldown": 30,
+   "sfx": {
+    "start": "click"
+   },
+   "links": [
+    {
+     "when": "on_end",
+     "gain": {
+      "slot": 1
+     }
+    }
+   ]
+  },
+  "sword_cut": {
+   "type": "swing",
+   "anim": "slash",
+   "weapon": "sword",
+   "from": 80,
+   "to": -30,
+   "reach": [
+    0,
+    2
+   ],
+   "startup": 5,
+   "active": 3,
+   "recovery": 11,
+   "damage": 6,
+   "knockback": {
+    "angle": 35,
+    "force": 22
+   }
+  },
+  "sword_lunge": {
+   "type": "swing",
+   "anim": "lunge",
+   "weapon": "sword",
+   "from": 0,
+   "to": 0,
+   "reach": [
+    0,
+    10
+   ],
+   "startup": 9,
+   "active": 4,
+   "recovery": 16,
+   "damage": 8,
+   "knockback": {
+    "angle": 25,
+    "force": 38
+   },
+   "motion": [
+    {
+     "frame": 8,
+     "vel": [
+      3,
+      0
+     ]
+    },
+    {
+     "frame": 14,
+     "vel": [
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "axe_chop": {
+   "type": "swing",
+   "anim": "chop",
+   "weapon": "axe",
+   "from": 120,
+   "to": -60,
+   "reach": [
+    0,
+    2
+   ],
+   "startup": 16,
+   "active": 4,
+   "recovery": 22,
+   "damage": 15,
+   "knockback": {
+    "angle": 45,
+    "force": 55
+   },
+   "armor": [
+    4,
+    18
+   ],
+   "sfx": {
+    "hit": "whack"
+   }
+  },
+  "axe_sweep": {
+   "type": "swing",
+   "anim": "sweep",
+   "weapon": "axe",
+   "from": -10,
+   "to": -40,
+   "reach": [
+    0,
+    2
+   ],
+   "startup": 12,
+   "active": 4,
+   "recovery": 18,
+   "damage": 10,
+   "knockback": {
+    "angle": 70,
+    "force": 40
+   },
+   "sfx": {
+    "hit": "whack"
+   }
+  },
+  "arrow": {
+   "type": "shoot",
+   "anim": "draw",
+   "weapon": "bow",
+   "projectile": "arrow",
+   "aim": "input",
+   "angle": 5,
+   "speed": 5,
+   "lifetime": 70,
+   "gravity": 0.06,
+   "startup": 12,
+   "active": 2,
+   "recovery": 12,
+   "damage": 7,
+   "knockback": {
+    "angle": 20,
+    "force": 22
+   },
+   "sfx": {
+    "start": "twang"
+   }
+  },
+  "volley": {
+   "type": "shoot",
+   "anim": "volley",
+   "weapon": "bow",
+   "projectile": "arrow",
+   "aim": "fixed",
+   "angle": 50,
+   "count": 3,
+   "spread": 30,
+   "speed": 4.5,
+   "lifetime": 60,
+   "gravity": 0.15,
+   "startup": 16,
+   "active": 2,
+   "recovery": 16,
+   "damage": 4,
+   "cooldown": 45,
+   "knockback": {
+    "angle": 60,
+    "force": 18
+   },
+   "sfx": {
+    "start": "twang"
+   }
+  },
+  "giant_arrow": {
+   "type": "shoot",
+   "anim": "ultdraw",
+   "weapon": "bow",
+   "projectile": "bigarrow",
+   "aim": "fixed",
+   "angle": 0,
+   "speed": 4.5,
+   "lifetime": 110,
+   "pierce": 2,
+   "startup": 50,
+   "active": 2,
+   "recovery": 24,
+   "damage": 20,
+   "ultimate": true,
+   "knockback": {
+    "angle": 30,
+    "force": 85
+   },
+   "sfx": {
+    "start": "twang"
+   }
+  }
+ },
+ "forms": [
+  {
+   "if": {
+    "slot": "==1"
+   },
+   "held": "axe",
+   "anims": {
+    "idle": "idle_heavy"
+   },
+   "stats": {
+    "weight": 7
+   },
+   "input": {
+    "attack.neutral": "axe_sweep",
+    "attack.side": "axe_chop"
+   }
+  },
+  {
+   "if": {
+    "slot": "==2"
+   },
+   "held": "bow",
+   "stats": {
+    "weight": 4
+   },
+   "input": {
+    "attack.neutral": "arrow",
+    "attack.side": "arrow",
+    "attack.up": "volley"
+   }
+  }
+ ],
+ "input": {
+  "attack.neutral": "sword_cut",
+  "attack.side": "sword_lunge",
+  "special.down": "switch",
+  "jump": "jump"
+ }
+}

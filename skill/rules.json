@@ -8,7 +8,8 @@
     "air_friction": 0.04,
     "hitstun_drag": 0.95,
     "drop_through_hold": 6,
-    "drop_through_frames": 12
+    "drop_through_frames": 12,
+    "input_buffer": 5
   },
 
   "combat": {

@@ -19,6 +19,9 @@ static func from_bytes(bytes: PackedByteArray) -> PackReader:
 
 
 static func from_file(path: String) -> PackReader:
+	if path.begins_with("res://"):
+		# 导出包内的文件不在真实文件系统上，ZIPReader 需要先落地到 user://
+		return from_bytes(FileAccess.get_file_as_bytes(path))
 	var r := PackReader.new()
 	var bytes := FileAccess.get_file_as_bytes(path)
 	r.zip_size = bytes.size()
