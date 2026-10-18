@@ -2,7 +2,7 @@ extends SceneTree
 ## 无头测试入口：
 ##   godot --headless --path game -s res://tests/run_tests.gd -- conformance <conformance目录>
 ##   godot --headless --path game -s res://tests/run_tests.gd -- validate <zip>
-##   godot --headless --path game -s res://tests/run_tests.gd -- sim <zip> <zip> [帧数]
+##   godot --headless --path game -s res://tests/run_tests.gd -- sim <zip> <zip> [帧数] [场景zip]
 
 
 func _init() -> void:
@@ -15,7 +15,10 @@ func _init() -> void:
 		print(v.report())
 		ok = v.is_valid()
 	elif args.size() >= 3 and args[0] == "sim":
-		ok = SimSmokeTest.run(args[1], args[2], int(args[3]) if args.size() > 3 else 3600)
+		if args.size() > 4:
+			ok = SimSmokeTest.run(args[1], args[2], int(args[3]), args[4])
+		else:
+			ok = SimSmokeTest.run(args[1], args[2], int(args[3]) if args.size() > 3 else 3600)
 	else:
 		printerr("用法见 run_tests.gd 注释")
 	quit(0 if ok else 1)

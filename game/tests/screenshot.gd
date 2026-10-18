@@ -1,6 +1,6 @@
 extends SceneTree
 ## 截图测试（需要显示环境，如 xvfb-run）：
-##   godot --path game -s res://tests/screenshot.gd -- <包A> <包B> <输出目录> [帧1,帧2,...] [debug]
+##   godot --path game -s res://tests/screenshot.gd -- <包A> <包B> <输出目录> [帧1,帧2,...] [debug] [场景包]
 
 var m: MatchScreen
 var frames: Array = []
@@ -22,7 +22,7 @@ func _initialize() -> void:
 	m.start([
 		{"validator": PackLibrary.load_pack(args[0]), "input": "none"},
 		{"validator": PackLibrary.load_pack(args[1]), "input": "none"},
-	])
+	], PackLibrary.load_pack(args[5] if args.size() > 5 else "res://data/stages/kitchen.zip"))
 	if args.size() > 4 and args[4] == "debug":
 		m._toggle_debug()
 	rng.seed = 3

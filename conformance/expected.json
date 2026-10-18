@@ -494,6 +494,16 @@
   },
   "valid": true
  },
+ "example_stage_desk.zip": {
+  "errors": [],
+  "points": {},
+  "valid": true
+ },
+ "example_stage_kitchen.zip": {
+  "errors": [],
+  "points": {},
+  "valid": true
+ },
  "example_swissknife.zip": {
   "errors": [],
   "points": {

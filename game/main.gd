@@ -28,7 +28,7 @@ func _set_screen(c: Control) -> void:
 
 func _reload_packs() -> void:
 	packs = []
-	for p in PackLibrary.paths():
+	for p in PackLibrary.paths("character"):
 		packs.append({"path": p, "v": PackLibrary.load_pack(p)})
 
 
@@ -112,7 +112,7 @@ func _start_match() -> void:
 		players.append({"validator": valid[picks[i] % valid.size()].v, "input": INPUTS[input_picks[i]]})
 	var m := MatchScreen.new()
 	_set_screen(m)
-	m.start(players)
+	m.start(players, PackLibrary.load_pack("res://data/stages/kitchen.zip"))
 	m.exited.connect(_show_versus)
 
 
@@ -131,7 +131,7 @@ func _show_packs() -> void:
 		var name: String = v.data.get("name", p.path.get_file()) if v.data != null and not v.data.is_empty() else p.path.get_file()
 		var text: String = ("✔ " if v.is_valid() else "✘ ") + name + "    " + p.path.get_file()
 		list.add_child(Menus.button(text, _show_report.bind(p), 600))
-	box.add_child(Menus.label("导入：把角色包 zip 拖到窗口上，或放入 %s" % ProjectSettings.globalize_path(PackLibrary.USER), 18, true))
+	box.add_child(Menus.label("导入：把角色包 zip 拖到窗口上，或放入 %s" % ProjectSettings.globalize_path(PackLibrary.DIRS.character[1]), 18, true))
 	box.add_child(Menus.button("返回", _show_menu))
 	_set_screen(s[0])
 

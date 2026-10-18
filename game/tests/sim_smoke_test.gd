@@ -11,12 +11,14 @@ static func load_runtime(path: String) -> CharRuntime:
 	return CharRuntime.new(v.data)
 
 
-static func run(a: String, b: String, frames: int) -> bool:
+static func run(a: String, b: String, frames: int, stage_path := "res://data/stages/kitchen.zip") -> bool:
 	var ca := load_runtime(a)
 	var cb := load_runtime(b)
-	if ca == null or cb == null:
+	var sv := PackValidator.validate_file(stage_path)
+	if ca == null or cb == null or not sv.is_valid():
+		print(sv.report())
 		return false
-	var sim := MatchSim.new([ca, cb])
+	var sim := MatchSim.new([ca, cb], sv.data)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 42
 	var R := Rules.data()
@@ -35,9 +37,9 @@ static func run(a: String, b: String, frames: int) -> bool:
 				var toward := signf(other.pos.x - sim.fighters[i].pos.x)
 				var st := Vector2(toward if rng.randf() < 0.6 else rng.randf_range(-1, 1), rng.randf_range(-1, 1) if rng.randf() < 0.4 else 0.0)
 				# 别总往场外跑
-				if sim.fighters[i].pos.x < 90:
+				if sim.fighters[i].pos.x < 100:
 					st.x = 1
-				elif sim.fighters[i].pos.x > 390:
+				elif sim.fighters[i].pos.x > 380:
 					st.x = -1
 				hold[i] = InputFrame.make(st, btn)
 			inputs.append(hold[i])

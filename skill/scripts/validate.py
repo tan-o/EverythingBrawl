@@ -30,7 +30,7 @@ P = RULES["points"]
 
 ATTACK_TYPES = ("swing", "shoot")
 REQUIRED_ANIMS = ["idle", "walk", "jump", "fall", "land", "hurt", "guard", "ko"]
-OPTIONAL_ANIMS = ["entrance", "victory", "levelup"]
+OPTIONAL_ANIMS = ["entrance", "victory", "levelup", "run", "dodge", "cling"]
 BULLET_WHEN = ["on_frame", "every", "projectile_hit", "projectile_expire"]
 ACTION_WHEN = ["on_start", "on_end", "on_frame", "every", "on_hit", "on_whiff", "on_land", "on_release", "on_hurt"]
 CHAR_WHEN = ["every", "on_land", "on_hurt", "resource_empty", "resource_full"]
@@ -248,7 +248,7 @@ def read_pack(src):
         with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
             for name in sorted(os.listdir(src)):
                 p = os.path.join(src, name)
-                if os.path.isfile(p) and (name == "character.json" or name.endswith(".png")):
+                if os.path.isfile(p) and (name in ("character.json", "stage.json") or name.endswith(".png")):
                     z.write(p, name)
         data = buf.getvalue()
     else:

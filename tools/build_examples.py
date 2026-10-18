@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""重新生成 skill/examples 下的示例角色，并打包到：
-  game/data/packs/<名字>.zip            游戏内置示例
+"""重新生成 skill/examples 下的示例角色与场景，并打包到：
+  game/data/packs/<名字>.zip            游戏内置示例角色
+  game/data/stages/<名字>.zip           游戏内置示例场景（目录名去掉 stage_ 前缀）
   conformance/packs/example_<名字>.zip  一致性用例（期望点数由 validate.py 冻结）
 """
 import json
@@ -16,11 +17,13 @@ import pack  # noqa: E402
 import validate  # noqa: E402
 
 GAME = os.path.join(ROOT, "game", "data", "packs")
+GAME_STAGES = os.path.join(ROOT, "game", "data", "stages")
 CONF = os.path.join(ROOT, "conformance")
 
 
 def main():
     os.makedirs(GAME, exist_ok=True)
+    os.makedirs(GAME_STAGES, exist_ok=True)
     exp_path = os.path.join(CONF, "expected.json")
     exp = json.load(open(exp_path, encoding="utf-8"))
     for name in sorted(os.listdir(EX)):
@@ -28,7 +31,8 @@ def main():
         if not os.path.isfile(os.path.join(d, "build.py")):
             continue
         subprocess.check_call([sys.executable, os.path.join(d, "build.py")])
-        out = os.path.join(GAME, name + ".zip")
+        is_stage = os.path.exists(os.path.join(d, "stage.json"))
+        out = os.path.join(GAME_STAGES if is_stage else GAME, (name[len("stage_"):] if is_stage else name) + ".zip")
         pack.pack(d, out, check=True)
         conf_name = "example_%s.zip" % name
         shutil.copyfile(out, os.path.join(CONF, "packs", conf_name))

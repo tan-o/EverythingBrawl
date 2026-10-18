@@ -15,6 +15,20 @@ var pos := Vector2.ZERO    # 脚底锚点（世界坐标）
 var vel := Vector2.ZERO
 var facing := 1
 var on_ground := false
+var ground_el := -1        # 脚下的场景元素（-1 = 无 / solid 布置物）
+var ground_oneway := false
+var wall_el := -1          # 贴着的可攀爬墙
+var wall_dir := 0          # 墙在哪一侧：1 右，-1 左
+var cling_t := 0
+var cling_used := {}       # 本次落地前已经爬过的墙
+var fast_fall := false
+var jump_t := 99           # 起跳后的帧数（小跳判定）
+var jump_cut := true
+var dodge := {}            # {kind, t, dir}
+var dodge_cd := 0
+var air_dodged := false
+var hazard_cd := {}        # 场景危险物 -> 上次受伤帧
+var prev_stick := Vector2.ZERO
 var drop_timer := 0
 var down_hold := 0
 var spawn_pos := Vector2.ZERO
@@ -26,7 +40,7 @@ var shield := 100.0
 var ult := 0.0
 var res := {}
 var heal_used := 0.0
-var state := "normal"      # normal action guard hitstun shieldbreak grabbed ko dead out
+var state := "normal"      # normal action guard dodge cling hitstun shieldbreak grabbed ko dead out
 var state_t := 0
 var hitlag := 0
 var invuln := 0
@@ -105,6 +119,12 @@ func respawn(first := false) -> void:
 	on_ground = true
 	jumps_used = 0
 	fly_used = false
+	fast_fall = false
+	dodge = {}
+	cling_used.clear()
+	air_dodged = false
+	ground_el = -1
+	wall_el = -1
 	char_t = 0
 	invuln = 0 if first else int(R.combat.respawn_invuln)
 	set_override("entrance")
@@ -167,7 +187,7 @@ func in_window(key: String) -> bool:
 
 
 func is_invulnerable() -> bool:
-	if invuln > 0 or not alive():
+	if invuln > 0 or not alive() or dodge_invuln():
 		return true
 	if in_window("invuln"):
 		return true
@@ -227,12 +247,15 @@ func facing_dir(deg: float, f := 0) -> Vector2:
 
 func begin_frame(inp: InputFrame) -> void:
 	prev_buttons = input.buttons
+	prev_stick = input.stick()
 	input = inp
 	for b in InputFrame.BUTTONS.values():
 		if input.held(b) and not (prev_buttons & b):
 			press_frame[b] = sim.frame
 			if not act.is_empty():
+				# 联动的 input 条件可写 "attack" 或带方向的 "attack.up"
 				act.press[_btn_name(b)] = act.frame
+				act.press[_btn_name(b) + "." + InputFrame.direction(input.stick())] = act.frame
 
 
 func pressed(b: int) -> bool:
@@ -289,9 +312,18 @@ func tick() -> void:
 			if grabbed_by == null or grabbed_by.grabbing != self:
 				release_grabbed(false)
 		"guard":
-			if not input.held(InputFrame.GUARD) or not can_act():
+			if not input.held(InputFrame.GUARD) or not can_act() or not on_ground:
 				state = "normal"
-			_move_control(Vector2.ZERO)
+			else:
+				_guard_options()
+			if state == "guard":
+				_move_control(Vector2.ZERO)
+			_physics(false)
+		"dodge":
+			_update_dodge()
+			_physics(false)
+		"cling":
+			_update_cling()
 			_physics(false)
 		"action":
 			_update_action()
@@ -312,6 +344,8 @@ func _timers() -> void:
 		grab_immune -= 1
 	if override_t > 0:
 		override_t -= 1
+	if dodge_cd > 0:
+		dodge_cd -= 1
 	for t in immune.keys():
 		immune[t] -= 1
 		if immune[t] <= 0:
@@ -374,19 +408,36 @@ func _update_normal() -> void:
 		_move_control(Vector2.ZERO)
 		return
 	if input.held(InputFrame.GUARD):
-		state = "guard"
-		override_t = 0
-		return
+		if on_ground:
+			state = "guard"
+			override_t = 0
+			return
+		if pressed(InputFrame.GUARD) and not air_dodged and dodge_cd == 0:
+			consume(InputFrame.GUARD)
+			_start_dodge("air", st)
+			return
 	if pressed(InputFrame.ULT) and ch.ult_id != "" and ult >= float(R.combat.ult.max):
 		if _try_start(ch.ult_id, InputFrame.ULT):
 			consume(InputFrame.ULT)
 			return
 	for pair in [["attack", InputFrame.ATTACK], ["special", InputFrame.SPECIAL]]:
 		if pressed(pair[1]):
-			var aid := input_action("%s.%s" % [pair[0], InputFrame.direction(st)])
+			var key := "%s.%s" % [pair[0], InputFrame.direction(st)]
+			# 跑动中按攻击 = 冲刺攻击（没写 attack.dash 时沿用 attack.side）
+			if pair[0] == "attack" and running() and "attack.dash" in eff.input:
+				key = "attack.dash"
+			var aid := input_action(key)
 			if aid != "" and _try_start(aid, pair[1]):
 				consume(pair[1])
 				return
+	# 空中按向墙壁贴上可攀爬的墙
+	if not on_ground and wall_el >= 0 and not (wall_el in cling_used) and sign(st.x) == wall_dir and abs(st.x) >= 0.5 and vel.y > -2.0:
+		state = "cling"
+		cling_t = 0
+		vel = Vector2.ZERO
+		facing = wall_dir
+		fast_fall = false
+		return
 	if pressed(InputFrame.JUMP):
 		var jid: String = eff.input.get("jump", "")
 		if jid == ch.jump_id and jid != "":
@@ -415,14 +466,23 @@ func input_action(key: String) -> String:
 	return eff.input.get(key, "")
 
 
+func running() -> bool:
+	var mv: Dictionary = ch.data.actions[ch.move_id]
+	return on_ground and abs(vel.x) > mv.speed * slow_factor() * 1.05
+
+
 func _move_control(st: Vector2) -> void:
 	var mv: Dictionary = ch.data.actions[ch.move_id]
 	var speed: float = mv.speed * slow_factor()
 	var target := 0.0
 	if abs(st.x) > 0.2 and not has_status("root"):
 		target = sign(st.x) * speed * min(1.0, abs(st.x) / 0.8)
+		# 摇杆推到底在地面上跑动
+		if on_ground and abs(st.x) >= R.physics.run_threshold:
+			target = sign(st.x) * speed * R.physics.run_mul
 	if on_ground:
 		var rate: float = mv.accel if target != 0.0 else max(mv.accel, R.physics.ground_friction)
+		rate *= sim.ground_friction_mul(self)
 		vel.x = move_toward(vel.x, target, rate)
 	else:
 		if target != 0.0:
@@ -445,6 +505,9 @@ func _do_jump() -> bool:
 		return false
 	vel.y = -j.velocity * slow_factor()
 	on_ground = false
+	fast_fall = false
+	jump_t = 0
+	jump_cut = false
 	override_t = 0
 	anim_name = ""
 	sim.emit({"t": "jump", "i": idx})
@@ -698,6 +761,9 @@ func on_land() -> void:
 	jumps_used = 0
 	jump_double = false
 	fly_used = false
+	fast_fall = false
+	air_dodged = false
+	cling_used.clear()
 	if not act.is_empty():
 		_act_trigger("on_land")
 	for l in ch.data.get("links", []):
@@ -946,16 +1012,38 @@ func blast() -> void:
 # ---------------------------------------------------------------- 物理
 
 func _physics(stunned: bool) -> void:
-	var g: float = stats().gravity
+	var z: Dictionary = sim.zone_at(self)
+	var g: float = stats().gravity * z.gravity_mul
 	if not act.is_empty():
 		g *= act.def.get("gravity_scale", 1.0)
 		if act.def.type == "fly":
 			g = 0.0
+	if state == "cling":
+		g = 0.0
 	vel.y += g
+	vel += z.wind
+	# 小跳：起跳后很快松开跳跃键，上升速度减小
+	if jump_t < 99:
+		jump_t += 1
+		var sh: Dictionary = R.physics.short_hop
+		if not jump_cut and vel.y < 0 and not input.held(InputFrame.JUMP):
+			if jump_t <= int(sh.window):
+				vel.y *= sh.mul
+			jump_cut = true
+	# 快速下落：空中下落时把摇杆往下推
+	var st := input.stick()
+	if not stunned and not on_ground and state in ["normal", "action"] and vel.y >= 0 and st.y >= 0.7 and prev_stick.y < 0.7:
+		fast_fall = true
+	var cap: float = stats().max_fall * (R.physics.fast_fall_mul if fast_fall else 1.0)
+	if fast_fall and not stunned and vel.y >= 0:
+		vel.y = cap
 	if stunned:
+		fast_fall = false
 		vel *= R.physics.hitstun_drag
-	elif vel.y > stats().max_fall:
-		vel.y = stats().max_fall
+	elif vel.y > cap and state != "cling":
+		vel.y = cap
+	if z.drag < 1.0:
+		vel *= z.drag
 	if drop_timer > 0:
 		drop_timer -= 1
 	var was_ground := on_ground
@@ -966,6 +1054,97 @@ func _physics(stunned: bool) -> void:
 		jumps_used = 1
 	if sim.out_of_bounds(self):
 		blast()
+
+
+# ---------------------------------------------------------------- 防御、闪避、攀墙
+
+func _guard_options() -> void:
+	var st := input.stick()
+	if pressed(InputFrame.ATTACK) and "grab" in eff.input:
+		consume(InputFrame.ATTACK)
+		state = "normal"
+		if not _try_start(eff.input.grab, InputFrame.ATTACK):
+			state = "guard"
+		return
+	if dodge_cd > 0:
+		return
+	if abs(st.x) >= 0.7 and abs(prev_stick.x) < 0.7:
+		_start_dodge("roll", Vector2(sign(st.x), 0))
+	elif st.y >= 0.7 and prev_stick.y < 0.7:
+		_start_dodge("spot", Vector2.ZERO)
+
+
+func _start_dodge(kind: String, dir: Vector2) -> void:
+	var cfg: Dictionary = R.dodge[kind]
+	dodge = {"kind": kind, "t": 0, "dir": dir.normalized() if dir.length() >= 0.5 else Vector2.ZERO}
+	state = "dodge"
+	override_t = 0
+	dodge_cd = int(cfg.frames) + int(R.dodge.cooldown)
+	shield = max(0.0, shield - R.dodge.shield_cost)
+	fast_fall = false
+	if kind == "air":
+		air_dodged = true
+		vel = dodge.dir * float(cfg.speed)
+	sim.emit({"t": "dodge", "i": idx})
+
+
+func _update_dodge() -> void:
+	var cfg: Dictionary = R.dodge[dodge.kind]
+	dodge.t += 1
+	match dodge.kind:
+		"roll":
+			vel.x = dodge.dir.x * float(cfg.speed) * (1.0 - float(dodge.t) / float(cfg.frames))
+		"spot":
+			vel.x = 0.0
+		"air":
+			vel *= 0.9
+	if dodge.t >= int(cfg.frames):
+		state = "normal"
+		dodge = {}
+
+
+func dodge_invuln() -> bool:
+	if state != "dodge" or dodge.is_empty():
+		return false
+	var w: Array = R.dodge[dodge.kind].invuln
+	return dodge.t >= w[0] and dodge.t <= w[1]
+
+
+func _update_cling() -> void:
+	if wall_el < 0 or on_ground:
+		state = "normal"
+		return
+	var wcfg: Dictionary = R.physics.wall
+	var el: Dictionary = sim.stage.els[wall_el].def
+	var st := input.stick()
+	cling_t += 1
+	if pressed(InputFrame.JUMP):
+		consume(InputFrame.JUMP)
+		var j: Dictionary = ch.action(ch.jump_id, _values())
+		var mv: Dictionary = ch.data.actions[ch.move_id]
+		cling_used[wall_el] = true
+		vel = Vector2(-wall_dir * mv.speed * wcfg.jump_out, -j.velocity * wcfg.jump_up * slow_factor())
+		facing = -wall_dir
+		jumps_used = 1
+		jump_t = 0
+		jump_cut = false
+		state = "normal"
+		sim.emit({"t": "jump", "i": idx})
+		return
+	var leave: bool = cling_t > int(el.climb.max) or pressed(InputFrame.GUARD) or (sign(st.x) == -wall_dir and abs(st.x) >= 0.5)
+	if leave or pressed(InputFrame.ATTACK) or pressed(InputFrame.SPECIAL):
+		cling_used[wall_el] = true
+		state = "normal"
+		if not leave:
+			_update_normal()
+		return
+	vel.x = wall_dir * 0.5
+	if st.y < -0.5:
+		vel.y = -1.0
+	elif st.y > 0.5:
+		vel.y = 2.5
+	else:
+		vel.y = wcfg.slide_speed
 
 
 # ---------------------------------------------------------------- 动画
@@ -988,6 +1167,10 @@ func _update_anim() -> void:
 				anim_idx = _anim_index(current_anim(), anim_t)
 		"guard":
 			_advance_anim("guard")
+		"dodge":
+			_advance_anim(_fallback("dodge", "guard"))
+		"cling":
+			_advance_anim(_fallback("cling", "fall"))
 		"hitstun", "shieldbreak", "grabbed":
 			_advance_anim("hurt")
 		"normal":
@@ -996,12 +1179,20 @@ func _update_anim() -> void:
 			elif override_t > 0 and (override_anim != "land" or (on_ground and abs(input.stick().x) < 0.2)):
 				_advance_anim(override_anim)
 			elif on_ground:
-				_advance_anim("walk" if abs(vel.x) > 0.3 else "idle")
+				if running():
+					_advance_anim(_fallback("run", "walk"))
+				else:
+					_advance_anim("walk" if abs(vel.x) > 0.3 else "idle")
 			elif vel.y < 0:
 				var j: Dictionary = ch.data.actions[ch.jump_id]
 				_advance_anim(j.get("extra_anim", "double_jump") if jump_double else "jump")
 			else:
 				_advance_anim("fall")
+
+
+## 可选动画不存在时用替代动画。
+func _fallback(logical: String, alt: String) -> String:
+	return logical if ch.anim(eff, logical) != null else alt
 
 
 func _set_anim(logical: String) -> void:

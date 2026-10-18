@@ -1,0 +1,227 @@
+{
+ "format": 1,
+ "kind": "stage",
+ "name": "厨房台面",
+ "background": "bg",
+ "spawns": [
+  [
+   130,
+   200
+  ],
+  [
+   180,
+   200
+  ],
+  [
+   230,
+   200
+  ],
+  [
+   290,
+   200
+  ]
+ ],
+ "assets": {
+  "bg": {
+   "kind": "background",
+   "image": "bg.png"
+  },
+  "counter": {
+   "kind": "tile",
+   "image": "counter.png"
+  },
+  "board": {
+   "kind": "tile",
+   "image": "board.png"
+  },
+  "box": {
+   "kind": "tile",
+   "image": "box.png"
+  },
+  "cracker": {
+   "kind": "tile",
+   "image": "cracker.png"
+  },
+  "toaster": {
+   "kind": "tile",
+   "image": "toaster.png"
+  },
+  "flame": {
+   "kind": "tile",
+   "image": "flame.png"
+  },
+  "steam": {
+   "kind": "tile",
+   "image": "steam.png"
+  },
+  "tray": {
+   "kind": "tile",
+   "image": "tray.png"
+  },
+  "jar": {
+   "kind": "tile",
+   "image": "jar.png"
+  }
+ },
+ "elements": [
+  {
+   "id": "counter",
+   "rect": [
+    72,
+    200,
+    336,
+    70
+   ],
+   "collide": "solid",
+   "tile": "counter"
+  },
+  {
+   "id": "board",
+   "rect": [
+    120,
+    166,
+    80,
+    4
+   ],
+   "collide": "platform",
+   "tile": "board"
+  },
+  {
+   "id": "cereal",
+   "rect": [
+    84,
+    140,
+    26,
+    60
+   ],
+   "collide": "solid",
+   "tile": "box",
+   "climb": {
+    "max": 90
+   }
+  },
+  {
+   "id": "cracker1",
+   "rect": [
+    220,
+    150,
+    40,
+    4
+   ],
+   "collide": "platform",
+   "tile": "cracker",
+   "crumble": {
+    "after": 60,
+    "respawn": 300
+   }
+  },
+  {
+   "id": "cracker2",
+   "rect": [
+    270,
+    128,
+    40,
+    4
+   ],
+   "collide": "platform",
+   "tile": "cracker",
+   "crumble": {
+    "after": 60,
+    "respawn": 300
+   }
+  },
+  {
+   "id": "toaster",
+   "rect": [
+    330,
+    184,
+    28,
+    16
+   ],
+   "collide": "solid",
+   "tile": "toaster",
+   "bounce": {
+    "velocity": 9
+   }
+  },
+  {
+   "id": "stove",
+   "rect": [
+    380,
+    196,
+    24,
+    4
+   ],
+   "collide": "none",
+   "tile": "flame",
+   "damage": {
+    "damage": 4,
+    "interval": 45,
+    "knockback": {
+     "angle": 85,
+     "force": 45
+    }
+   },
+   "blink": {
+    "on": 180,
+    "off": 240,
+    "warn": 45
+   }
+  },
+  {
+   "id": "steam",
+   "rect": [
+    296,
+    40,
+    40,
+    80
+   ],
+   "collide": "none",
+   "tile": "steam",
+   "wind": [
+    0,
+    -0.12
+   ]
+  },
+  {
+   "id": "tray",
+   "rect": [
+    400,
+    140,
+    40,
+    4
+   ],
+   "collide": "platform",
+   "tile": "tray",
+   "move": {
+    "path": [
+     [
+      0,
+      30
+     ],
+     [
+      0,
+      -20
+     ]
+    ],
+    "period": 240,
+    "mode": "pingpong"
+   }
+  },
+  {
+   "id": "jar",
+   "rect": [
+    250,
+    184,
+    14,
+    16
+   ],
+   "collide": "solid",
+   "tile": "jar",
+   "breakable": {
+    "hp": 20,
+    "respawn": 400
+   }
+  }
+ ]
+}

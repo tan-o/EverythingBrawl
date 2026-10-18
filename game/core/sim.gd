@@ -13,21 +13,16 @@ var winner := -1
 var over_t := 0
 var debug := false
 
-var main_rect: Rect2
-var platforms: Array = []   # Rect2，单向平台（只有顶面）
+var stage: Stage
 var _next_proj := 1
 
 
-func _init(chars: Array) -> void:
+func _init(chars: Array, stage_data: Dictionary) -> void:
 	R = Rules.data()
-	var st: Dictionary = R.stage
-	main_rect = Rect2(st.main.x, st.main.y, st.main.w, st.main.h)
-	for p in st.platforms:
-		platforms.append(Rect2(p.x, p.y, p.w, 4))
+	stage = Stage.new(stage_data)
 	for i in chars.size():
 		var f := Fighter.new()
-		var sp: Array = st.spawns[i % st.spawns.size()]
-		f.setup(self, i, chars[i], Vector2(sp[0], sp[1]))
+		f.setup(self, i, chars[i], stage.spawns[i % stage.spawns.size()])
 		fighters.append(f)
 
 
@@ -49,6 +44,7 @@ func emit(e: Dictionary) -> void:
 func step(inputs: Array) -> void:
 	events = []
 	frame += 1
+	events.append_array(stage.step())
 	for i in fighters.size():
 		fighters[i].begin_frame(inputs[i] if i < inputs.size() and inputs[i] != null else InputFrame.new())
 	for f in fighters:
@@ -56,6 +52,7 @@ func step(inputs: Array) -> void:
 			f.hitlag -= 1
 			continue
 		f.tick()
+	_stage_hazards()
 	_update_projectiles()
 	_resolve_hits()
 	_cleanup()
@@ -83,68 +80,186 @@ func _check_end() -> void:
 
 # ---------------------------------------------------------------- 平台物理
 
+## 可落脚的顶面：[Rect2, 单向?, 元素下标(-1 = solid 布置物)]
 func _surfaces(f: Fighter) -> Array:
-	# [Rect2, 单向?]
-	var out := [[main_rect, false]]
-	if f.drop_timer <= 0:
-		for p in platforms:
-			out.append([p, true])
+	var out := []
+	for i in stage.colliders():
+		var e: Dictionary = stage.els[i]
+		var oneway: bool = e.def.collide == "platform"
+		if oneway and f.drop_timer > 0:
+			continue
+		out.append([e.rect, oneway, i])
 	for p in projectiles:
 		if not p.dead and p.solid:
-			out.append([p.top_rect(), true])
+			out.append([p.top_rect(), true, -1])
+	return out
+
+
+func _solids() -> Array:
+	var out := []
+	for i in stage.colliders():
+		if stage.els[i].def.collide == "solid":
+			out.append(i)
 	return out
 
 
 func move_fighter(f: Fighter) -> void:
 	var b := f.body_size()
 	var hw := b.x / 2.0
+	# 站在移动平台上 / 贴墙时随之移动；传送带
+	if f.on_ground and f.ground_el >= 0:
+		var ge: Dictionary = stage.els[f.ground_el]
+		f.pos += ge.delta
+		f.pos.x += ge.def.get("conveyor", 0.0)
+	elif f.state == "cling" and f.wall_el >= 0:
+		f.pos += stage.els[f.wall_el].delta
 	# 水平
 	f.pos.x += f.vel.x
-	var r := f.body_rect()
-	if r.intersects(main_rect):
-		if f.vel.x > 0:
-			f.pos.x = main_rect.position.x - hw
-		elif f.vel.x < 0:
-			f.pos.x = main_rect.end.x + hw
-		else:
-			f.pos.x = main_rect.position.x - hw if f.pos.x < main_rect.get_center().x else main_rect.end.x + hw
-		f.vel.x = 0
+	f.wall_el = -1
+	for i in _solids():
+		var sr: Rect2 = stage.els[i].rect
+		var r := f.body_rect()
+		var touching := r.grow_individual(1, 0, 1, 0).intersects(sr) and r.end.y > sr.position.y + 2 and r.position.y < sr.end.y
+		if r.intersects(sr):
+			if f.pos.x < sr.get_center().x:
+				f.pos.x = sr.position.x - hw
+			else:
+				f.pos.x = sr.end.x + hw
+			f.vel.x = 0
+		if touching and "climb" in stage.els[i].def:
+			f.wall_el = i
+			f.wall_dir = 1 if f.pos.x < sr.get_center().x else -1
 	# 垂直
 	var prev_bottom := f.pos.y
 	var prev_top := f.pos.y - b.y
 	f.pos.y += f.vel.y
 	var landed := false
+	var ground := -2
 	if f.vel.y >= 0:
 		for s in _surfaces(f):
 			var sr: Rect2 = s[0]
 			if f.pos.x + hw <= sr.position.x or f.pos.x - hw >= sr.end.x:
 				continue
-			if prev_bottom <= sr.position.y + 0.01 and f.pos.y >= sr.position.y:
+			var tol := 0.01
+			if s[2] >= 0:
+				tol += abs(stage.els[s[2]].delta.y)
+			if prev_bottom <= sr.position.y + tol and f.pos.y >= sr.position.y:
 				f.pos.y = sr.position.y
 				f.vel.y = 0
 				landed = true
+				ground = s[2]
 				break
 	else:
-		r = f.body_rect()
-		if r.intersects(main_rect) and prev_top >= main_rect.end.y - 0.01:
-			f.pos.y = main_rect.end.y + b.y
-			f.vel.y = 0
+		for i in _solids():
+			var sr: Rect2 = stage.els[i].rect
+			if f.body_rect().intersects(sr) and prev_top >= sr.end.y - 0.01:
+				f.pos.y = sr.end.y + b.y
+				f.vel.y = 0
+	# 被移动的实心地形挤进身体时，推到它上面
+	for i in _solids():
+		var sr: Rect2 = stage.els[i].rect
+		if f.body_rect().intersects(sr) and f.pos.y - sr.position.y < 8:
+			f.pos.y = sr.position.y
+			f.vel.y = min(f.vel.y, 0.0)
+			landed = true
+			ground = i
 	f.on_ground = landed
+	f.ground_el = ground if landed else -1
+	f.ground_oneway = false
+	if landed:
+		if ground < 0:
+			f.ground_oneway = true
+		else:
+			var gd: Dictionary = stage.els[ground].def
+			f.ground_oneway = gd.collide == "platform"
+			stage.stood_on(ground)
+			if "bounce" in gd:
+				f.vel.y = -float(gd.bounce.velocity)
+				f.on_ground = false
+				f.ground_el = -1
+				emit({"t": "bounce", "i": f.idx, "x": f.pos.x, "y": f.pos.y})
+
+
+## 脚下地形的摩擦倍率（冰面 < 1，粘地 > 1）。
+func ground_friction_mul(f: Fighter) -> float:
+	if f.on_ground and f.ground_el >= 0:
+		return float(stage.els[f.ground_el].def.get("friction", 1.0))
+	return 1.0
 
 
 func standing_on_oneway(f: Fighter) -> bool:
-	var hw := f.body_size().x / 2.0
-	for s in _surfaces(f):
-		var sr: Rect2 = s[0]
-		if s[1] and abs(f.pos.y - sr.position.y) < 0.02 and f.pos.x + hw > sr.position.x and f.pos.x - hw < sr.end.x:
-			return true
-	return false
+	return f.on_ground and f.ground_oneway
+
+
+## 角色所在区域的风与水：{"wind": Vector2, "gravity_mul": float, "drag": float}
+func zone_at(f: Fighter) -> Dictionary:
+	var z := {"wind": Vector2.ZERO, "gravity_mul": 1.0, "drag": 1.0}
+	var body := f.body_rect()
+	for i in stage.zones():
+		var e: Dictionary = stage.els[i]
+		if not body.intersects(e.rect):
+			continue
+		if "wind" in e.def:
+			z.wind += Vector2(e.def.wind[0], e.def.wind[1])
+		if "water" in e.def:
+			z.gravity_mul = min(z.gravity_mul, float(e.def.water.gravity_mul))
+			z.drag = min(z.drag, float(e.def.water.drag))
+	return z
+
+
+func _stage_hazards() -> void:
+	for f in fighters:
+		if not f.targetable() or f.is_invulnerable() or f.state == "grabbed":
+			continue
+		var body: Rect2 = f.body_rect()
+		for i in stage.zones():
+			var e: Dictionary = stage.els[i]
+			if not ("damage" in e.def):
+				continue
+			var r: Rect2 = e.rect.grow(1.0 if e.def.collide != "none" else 0.0)
+			if not body.intersects(r):
+				continue
+			var dm: Dictionary = e.def.damage
+			if frame - int(f.hazard_cd.get(i, -100000)) < int(dm.interval):
+				continue
+			f.hazard_cd[i] = frame
+			var c: Vector2 = f.center()
+			apply_damage(null, f, dm.damage)
+			f.flash = 6
+			emit({"t": "hit", "i": f.idx, "tgt": f.idx, "x": c.x, "y": c.y, "dmg": dm.damage, "sfx": ""})
+			if f.alive():
+				_knockback(f, dm.knockback.angle, dm.knockback.force, 1 if c.x >= r.get_center().x else -1, 0)
 
 
 func out_of_bounds(f: Fighter) -> bool:
 	var m: float = R.stage.blast_margin
 	var c := f.center()
 	return c.x < -m or c.x > R.stage.width + m or c.y > R.stage.height + m or c.y < -m
+
+
+## 点是否在某个实心地形内（子弹撞墙）。
+func in_solid(p: Vector2) -> bool:
+	for i in _solids():
+		if stage.els[i].rect.has_point(p):
+			return true
+	return false
+
+
+## 可破坏地形挨打。
+func hit_stage(shape: Dictionary, dmg: float, hits: Dictionary, hi: int) -> bool:
+	var any := false
+	for i in stage.colliders():
+		var e: Dictionary = stage.els[i]
+		if not ("breakable" in e.def):
+			continue
+		var key := "e%d" % i
+		if not _can_hit(hits, key, hi, frame) or not Geom.overlap(shape, Geom.aabb(e.rect)):
+			continue
+		hits[key] = frame
+		any = true
+		if stage.damage(i, dmg):
+			emit({"t": "stage_break", "el": i, "x": e.rect.get_center().x, "y": e.rect.get_center().y})
+	return any
 
 
 # ---------------------------------------------------------------- 子弹生成
@@ -308,7 +423,7 @@ func _update_projectiles() -> void:
 				p.dir = p.vel.normalized()
 			if p.kind == "deployable" and p.vel != Vector2.ZERO:
 				_land_deployable(p)
-			if p.kind == "bullet" and main_rect.has_point(p.pos):
+			if p.kind == "bullet" and in_solid(p.pos):
 				_expire(p)
 				continue
 			if p.returning and Geom.overlap(p.hit_shape(), o.body_shape()):
@@ -327,7 +442,8 @@ func _land_deployable(p: Projectile) -> void:
 	var half := p.size.y * p.scale() / 2.0
 	var bottom := p.pos.y + half
 	var prev_bottom := bottom - p.vel.y
-	for sr in [main_rect] + platforms:
+	for i in stage.colliders():
+		var sr: Rect2 = stage.els[i].rect
 		if p.pos.x < sr.position.x or p.pos.x > sr.end.x:
 			continue
 		if p.vel.y >= 0 and prev_bottom <= sr.position.y + 0.01 and bottom >= sr.position.y:
@@ -401,6 +517,8 @@ func _resolve_hits() -> void:
 			if (screen or Geom.overlap(shape, q.hit_shape())) and _can_hit(f.act.hits, key, hi, frame):
 				f.act.hits[key] = frame
 				_damage_deployable(q, params.damage)
+		if not screen and not shape.is_empty():
+			hit_stage(shape, params.damage, f.act.hits, hi)
 	for p in projectiles:
 		if p.dead:
 			continue
@@ -426,6 +544,10 @@ func _resolve_hits() -> void:
 				_on_projectile_contact(p, o)
 		if p.dead or p.kind == "deployable":
 			continue
+		if hit_stage(shape, p.damage, p.hits, p.hit_interval):
+			_on_projectile_contact(p, o, false)
+			if p.dead:
+				continue
 		for q in projectiles:
 			if q.dead or q.kind != "deployable" or q.owner == p.owner or q == p:
 				continue
@@ -623,4 +745,4 @@ func snapshot() -> Dictionary:
 			"ang": p.dir.angle(), "len": p.length(), "sc": p.scale(), "hp": p.hp,
 			"life": 1.0 - float(p.age) / max(1, p.lifetime), "shape": p.hit_shape() if debug else {},
 		})
-	return {"frame": frame, "fighters": fs, "proj": ps, "dim": ult_dim_owner(), "ultbg": ult_backdrop(), "over": over, "winner": winner, "events": events}
+	return {"frame": frame, "fighters": fs, "proj": ps, "stage": stage.snapshot(), "dim": ult_dim_owner(), "ultbg": ult_backdrop(), "over": over, "winner": winner, "events": events}

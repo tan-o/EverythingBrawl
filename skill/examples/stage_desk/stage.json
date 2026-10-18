@@ -1,0 +1,199 @@
+{
+ "format": 1,
+ "kind": "stage",
+ "name": "书桌",
+ "background": "bg",
+ "spawns": [
+  [
+   125,
+   206
+  ],
+  [
+   270,
+   206
+  ],
+  [
+   320,
+   206
+  ],
+  [
+   400,
+   206
+  ]
+ ],
+ "assets": {
+  "bg": {
+   "kind": "background",
+   "image": "bg.png"
+  },
+  "desk": {
+   "kind": "tile",
+   "image": "desk.png"
+  },
+  "keyboard": {
+   "kind": "tile",
+   "image": "keyboard.png"
+  },
+  "ruler": {
+   "kind": "tile",
+   "image": "ruler.png"
+  },
+  "books": {
+   "kind": "tile",
+   "image": "books.png"
+  },
+  "pencil": {
+   "kind": "tile",
+   "image": "pencil.png"
+  },
+  "light": {
+   "kind": "tile",
+   "image": "light.png"
+  },
+  "coffee": {
+   "kind": "tile",
+   "image": "coffee.png"
+  },
+  "wind": {
+   "kind": "tile",
+   "image": "wind.png"
+  },
+  "eraser": {
+   "kind": "tile",
+   "image": "eraser.png"
+  }
+ },
+ "elements": [
+  {
+   "id": "desk",
+   "rect": [
+    60,
+    206,
+    360,
+    64
+   ],
+   "collide": "solid",
+   "tile": "desk"
+  },
+  {
+   "id": "keyboard",
+   "rect": [
+    150,
+    198,
+    90,
+    8
+   ],
+   "collide": "solid",
+   "tile": "keyboard",
+   "conveyor": 1.0
+  },
+  {
+   "id": "books",
+   "rect": [
+    80,
+    150,
+    30,
+    56
+   ],
+   "collide": "solid",
+   "tile": "books",
+   "climb": {
+    "max": 120
+   }
+  },
+  {
+   "id": "ruler",
+   "rect": [
+    120,
+    170,
+    50,
+    4
+   ],
+   "collide": "platform",
+   "tile": "ruler",
+   "move": {
+    "path": [
+     [
+      0,
+      0
+     ],
+     [
+      60,
+      0
+     ]
+    ],
+    "period": 300,
+    "mode": "pingpong"
+   }
+  },
+  {
+   "id": "pencil",
+   "rect": [
+    250,
+    160,
+    60,
+    4
+   ],
+   "collide": "platform",
+   "tile": "pencil"
+  },
+  {
+   "id": "lamp",
+   "rect": [
+    300,
+    128,
+    50,
+    4
+   ],
+   "collide": "platform",
+   "tile": "light",
+   "blink": {
+    "on": 240,
+    "off": 120,
+    "warn": 40
+   }
+  },
+  {
+   "id": "eraser",
+   "rect": [
+    200,
+    132,
+    40,
+    4
+   ],
+   "collide": "platform",
+   "tile": "eraser",
+   "friction": 0.3
+  },
+  {
+   "id": "mug",
+   "rect": [
+    340,
+    170,
+    30,
+    36
+   ],
+   "collide": "none",
+   "tile": "coffee",
+   "water": {
+    "gravity_mul": 0.5,
+    "drag": 0.9
+   }
+  },
+  {
+   "id": "fan",
+   "rect": [
+    380,
+    90,
+    60,
+    100
+   ],
+   "collide": "none",
+   "tile": "wind",
+   "wind": [
+    -0.1,
+    0
+   ]
+  }
+ ]
+}

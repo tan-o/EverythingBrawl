@@ -47,7 +47,7 @@ func apply(s: Dictionary) -> void:
 	tick += 1
 	var st: String = s.st
 	visible = not (st in ["dead", "out"]) and not hidden_ko
-	if st in ["normal", "action", "guard", "hitstun", "grabbed", "shieldbreak"]:
+	if st in ["normal", "action", "guard", "dodge", "cling", "hitstun", "grabbed", "shieldbreak"]:
 		hidden_ko = false
 	position = Vector2(round(s.x), round(s.y))
 	flipper.scale = Vector2(s.f, 1) * squash

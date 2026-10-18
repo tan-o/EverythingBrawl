@@ -5,7 +5,7 @@ extends RefCounted
 
 const ATTACK_TYPES := ["swing", "shoot"]
 const REQUIRED_ANIMS := ["idle", "walk", "jump", "fall", "land", "hurt", "guard", "ko"]
-const OPTIONAL_ANIMS := ["entrance", "victory", "levelup"]
+const OPTIONAL_ANIMS := ["entrance", "victory", "levelup", "run", "dodge", "cling"]
 const BULLET_WHEN := ["on_frame", "every", "projectile_hit", "projectile_expire"]
 const ACTION_WHEN := ["on_start", "on_end", "on_frame", "every", "on_hit", "on_whiff", "on_land", "on_release", "on_hurt"]
 const CHAR_WHEN := ["every", "on_land", "on_hurt", "resource_empty", "resource_full"]

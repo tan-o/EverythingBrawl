@@ -20,8 +20,8 @@ var over_label: Label
 var R: Dictionary
 
 
-## players: [{"validator": PackValidator, "input": "touch"/"kb1"/"kb2"/"none"}]
-func start(players: Array) -> void:
+## players: [{"validator": PackValidator, "input": "touch"/"kb1"/"kb2"/"none"}]；stage：场景包校验器
+func start(players: Array, stage: PackValidator) -> void:
 	R = Rules.data()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var bg := ColorRect.new()
@@ -47,8 +47,8 @@ func start(players: Array) -> void:
 		assets.append(PackAssets.build(v))
 		names.append(v.data.name)
 		inputs_cfg.append(p.input)
-	sim = MatchSim.new(chars)
-	world.setup(assets)
+	sim = MatchSim.new(chars, stage.data)
+	world.setup(assets, StageView.build(stage))
 	viewport.add_child(world)
 	hud.names = names
 	hud.packs = assets

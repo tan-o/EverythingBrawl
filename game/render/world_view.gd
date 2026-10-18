@@ -13,13 +13,16 @@ var dim := ColorRect.new()
 var backdrop := AnimatedSprite2D.new()
 var backdrop_key := ""
 var debug_layer := DebugLayer.new()
+var stage_view: StageView
 var show_debug := false
 var last := {}
 
 
-func setup(p_assets: Array) -> void:
+func setup(p_assets: Array, p_stage: StageView) -> void:
 	R = Rules.data()
 	assets = p_assets
+	stage_view = p_stage
+	add_child(stage_view)
 	dim.color = Color(0, 0, 0, 0.6)
 	dim.size = Vector2(R.stage.width, R.stage.height)
 	dim.visible = false
@@ -46,6 +49,7 @@ func setup(p_assets: Array) -> void:
 
 func apply(s: Dictionary) -> void:
 	last = s
+	stage_view.apply(s.stage)
 	for e in s.events:
 		_event(e)
 	for fs in s.fighters:
@@ -120,6 +124,10 @@ func _event(e: Dictionary) -> void:
 			effects.sparks(Vector2(e.x, e.y), Palette.SLOW, 16)
 		"reflect":
 			effects.sparks(Vector2(e.x, e.y), Palette.REFLECT, 6)
+		"stage_break":
+			effects.sparks(Vector2(e.x, e.y), Palette.STAGE_TOP, 14)
+		"bounce":
+			effects.sparks(Vector2(e.x, e.y), Palette.GOLD, 6)
 		"explode":
 			var a: PackAssets = assets[e.i]
 			effects.burst_pixels(a.frame_image(e.anim, e.ai), Vector2(e.x, e.y), a.anchor, e.f)
@@ -135,20 +143,3 @@ func _event(e: Dictionary) -> void:
 				effects.float_icon(assets[e.i].textures[hud], fv.position - Vector2(0, assets[e.i].data.stats.body[1] + 8))
 	if "i" in e and e.i < fviews.size():
 		fviews[e.i].on_event(e)
-
-
-func _draw() -> void:
-	var W: float = R.stage.width
-	var H: float = R.stage.height
-	# 背景
-	var bands := 6
-	for i in bands:
-		var c := Palette.SKY_TOP.lerp(Palette.SKY_BOTTOM, float(i) / (bands - 1))
-		draw_rect(Rect2(0, H * i / bands, W, H / bands + 1), c)
-	var m: Dictionary = R.stage.main
-	draw_rect(Rect2(m.x, m.y, m.w, m.h), Palette.STAGE_BODY)
-	draw_rect(Rect2(m.x, m.y, m.w, 3), Palette.STAGE_TOP)
-	draw_rect(Rect2(m.x, m.y + m.h - 2, m.w, 2), Palette.STAGE_EDGE)
-	for p in R.stage.platforms:
-		draw_rect(Rect2(p.x, p.y, p.w, 3), Palette.PLATFORM)
-		draw_rect(Rect2(p.x, p.y + 3, p.w, 1), Palette.STAGE_EDGE)
