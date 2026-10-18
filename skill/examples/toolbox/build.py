@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""示例：发展型角色「工具箱」—— 采集 → 合成 → 升级 → 工具损坏。
+"""示例：发展型角色「工具箱」-- 采集 -> 合成 -> 升级 -> 工具损坏。
 
 演示机制：
   采集：按住特殊键持续伐木（on_release + every gain），锤子命中也能获得木头（on_hit gain）
   合成：消耗 3 木头（cost），升级 tier 并把耐久设满（on_end gain / set）
   升级：锤子按 tier 升级（upgrades：伤害、范围、眩晕），held 武器随 tier 变化（forms），升级时播放 levelup
-  损坏：命中消耗耐久（on_hit spend，if tier>=1），耐久归零（角色级 resource_empty）→ tier 归零并 goto 损坏动作
+  损坏：命中消耗耐久（on_hit spend，if tier>=1），耐久归零（角色级 resource_empty）-> tier 归零并 goto 损坏动作
   另有：炮台布置物（every spawn bullet）、角色级持续回复（every heal）、HUD 图标与条
 运行：python build.py
 """

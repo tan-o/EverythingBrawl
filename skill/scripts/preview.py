@@ -7,7 +7,7 @@
   青色框   stats.body 碰撞箱（底边中点对齐 anchor）
   品红点   anchor
   黄点     hand
-  武器     攻击姿势：前摇画在 from、生效画在中间角度、后摇画在 to；普通动画画 held 武器（45°）
+  武器     攻击姿势：前摇画在 from、生效画在中间角度、后摇画在 to；普通动画画 held 武器（45度）
   红色胶囊 swing 生效帧的武器判定（hit_range 段 + radius）
   橙色     shoot 生效帧的子弹判定与发射方向
 """

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""示例：远程角色「灯泡法师」—— 子弹 / 光束 / 布置物与各种状态效果。
+"""示例：远程角色「灯泡法师」-- 子弹 / 光束 / 布置物与各种状态效果。
 
 演示机制：光束（attach + rect，可操控 steer）、灼烧火球（burn）、冰霜散射（count + spread + slow）、
 电击（stun）、藤蔓陷阱（布置物 + root）、静默追踪弹（steer + silence）、回旋光环（return + pierce）、
-反射护罩（reflect）、闪现（子弹 projectile_expire → warp）、漂浮（fly）、非全屏大招（巨型光束，尺寸上限 ×3）。
+反射护罩（reflect）、闪现（子弹 projectile_expire -> warp）、漂浮（fly）、非全屏大招（巨型光束，尺寸上限 x3）。
 运行：python build.py
 """
 import json

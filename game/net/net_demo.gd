@@ -19,6 +19,7 @@ var sent := {}            # seq -> 发送时间（微秒）
 var rtts := PackedFloat32Array()
 var lost := 0
 var received := 0
+var sent_total := 0
 var last_rtt := -1.0
 var jitter_sum := 0.0
 var jitter_n := 0
@@ -73,6 +74,7 @@ func _setup_mp() -> void:
 
 
 func _on_connected(id: int) -> void:
+	NetSession.disable_throttle(peer.get_peer(id))
 	status.text = "%s：已连接 peer %d" % [role, id]
 	_reset()
 
@@ -120,6 +122,7 @@ func _back() -> void:
 
 
 func _reset() -> void:
+	sent_total = 0
 	sent.clear()
 	rtts = PackedFloat32Array()
 	lost = 0
@@ -137,6 +140,7 @@ func _physics_process(_d: float) -> void:
 		return
 	var now := Time.get_ticks_usec()
 	seq += 1
+	sent_total += 1
 	var b := PackedByteArray()
 	b.resize(13)
 	b.encode_u8(0, PING)
@@ -206,6 +210,7 @@ func result_text() -> String:
 	var total := received + lost
 	var lines := PackedStringArray()
 	lines.append("角色：%s   时长：%.0f 秒   样本：%d" % [role, secs, rtts.size()])
+	lines.append("发送频率：%.1f 次/秒（应为 60）   画面帧率：%d" % [sent_total / max(secs, 0.001), Engine.get_frames_per_second()])
 	lines.append("往返延迟 RTT（ms）：最小 %.1f / 平均 %.1f / 中位 %.1f / P95 %.1f / P99 %.1f / 最大 %.1f" % [
 		_pct(rtts, 0.0), _mean(rtts), _pct(rtts, 0.5), _pct(rtts, 0.95), _pct(rtts, 0.99), _pct(rtts, 1.0)])
 	lines.append("抖动（相邻 RTT 差的平均）：%.2f ms" % (jitter_sum / max(1, jitter_n)))

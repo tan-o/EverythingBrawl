@@ -396,7 +396,7 @@ class Validator:
         sheet = self.images["sheet.png"]
         sw, sh = sheet.size
         if sw > lp["sheet_side"] or sh > lp["sheet_side"]:
-            e.add("pack.sheet_side", "sheet.png", "sheet.png 不得超过 %d×%d" % (lp["sheet_side"], lp["sheet_side"]))
+            e.add("pack.sheet_side", "sheet.png", "sheet.png 不得超过 %dx%d" % (lp["sheet_side"], lp["sheet_side"]))
         if fw > 0 and fh > 0 and (sw % fw != 0 or sh % fh != 0):
             e.add("pack.sheet_grid", "sheet.png", "sheet.png 尺寸须为 frame_size 的整数倍")
         at_most(e, "pack.total_frames", "sheet.png", self.total_frames(), lp["total_frames"])
@@ -440,11 +440,11 @@ class Validator:
                 for i, du in enumerate(a.get("durations", [])):
                     in_range(e, "pack.duration", "assets.%s.durations.%d" % (an, i), du, lp["duration"])
                 if [w // fr, h] not in lp["backdrop_sizes"]:
-                    e.add("pack.backdrop_size", "assets.%s" % an, "backdrop 每帧须为 %s 之一（%s 为 %d×%d）" %
-                          (" / ".join("%d×%d" % tuple(x) for x in lp["backdrop_sizes"]), an, w // fr, h))
+                    e.add("pack.backdrop_size", "assets.%s" % an, "backdrop 每帧须为 %s 之一（%s 为 %dx%d）" %
+                          (" / ".join("%dx%d" % tuple(x) for x in lp["backdrop_sizes"]), an, w // fr, h))
                 continue
             if w > side or h > side:
-                e.add("pack.asset_side", "assets.%s" % an, "素材图每边 <= %d（%s 为 %d×%d）" % (side, an, w, h))
+                e.add("pack.asset_side", "assets.%s" % an, "素材图每边 <= %d（%s 为 %dx%d）" % (side, an, w, h))
             if a["kind"] == "weapon":
                 in_range(e, "weapon.length", "assets.%s.length" % an, a["length"], L["weapon"]["length"])
                 in_range(e, "weapon.radius", "assets.%s.radius" % an, a["radius"], L["weapon"]["radius"])
@@ -463,7 +463,7 @@ class Validator:
                     ok = abs(bw - sw_) <= tol * sw_ and abs(bh - sh_) <= tol * sh_
                 if not ok:
                     e.add("pack.projectile_bbox", "assets.%s" % an,
-                          "子弹图非透明区域 %d×%d 与 size %s×%s 相差超过 %d%%" % (bw, bh, fmt(sw_), fmt(sh_), tol * 100))
+                          "子弹图非透明区域 %dx%d 与 size %sx%s 相差超过 %d%%" % (bw, bh, fmt(sw_), fmt(sh_), tol * 100))
 
     # ---- 结构与引用
     def asset_kind(self, name):
@@ -734,7 +734,7 @@ class Validator:
             if secs > lp["sfx_seconds"]:
                 e.add("pack.sfx_seconds", "assets.%s" % k, "音效 %s 时长 %.2f 秒，超过 %s 秒" % (k, secs, fmt(lp["sfx_seconds"])))
 
-    # ---- 形态 × 动作
+    # ---- 形态 x 动作
     def form_masks(self):
         forms = self.data.get("forms", [])
         return feasible_masks([f["if"] for f in forms], resource_domains(self.data))
@@ -878,7 +878,7 @@ class Validator:
             tol = lp["idle_body_tolerance"]
             if abs(iw - bw) > tol * bw or abs(ih - bh) > tol * bh:
                 e.add("pack.idle_body", "anims.idle",
-                      "idle 第 0 帧非透明区域 %d×%d 与 body %d×%d 相差超过 %d%%" % (iw, ih, bw, bh, tol * 100))
+                      "idle 第 0 帧非透明区域 %dx%d 与 body %dx%d 相差超过 %d%%" % (iw, ih, bw, bh, tol * 100))
         used = set()
         for n in plain_r | attack_r:
             anim = d["anims"].get(n)
@@ -889,7 +889,7 @@ class Validator:
             w, h = self.frame_bbox(f)
             if w > ratio * bw or h > ratio * bh:
                 e.add("pack.frame_body", "sheet.png#%d" % f,
-                      "第 %d 帧非透明区域 %d×%d 超过 body 的 %s 倍" % (f, w, h, fmt(ratio)))
+                      "第 %d 帧非透明区域 %dx%d 超过 body 的 %s 倍" % (f, w, h, fmt(ratio)))
 
     # ---- 单个动作（已应用升级）
     def check_action(self, aid, a, eff, upgraded):
@@ -1018,10 +1018,10 @@ class Validator:
             lim_f = fs["base"] + fs["per_startup"] * su
             if dmg > lim_d + 1e-9:
                 e.add("attack.damage_startup", p + ".damage",
-                      "damage %s%s 超过 6 + 0.6 × startup = %s" % (fmt(dmg), tag, fmt(lim_d)))
+                      "damage %s%s 超过 6 + 0.6 x startup = %s" % (fmt(dmg), tag, fmt(lim_d)))
             if frc > lim_f + 1e-9:
                 e.add("attack.force_startup", p + ".knockback.force",
-                      "force %s%s 超过 20 + 2.5 × startup = %s" % (fmt(frc), tag, fmt(lim_f)))
+                      "force %s%s 超过 20 + 2.5 x startup = %s" % (fmt(frc), tag, fmt(lim_f)))
         # 状态
         if "status" in a:
             st = a["status"]
@@ -1099,7 +1099,7 @@ class Validator:
                 in_range(e, "bullet.circle_d", p + ".projectile", msw, [lb["circle_d"][0], lb["circle_d"][1] * size_mul])
             else:
                 if msw > lb["rect_max"][0] * size_mul or msh > lb["rect_max"][1] * size_mul:
-                    e.add("bullet.rect_max", p + ".projectile", "rect 子弹（含缩放）不得超过 %s×%s" %
+                    e.add("bullet.rect_max", p + ".projectile", "rect 子弹（含缩放）不得超过 %sx%s" %
                           (fmt(lb["rect_max"][0] * size_mul), fmt(lb["rect_max"][1] * size_mul)))
             in_range(e, "bullet.speed", p + ".speed", a["speed"], lb["speed"])
             longest = max(msw, msh)
@@ -1130,10 +1130,10 @@ class Validator:
             ld = L["deployable"]
             if a.get("solid", False):
                 if msw > ld["solid_size"][0] * size_mul or msh > ld["solid_size"][1] * size_mul:
-                    e.add("deployable.solid_size", p + ".projectile", "solid 布置物（含缩放）不得超过 %s×%s" %
+                    e.add("deployable.solid_size", p + ".projectile", "solid 布置物（含缩放）不得超过 %sx%s" %
                           (fmt(ld["solid_size"][0] * size_mul), fmt(ld["solid_size"][1] * size_mul)))
             elif msw > ld["size"][0] * size_mul or msh > ld["size"][1] * size_mul:
-                e.add("deployable.size", p + ".projectile", "布置物（含缩放）不得超过 %s×%s" %
+                e.add("deployable.size", p + ".projectile", "布置物（含缩放）不得超过 %sx%s" %
                       (fmt(ld["size"][0] * size_mul), fmt(ld["size"][1] * size_mul)))
             in_range(e, "deployable.lifetime", p + ".lifetime", a["lifetime"], ld["lifetime"])
             if "hp" not in a:
@@ -1604,7 +1604,7 @@ class StageValidator:
             w, h = im.size
             if a["kind"] == "tile":
                 if w > SL["tile_side"] or h > SL["tile_side"]:
-                    e.add("stage.tile_side", "assets.%s" % an, "地形贴图每边 <= %d（%s 为 %d×%d）" % (SL["tile_side"], an, w, h))
+                    e.add("stage.tile_side", "assets.%s" % an, "地形贴图每边 <= %d（%s 为 %dx%d）" % (SL["tile_side"], an, w, h))
             else:
                 fr = a.get("frames", 1)
                 ds = a.get("durations", [1])
@@ -1615,7 +1615,7 @@ class StageValidator:
                     in_range(e, "pack.duration", "assets.%s.durations.%d" % (an, i), du, L["pack"]["duration"])
                 if [w // fr, h] not in SL["background_sizes"]:
                     e.add("stage.background_size", "assets.%s" % an, "背景每帧须为 %s 之一" %
-                          " / ".join("%d×%d" % tuple(x) for x in SL["background_sizes"]))
+                          " / ".join("%dx%d" % tuple(x) for x in SL["background_sizes"]))
         self.check_ref("background", d["background"], "background")
 
     def check_elements(self):
@@ -1769,9 +1769,9 @@ def validate_path(path):
 
 def print_result(res, out=sys.stdout):
     if res["valid"]:
-        out.write("✅ 通过\n")
+        out.write("通过\n")
     else:
-        out.write("❌ 不通过（%d 项）\n" % len(res["errors"]))
+        out.write("不通过（%d 项）\n" % len(res["errors"]))
         for e in res["errors"]:
             out.write("  [%s] %s\n" % (e["code"], e["msg"]))
     for label, bd in sorted(res["points"].items()):

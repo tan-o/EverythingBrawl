@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""示例：可切换武器角色「瑞士军刀」—— 剑 / 斧 / 弓三种武器循环切换。
+"""示例：可切换武器角色「瑞士军刀」-- 剑 / 斧 / 弓三种武器循环切换。
 
-演示机制：资源 wrap（武器槽 0→1→2→0）、forms（按槽位换 held / 动画 / 属性 / 输入）、
+演示机制：资源 wrap（武器槽 0->1->2->0）、forms（按槽位换 held / 动画 / 属性 / 输入）、
 pose 切换动作（cooldown + on_end gain）、斧的霸体（armor）、弓箭（bullet + gravity / aim input）、
-非全屏大招（巨箭，尺寸上限 ×3）。
+非全屏大招（巨箭，尺寸上限 x3）。
 
 运行：python build.py
 """

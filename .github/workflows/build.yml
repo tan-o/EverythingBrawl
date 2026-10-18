@@ -29,7 +29,7 @@ jobs:
       - name: validate.py 一致性用例
         run: python skill/scripts/validate.py --conformance conformance
 
-      - name: 示例角色可重新生成且通过校验
+      - name: 示例角色与场景可重新生成且通过校验
         run: python tools/build_examples.py
 
       - name: 安装 Godot
@@ -51,16 +51,24 @@ jobs:
         run: |
           set -e
           packs=(knight swissknife toolbox bulb)
+          stages=(kitchen desk)
+          i=0
           for a in "${packs[@]}"; do for b in "${packs[@]}"; do
             if [ "$a" != "$b" ]; then
-              echo "== $a vs $b"
-              godot --headless --path . -s res://tests/run_tests.gd -- sim data/packs/$a.zip data/packs/$b.zip 12000
+              st=${stages[$((i % 2))]}
+              i=$((i + 1))
+              echo "== $a vs $b @ $st"
+              godot --headless --path . -s res://tests/run_tests.gd -- sim data/packs/$a.zip data/packs/$b.zip 12000 res://data/stages/$st.zip
             fi
           done; done
 
       - name: ENet 延迟测试自检（本机回环）
         working-directory: game
         run: godot --headless --path . -s res://tests/net_test.gd | tee net.log && grep -q "^OK" net.log
+
+      - name: 联机流程自检（房主 + 客户端，选包、同步、开局、对战 600 帧）
+        working-directory: game
+        run: godot --headless --path . -s res://tests/net_match_test.gd | tee netmatch.log && grep -q "^OK" netmatch.log
 
   export:
     needs: test
@@ -141,7 +149,10 @@ jobs:
 
       - name: 打包 skill
         run: |
-          cd skill && zip -r ../skill.zip SKILL.md rules.json character.schema.json scripts examples -x "*/__pycache__/*"
+          mkdir -p dist/pixel-brawl
+          cp -r skill/* dist/pixel-brawl/
+          rm -rf dist/pixel-brawl/scripts/__pycache__
+          cd dist && zip -r ../skill.zip pixel-brawl
 
       - uses: actions/upload-artifact@v4
         with:

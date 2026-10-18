@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""示例：单武器角色「罐头骑士」—— 易拉罐身体，常态手持一把剑。
+"""示例：单武器角色「罐头骑士」-- 易拉罐身体，常态手持一把剑。
 
-演示机制：三段连击（on_hit + input window → goto）、蓄力斩（charge）、上升斩（motion + invuln + gravity_scale）、
-反击（armor + on_hurt → goto）、抓投（grab → throw）、剑气（bullet）、全屏大招、音效与特效。
+演示机制：三段连击（on_hit + input window -> goto）、蓄力斩（charge）、上升斩（motion + invuln + gravity_scale）、
+反击（armor + on_hurt -> goto）、抓投（grab -> throw）、剑气（bullet）、全屏大招、音效与特效。
 
-运行：python build.py  → 生成 sheet.png、素材图与 character.json（同目录）
+运行：python build.py  -> 生成 sheet.png、素材图与 character.json（同目录）
 """
 import json
 import math
@@ -84,10 +84,10 @@ def can(dy=0, squash=0, lean=0, legs="stand", eyes="open"):
 
 
 def _lying():
-    """击倒最后一帧：躺倒（身体旋转 90°）。"""
+    """击倒最后一帧：躺倒（身体旋转 90度）。"""
     im = blank(FW, FH)
-    body = can(eyes="x").crop((13, 16, 35, 44))  # 22×28（不含腿）
-    rot = body.rotate(90, expand=True)           # 28×22
+    body = can(eyes="x").crop((13, 16, 35, 44))  # 22x28（不含腿）
+    rot = body.rotate(90, expand=True)           # 28x22
     im.alpha_composite(rot, (8, FH - rot.height))
     return im
 
