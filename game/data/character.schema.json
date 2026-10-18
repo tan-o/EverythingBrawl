@@ -1,0 +1,2250 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "character.schema.json",
+ "title": "像素大乱斗角色包 character.json (format 1)",
+ "type": "object",
+ "required": [
+  "format",
+  "name",
+  "frame_size",
+  "anchor",
+  "stats",
+  "assets",
+  "anims",
+  "actions",
+  "input"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "format": {
+   "const": 1
+  },
+  "name": {
+   "type": "string",
+   "minLength": 1,
+   "maxLength": 24
+  },
+  "frame_size": {
+   "type": "array",
+   "prefixItems": [
+    {
+     "type": "integer",
+     "minimum": 1
+    },
+    {
+     "type": "integer",
+     "minimum": 1
+    }
+   ],
+   "items": false,
+   "minItems": 2
+  },
+  "anchor": {
+   "type": "array",
+   "prefixItems": [
+    {
+     "type": "integer"
+    },
+    {
+     "type": "integer"
+    }
+   ],
+   "items": false,
+   "minItems": 2
+  },
+  "stats": {
+   "type": "object",
+   "required": [
+    "hp",
+    "body",
+    "weight",
+    "gravity",
+    "max_fall",
+    "air_control"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "hp": {
+     "type": "number"
+    },
+    "body": {
+     "type": "array",
+     "prefixItems": [
+      {
+       "type": "integer",
+       "minimum": 1
+      },
+      {
+       "type": "integer",
+       "minimum": 1
+      }
+     ],
+     "items": false,
+     "minItems": 2
+    },
+    "weight": {
+     "type": "number"
+    },
+    "gravity": {
+     "type": "number"
+    },
+    "max_fall": {
+     "type": "number"
+    },
+    "air_control": {
+     "type": "number"
+    }
+   }
+  },
+  "held": {
+   "type": "string",
+   "minLength": 1
+  },
+  "resources": {
+   "type": "object",
+   "additionalProperties": {
+    "$ref": "#/$defs/resource"
+   }
+  },
+  "assets": {
+   "type": "object",
+   "additionalProperties": {
+    "$ref": "#/$defs/asset"
+   }
+  },
+  "anims": {
+   "type": "object",
+   "additionalProperties": {
+    "$ref": "#/$defs/anim"
+   }
+  },
+  "forms": {
+   "type": "array",
+   "items": {
+    "$ref": "#/$defs/form"
+   }
+  },
+  "actions": {
+   "type": "object",
+   "minProperties": 1,
+   "additionalProperties": {
+    "$ref": "#/$defs/action"
+   }
+  },
+  "links": {
+   "type": "array",
+   "items": {
+    "$ref": "#/$defs/link"
+   }
+  },
+  "input": {
+   "$ref": "#/$defs/input"
+  }
+ },
+ "$defs": {
+  "cond": {
+   "type": "object",
+   "minProperties": 1,
+   "additionalProperties": {
+    "type": "string",
+    "pattern": "^(>=|<=|==|>|<)\\s*-?[0-9]+(\\.[0-9]+)?$"
+   }
+  },
+  "amounts": {
+   "type": "object",
+   "minProperties": 1,
+   "additionalProperties": {
+    "type": "number"
+   }
+  },
+  "status": {
+   "type": "object",
+   "required": [
+    "type",
+    "duration"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "type": {
+     "enum": [
+      "burn",
+      "slow",
+      "stun",
+      "root",
+      "silence"
+     ]
+    },
+    "damage": {
+     "type": "number"
+    },
+    "interval": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "duration": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "factor": {
+     "type": "number"
+    }
+   },
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "type": {
+        "const": "burn"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "damage",
+       "interval",
+       "duration"
+      ],
+      "properties": {
+       "factor": false
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "type": {
+        "const": "slow"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "factor",
+       "duration"
+      ],
+      "properties": {
+       "damage": false,
+       "interval": false
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "type": {
+        "const": "stun"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "duration"
+      ],
+      "properties": {
+       "damage": false,
+       "interval": false,
+       "factor": false
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "type": {
+        "const": "root"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "duration"
+      ],
+      "properties": {
+       "damage": false,
+       "interval": false,
+       "factor": false
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "type": {
+        "const": "silence"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "duration"
+      ],
+      "properties": {
+       "damage": false,
+       "interval": false,
+       "factor": false
+      }
+     }
+    }
+   ]
+  },
+  "link": {
+   "type": "object",
+   "required": [
+    "when"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "when": {
+     "enum": [
+      "on_start",
+      "on_end",
+      "on_frame",
+      "every",
+      "on_hit",
+      "on_whiff",
+      "on_land",
+      "on_release",
+      "on_hurt",
+      "projectile_hit",
+      "projectile_expire",
+      "resource_empty",
+      "resource_full"
+     ]
+    },
+    "frame": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "interval": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "resource": {
+     "type": "string",
+     "minLength": 1
+    },
+    "input": {
+     "enum": [
+      "attack",
+      "special",
+      "jump",
+      "guard"
+     ]
+    },
+    "window": {
+     "type": "array",
+     "prefixItems": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "integer"
+      }
+     ],
+     "items": false,
+     "minItems": 2
+    },
+    "if": {
+     "$ref": "#/$defs/cond"
+    },
+    "require": {
+     "enum": [
+      "ground",
+      "air",
+      "any"
+     ]
+    },
+    "goto": {
+     "type": "string",
+     "minLength": 1
+    },
+    "spawn": {
+     "type": "string",
+     "minLength": 1
+    },
+    "gain": {
+     "$ref": "#/$defs/amounts"
+    },
+    "spend": {
+     "$ref": "#/$defs/amounts"
+    },
+    "set": {
+     "$ref": "#/$defs/amounts"
+    },
+    "heal": {
+     "type": "number"
+    },
+    "warp": {
+     "const": "projectile"
+    },
+    "fx": {
+     "type": "string",
+     "minLength": 1
+    },
+    "sfx": {
+     "type": "string",
+     "minLength": 1
+    }
+   },
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "when": {
+        "const": "on_frame"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "frame"
+      ]
+     },
+     "else": {
+      "properties": {
+       "frame": false
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "when": {
+        "const": "every"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "interval"
+      ]
+     },
+     "else": {
+      "properties": {
+       "interval": false
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "when": {
+        "enum": [
+         "resource_empty",
+         "resource_full"
+        ]
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "resource"
+      ]
+     },
+     "else": {
+      "properties": {
+       "resource": false
+      }
+     }
+    }
+   ]
+  },
+  "action": {
+   "type": "object",
+   "required": [
+    "type"
+   ],
+   "properties": {
+    "type": {
+     "enum": [
+      "move",
+      "jump",
+      "fly",
+      "swing",
+      "shoot",
+      "pose"
+     ]
+    }
+   },
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "type": {
+        "const": "move"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "speed",
+       "accel"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "type": {
+        "const": "move"
+       },
+       "anim": {
+        "type": "string",
+        "minLength": 1
+       },
+       "require": {
+        "enum": [
+         "ground",
+         "air",
+         "any"
+        ]
+       },
+       "cost": {
+        "$ref": "#/$defs/amounts"
+       },
+       "cooldown": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "upgrades": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "if",
+          "set"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "if": {
+           "$ref": "#/$defs/cond"
+          },
+          "set": {
+           "type": "object",
+           "properties": {
+            "type": false
+           }
+          }
+         }
+        }
+       },
+       "links": {
+        "type": "array",
+        "items": {
+         "$ref": "#/$defs/link"
+        }
+       },
+       "motion": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "frame",
+          "vel"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "frame": {
+           "type": "integer",
+           "minimum": 0
+          },
+          "vel": {
+           "type": "array",
+           "prefixItems": [
+            {
+             "type": "number"
+            },
+            {
+             "type": "number"
+            }
+           ],
+           "items": false,
+           "minItems": 2
+          },
+          "mode": {
+           "enum": [
+            "set",
+            "add"
+           ]
+          }
+         }
+        }
+       },
+       "gravity_scale": {
+        "type": "number"
+       },
+       "armor": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "invuln": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "reflect": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "sfx": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+         "start": {
+          "type": "string",
+          "minLength": 1
+         },
+         "hit": {
+          "type": "string",
+          "minLength": 1
+         }
+        }
+       },
+       "ultimate": {
+        "type": "boolean"
+       },
+       "speed": {
+        "type": "number"
+       },
+       "accel": {
+        "type": "number"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "type": {
+        "const": "jump"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "velocity",
+       "max_count"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "type": {
+        "const": "jump"
+       },
+       "anim": {
+        "type": "string",
+        "minLength": 1
+       },
+       "require": {
+        "enum": [
+         "ground",
+         "air",
+         "any"
+        ]
+       },
+       "cost": {
+        "$ref": "#/$defs/amounts"
+       },
+       "cooldown": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "upgrades": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "if",
+          "set"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "if": {
+           "$ref": "#/$defs/cond"
+          },
+          "set": {
+           "type": "object",
+           "properties": {
+            "type": false
+           }
+          }
+         }
+        }
+       },
+       "links": {
+        "type": "array",
+        "items": {
+         "$ref": "#/$defs/link"
+        }
+       },
+       "motion": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "frame",
+          "vel"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "frame": {
+           "type": "integer",
+           "minimum": 0
+          },
+          "vel": {
+           "type": "array",
+           "prefixItems": [
+            {
+             "type": "number"
+            },
+            {
+             "type": "number"
+            }
+           ],
+           "items": false,
+           "minItems": 2
+          },
+          "mode": {
+           "enum": [
+            "set",
+            "add"
+           ]
+          }
+         }
+        }
+       },
+       "gravity_scale": {
+        "type": "number"
+       },
+       "armor": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "invuln": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "reflect": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "sfx": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+         "start": {
+          "type": "string",
+          "minLength": 1
+         },
+         "hit": {
+          "type": "string",
+          "minLength": 1
+         }
+        }
+       },
+       "ultimate": {
+        "type": "boolean"
+       },
+       "velocity": {
+        "type": "number"
+       },
+       "max_count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "extra_anim": {
+        "type": "string",
+        "minLength": 1
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "type": {
+        "const": "fly"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "duration",
+       "rise_speed",
+       "control"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "type": {
+        "const": "fly"
+       },
+       "anim": {
+        "type": "string",
+        "minLength": 1
+       },
+       "require": {
+        "enum": [
+         "ground",
+         "air",
+         "any"
+        ]
+       },
+       "cost": {
+        "$ref": "#/$defs/amounts"
+       },
+       "cooldown": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "upgrades": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "if",
+          "set"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "if": {
+           "$ref": "#/$defs/cond"
+          },
+          "set": {
+           "type": "object",
+           "properties": {
+            "type": false
+           }
+          }
+         }
+        }
+       },
+       "links": {
+        "type": "array",
+        "items": {
+         "$ref": "#/$defs/link"
+        }
+       },
+       "motion": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "frame",
+          "vel"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "frame": {
+           "type": "integer",
+           "minimum": 0
+          },
+          "vel": {
+           "type": "array",
+           "prefixItems": [
+            {
+             "type": "number"
+            },
+            {
+             "type": "number"
+            }
+           ],
+           "items": false,
+           "minItems": 2
+          },
+          "mode": {
+           "enum": [
+            "set",
+            "add"
+           ]
+          }
+         }
+        }
+       },
+       "gravity_scale": {
+        "type": "number"
+       },
+       "armor": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "invuln": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "reflect": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "sfx": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+         "start": {
+          "type": "string",
+          "minLength": 1
+         },
+         "hit": {
+          "type": "string",
+          "minLength": 1
+         }
+        }
+       },
+       "ultimate": {
+        "type": "boolean"
+       },
+       "duration": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "rise_speed": {
+        "type": "number"
+       },
+       "control": {
+        "type": "number"
+       },
+       "recharge": {
+        "const": "on_land"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "type": {
+        "const": "swing"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "anim",
+       "startup",
+       "active",
+       "recovery",
+       "damage",
+       "knockback",
+       "weapon",
+       "from",
+       "to",
+       "reach"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "type": {
+        "const": "swing"
+       },
+       "anim": {
+        "type": "string",
+        "minLength": 1
+       },
+       "require": {
+        "enum": [
+         "ground",
+         "air",
+         "any"
+        ]
+       },
+       "cost": {
+        "$ref": "#/$defs/amounts"
+       },
+       "cooldown": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "upgrades": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "if",
+          "set"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "if": {
+           "$ref": "#/$defs/cond"
+          },
+          "set": {
+           "type": "object",
+           "properties": {
+            "type": false
+           }
+          }
+         }
+        }
+       },
+       "links": {
+        "type": "array",
+        "items": {
+         "$ref": "#/$defs/link"
+        }
+       },
+       "motion": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "frame",
+          "vel"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "frame": {
+           "type": "integer",
+           "minimum": 0
+          },
+          "vel": {
+           "type": "array",
+           "prefixItems": [
+            {
+             "type": "number"
+            },
+            {
+             "type": "number"
+            }
+           ],
+           "items": false,
+           "minItems": 2
+          },
+          "mode": {
+           "enum": [
+            "set",
+            "add"
+           ]
+          }
+         }
+        }
+       },
+       "gravity_scale": {
+        "type": "number"
+       },
+       "armor": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "invuln": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "reflect": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "sfx": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+         "start": {
+          "type": "string",
+          "minLength": 1
+         },
+         "hit": {
+          "type": "string",
+          "minLength": 1
+         }
+        }
+       },
+       "ultimate": {
+        "type": "boolean"
+       },
+       "startup": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "active": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "recovery": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "damage": {
+        "type": "number"
+       },
+       "knockback": {
+        "type": "object",
+        "required": [
+         "angle",
+         "force"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "angle": {
+          "type": "number"
+         },
+         "force": {
+          "type": "number"
+         }
+        }
+       },
+       "hit_interval": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "status": {
+        "$ref": "#/$defs/status"
+       },
+       "charge": {
+        "type": "object",
+        "required": [
+         "max",
+         "damage",
+         "force"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "max": {
+          "type": "integer",
+          "minimum": 1
+         },
+         "damage": {
+          "type": "number"
+         },
+         "force": {
+          "type": "number"
+         }
+        }
+       },
+       "area": {
+        "const": "screen"
+       },
+       "weapon": {
+        "type": "string",
+        "minLength": 1
+       },
+       "from": {
+        "type": "number"
+       },
+       "to": {
+        "type": "number"
+       },
+       "reach": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "number"
+         },
+         {
+          "type": "number"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "grab": {
+        "type": "boolean"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "type": {
+        "const": "shoot"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "anim",
+       "startup",
+       "active",
+       "recovery",
+       "damage",
+       "knockback",
+       "projectile",
+       "aim",
+       "angle",
+       "speed",
+       "lifetime"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "type": {
+        "const": "shoot"
+       },
+       "anim": {
+        "type": "string",
+        "minLength": 1
+       },
+       "require": {
+        "enum": [
+         "ground",
+         "air",
+         "any"
+        ]
+       },
+       "cost": {
+        "$ref": "#/$defs/amounts"
+       },
+       "cooldown": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "upgrades": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "if",
+          "set"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "if": {
+           "$ref": "#/$defs/cond"
+          },
+          "set": {
+           "type": "object",
+           "properties": {
+            "type": false
+           }
+          }
+         }
+        }
+       },
+       "links": {
+        "type": "array",
+        "items": {
+         "$ref": "#/$defs/link"
+        }
+       },
+       "motion": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "frame",
+          "vel"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "frame": {
+           "type": "integer",
+           "minimum": 0
+          },
+          "vel": {
+           "type": "array",
+           "prefixItems": [
+            {
+             "type": "number"
+            },
+            {
+             "type": "number"
+            }
+           ],
+           "items": false,
+           "minItems": 2
+          },
+          "mode": {
+           "enum": [
+            "set",
+            "add"
+           ]
+          }
+         }
+        }
+       },
+       "gravity_scale": {
+        "type": "number"
+       },
+       "armor": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "invuln": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "reflect": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "sfx": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+         "start": {
+          "type": "string",
+          "minLength": 1
+         },
+         "hit": {
+          "type": "string",
+          "minLength": 1
+         }
+        }
+       },
+       "ultimate": {
+        "type": "boolean"
+       },
+       "startup": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "active": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "recovery": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "damage": {
+        "type": "number"
+       },
+       "knockback": {
+        "type": "object",
+        "required": [
+         "angle",
+         "force"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "angle": {
+          "type": "number"
+         },
+         "force": {
+          "type": "number"
+         }
+        }
+       },
+       "hit_interval": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "status": {
+        "$ref": "#/$defs/status"
+       },
+       "charge": {
+        "type": "object",
+        "required": [
+         "max",
+         "damage",
+         "force"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "max": {
+          "type": "integer",
+          "minimum": 1
+         },
+         "damage": {
+          "type": "number"
+         },
+         "force": {
+          "type": "number"
+         }
+        }
+       },
+       "area": {
+        "const": "screen"
+       },
+       "projectile": {
+        "type": "string",
+        "minLength": 1
+       },
+       "weapon": {
+        "type": "string",
+        "minLength": 1
+       },
+       "aim": {
+        "enum": [
+         "fixed",
+         "input",
+         "steer"
+        ]
+       },
+       "angle": {
+        "type": "number"
+       },
+       "turn_rate": {
+        "type": "number"
+       },
+       "speed": {
+        "type": "number",
+        "minimum": 0
+       },
+       "count": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "spread": {
+        "type": "number"
+       },
+       "lifetime": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "gravity": {
+        "type": "number"
+       },
+       "attach": {
+        "type": "boolean"
+       },
+       "grow": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "pierce": {
+        "type": "integer",
+        "minimum": -1
+       },
+       "scale_over_life": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "number"
+         },
+         {
+          "type": "number"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "solid": {
+        "type": "boolean"
+       },
+       "return": {
+        "type": "boolean"
+       },
+       "hp": {
+        "type": "integer"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "type": {
+        "const": "pose"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "anim"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "type": {
+        "const": "pose"
+       },
+       "anim": {
+        "type": "string",
+        "minLength": 1
+       },
+       "require": {
+        "enum": [
+         "ground",
+         "air",
+         "any"
+        ]
+       },
+       "cost": {
+        "$ref": "#/$defs/amounts"
+       },
+       "cooldown": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "upgrades": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "if",
+          "set"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "if": {
+           "$ref": "#/$defs/cond"
+          },
+          "set": {
+           "type": "object",
+           "properties": {
+            "type": false
+           }
+          }
+         }
+        }
+       },
+       "links": {
+        "type": "array",
+        "items": {
+         "$ref": "#/$defs/link"
+        }
+       },
+       "motion": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "frame",
+          "vel"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "frame": {
+           "type": "integer",
+           "minimum": 0
+          },
+          "vel": {
+           "type": "array",
+           "prefixItems": [
+            {
+             "type": "number"
+            },
+            {
+             "type": "number"
+            }
+           ],
+           "items": false,
+           "minItems": 2
+          },
+          "mode": {
+           "enum": [
+            "set",
+            "add"
+           ]
+          }
+         }
+        }
+       },
+       "gravity_scale": {
+        "type": "number"
+       },
+       "armor": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "invuln": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "reflect": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "sfx": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+         "start": {
+          "type": "string",
+          "minLength": 1
+         },
+         "hit": {
+          "type": "string",
+          "minLength": 1
+         }
+        }
+       },
+       "ultimate": {
+        "type": "boolean"
+       },
+       "throw": {
+        "type": "object",
+        "required": [
+         "frame",
+         "damage",
+         "knockback"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "frame": {
+          "type": "integer",
+          "minimum": 0
+         },
+         "damage": {
+          "type": "number"
+         },
+         "knockback": {
+          "type": "object",
+          "required": [
+           "angle",
+           "force"
+          ],
+          "additionalProperties": false,
+          "properties": {
+           "angle": {
+            "type": "number"
+           },
+           "force": {
+            "type": "number"
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   ]
+  },
+  "asset": {
+   "type": "object",
+   "required": [
+    "kind"
+   ],
+   "properties": {
+    "kind": {
+     "enum": [
+      "weapon",
+      "projectile",
+      "fx",
+      "icon",
+      "sfx"
+     ]
+    }
+   },
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "weapon"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "image",
+       "grip",
+       "length",
+       "radius",
+       "hit_range"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "image": {
+        "type": "string",
+        "minLength": 1
+       },
+       "grip": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "number"
+         },
+         {
+          "type": "number"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "length": {
+        "type": "number"
+       },
+       "radius": {
+        "type": "number"
+       },
+       "hit_range": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "number"
+         },
+         {
+          "type": "number"
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "kind": {
+        "const": "weapon"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "projectile"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "image",
+       "shape",
+       "size"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "image": {
+        "type": "string",
+        "minLength": 1
+       },
+       "shape": {
+        "enum": [
+         "circle",
+         "rect"
+        ]
+       },
+       "size": {
+        "type": "array",
+        "prefixItems": [
+         {
+          "type": "number",
+          "exclusiveMinimum": 0
+         },
+         {
+          "type": "number",
+          "exclusiveMinimum": 0
+         }
+        ],
+        "items": false,
+        "minItems": 2
+       },
+       "tile": {
+        "const": "repeat_x"
+       },
+       "kind": {
+        "const": "projectile"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "fx"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "image",
+       "frames",
+       "durations"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "image": {
+        "type": "string",
+        "minLength": 1
+       },
+       "frames": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "durations": {
+        "type": "array",
+        "items": {
+         "type": "integer"
+        },
+        "minItems": 1
+       },
+       "kind": {
+        "const": "fx"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "icon"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "image"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "image": {
+        "type": "string",
+        "minLength": 1
+       },
+       "kind": {
+        "const": "icon"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "sfx"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "params"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "params": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+         "p_env_attack": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_env_sustain": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_env_punch": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_env_decay": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_base_freq": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_freq_limit": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_freq_ramp": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+         },
+         "p_freq_dramp": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+         },
+         "p_vib_strength": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_vib_speed": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_arp_mod": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+         },
+         "p_arp_speed": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_duty": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_duty_ramp": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+         },
+         "p_repeat_speed": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_pha_offset": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+         },
+         "p_pha_ramp": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+         },
+         "p_lpf_freq": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_lpf_ramp": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+         },
+         "p_lpf_resonance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_hpf_freq": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "p_hpf_ramp": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+         },
+         "sound_vol": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "wave_type": {
+          "enum": [
+           0,
+           1,
+           2,
+           3
+          ]
+         },
+         "sample_rate": {
+          "enum": [
+           44100,
+           22050,
+           11025,
+           5512
+          ]
+         },
+         "sample_size": {
+          "enum": [
+           8,
+           16
+          ]
+         }
+        }
+       },
+       "kind": {
+        "const": "sfx"
+       }
+      }
+     }
+    }
+   ]
+  },
+  "anim": {
+   "type": "object",
+   "required": [
+    "frames"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "frames": {
+     "type": "array",
+     "items": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "minItems": 1
+    },
+    "durations": {
+     "type": "array",
+     "items": {
+      "type": "integer"
+     },
+     "minItems": 1
+    },
+    "loop": {
+     "type": "boolean"
+    },
+    "hold": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "hand": {
+     "type": "array",
+     "items": {
+      "type": "array",
+      "prefixItems": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "number"
+       }
+      ],
+      "items": false,
+      "minItems": 2
+     }
+    }
+   }
+  },
+  "resource": {
+   "type": "object",
+   "required": [
+    "init",
+    "max"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "init": {
+     "type": "number"
+    },
+    "max": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    },
+    "regen": {
+     "type": "number"
+    },
+    "wrap": {
+     "type": "boolean"
+    },
+    "keep_on_ko": {
+     "type": "boolean"
+    },
+    "hud": {
+     "type": "string",
+     "minLength": 1
+    }
+   }
+  },
+  "form": {
+   "type": "object",
+   "required": [
+    "if"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "if": {
+     "$ref": "#/$defs/cond"
+    },
+    "held": {
+     "type": "string",
+     "minLength": 1
+    },
+    "anims": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "stats": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "hp": {
+       "type": "number"
+      },
+      "body": {
+       "type": "array",
+       "prefixItems": [
+        {
+         "type": "integer",
+         "minimum": 1
+        },
+        {
+         "type": "integer",
+         "minimum": 1
+        }
+       ],
+       "items": false,
+       "minItems": 2
+      },
+      "weight": {
+       "type": "number"
+      },
+      "gravity": {
+       "type": "number"
+      },
+      "max_fall": {
+       "type": "number"
+      },
+      "air_control": {
+       "type": "number"
+      }
+     }
+    },
+    "input": {
+     "$ref": "#/$defs/input"
+    }
+   }
+  },
+  "input": {
+   "type": "object",
+   "additionalProperties": false,
+   "patternProperties": {
+    "^((attack|special)\\.(neutral|side|up|down)(\\.air)?|jump)$": {
+     "type": "string",
+     "minLength": 1
+    }
+   }
+  }
+ }
+}

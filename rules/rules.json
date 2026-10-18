@@ -1,0 +1,219 @@
+{
+  "format": 1,
+  "reserved_resources": ["ult"],
+
+  "physics": {
+    "fps": 60,
+    "ground_friction": 0.4,
+    "air_friction": 0.04,
+    "hitstun_drag": 0.95,
+    "drop_through_hold": 6,
+    "drop_through_frames": 12
+  },
+
+  "combat": {
+    "lives": 2,
+    "respawn_delay": 60,
+    "respawn_invuln": 120,
+    "knockback": { "force_div": 10, "base": 1.5, "per_weight": 0.1 },
+    "hitstun": { "base": 8, "per_force": 0.3, "max": 40 },
+    "hitlag": { "base": 3, "damage_div": 4, "max": 10 },
+    "shield": { "max": 100, "regen": 0.3, "break_stun": 120, "after_break": 30 },
+    "ult": { "max": 100, "per_damage_dealt": 1, "per_damage_taken": 0.5 },
+    "reflect_margin": 8
+  },
+
+  "stage": {
+    "width": 480,
+    "height": 270,
+    "blast_margin": 48,
+    "main": { "x": 80, "y": 200, "w": 320, "h": 24 },
+    "platforms": [
+      { "x": 124, "y": 146, "w": 72 },
+      { "x": 284, "y": 146, "w": 72 }
+    ],
+    "spawns": [[140, 200], [340, 200], [200, 200], [280, 200]]
+  },
+
+  "runtime": {
+    "combo": { "damage_step": 0.1, "damage_min": 0.4, "hitstun_step": 0.08, "hitstun_min": 0.5 },
+    "immunity": { "stun": 90, "root": 60, "slow": 60, "silence": 60, "grab": 90 },
+    "max_shots": 8,
+    "max_area": 3000,
+    "max_deployables": 2,
+    "max_heal_per_life": 30,
+    "max_spawn_per_frame": 8,
+    "max_link_depth": 8
+  },
+
+  "limits": {
+    "pack": {
+      "zip_bytes": 524288,
+      "frame_size": [32, 64],
+      "frame_size_step": 8,
+      "sheet_side": 1024,
+      "total_frames": 128,
+      "anim_frames": [3, 8],
+      "attack_anim_frames": 3,
+      "duration": [1, 60],
+      "colors": 32,
+      "asset_side": 64,
+      "idle_body_tolerance": 0.25,
+      "frame_body_ratio": 1.4,
+      "projectile_tolerance": 0.25,
+      "sfx_count": 16,
+      "sfx_seconds": 2
+    },
+    "stats": {
+      "hp": [80, 150],
+      "body_w": [12, 40],
+      "body_h": [12, 48],
+      "weight": [1, 10],
+      "gravity": [0.2, 0.6],
+      "max_fall": [3, 7],
+      "air_control": [0.1, 1.0]
+    },
+    "move": { "speed": [1.0, 3.5], "accel": [0.1, 1.0] },
+    "jump": { "velocity": [4, 8], "max_count": [1, 3] },
+    "fly": { "duration": [1, 120], "rise_speed": [0, 1.5], "control": [0, 1] },
+    "attack": {
+      "startup": [2, 60],
+      "active": [1, 20],
+      "recovery": [4, 60],
+      "total_frames": 100,
+      "damage": [1, 25],
+      "target_damage": 25,
+      "force": [0, 100],
+      "hit_interval": [4, 30],
+      "angle": [-360, 360],
+      "sweep": 720,
+      "damage_startup": { "base": 6, "per_startup": 0.6 },
+      "force_startup": { "base": 20, "per_startup": 2.5 }
+    },
+    "cooldown": [0, 600],
+    "weapon": { "length": [4, 40], "radius": [2, 10], "reach_total": 56 },
+    "motion": { "entries": 4, "speed": 10, "distance": 160 },
+    "gravity_scale": [0, 1],
+    "armor": { "frames": 20, "min_startup": 10 },
+    "invuln": { "frames": 15, "min_cooldown": 60 },
+    "reflect": { "frames": 20, "min_cooldown": 60 },
+    "charge": { "max": [10, 90], "mult": [1, 1.5] },
+    "status": {
+      "burn": { "damage": [1, 3], "interval_min": 20, "duration_max": 180 },
+      "slow": { "factor": [0.5, 0.9], "duration_max": 120 },
+      "stun": { "duration_max": 45 },
+      "root": { "duration_max": 90 },
+      "silence": { "duration_max": 120 }
+    },
+    "grab": { "reach_total": 24, "max_hold": 60 },
+    "heal": { "max": 10, "every_interval_min": 120 },
+    "warp": { "min_cooldown": 120 },
+    "every": { "interval_min": 30 },
+    "bullet": {
+      "circle_d": [2, 16],
+      "rect_max": [24, 8],
+      "speed": [1, 8],
+      "speed_side": 96,
+      "scale": [0.5, 2],
+      "lifetime": [1, 180],
+      "count": [1, 5],
+      "spread": [0, 120],
+      "burst_count": 8,
+      "burst_spread": 360,
+      "burst_damage": 3,
+      "damage": 10,
+      "pierce": [0, 2],
+      "turn_rate": [0, 4],
+      "gravity": [0, 0.4]
+    },
+    "beam": {
+      "length": 200,
+      "width": [4, 12],
+      "grow_min": 4,
+      "startup_min": 20,
+      "lifetime": 60,
+      "hit_interval_min": 6,
+      "damage": 3,
+      "turn_rate": 2,
+      "cooldown_min": 90
+    },
+    "deployable": {
+      "size": [24, 24],
+      "solid_size": [48, 8],
+      "lifetime": [60, 600],
+      "hp": [1, 20],
+      "distance": 64,
+      "damage": 8,
+      "every_interval_min": 45
+    },
+    "ultimate": {
+      "count": 1,
+      "startup": [40, 90],
+      "target_damage": 40,
+      "screen": { "active": 10, "damage": 30, "force": 80 },
+      "size_mul": 3,
+      "damage_mul": 2
+    },
+    "structure": {
+      "actions": 32,
+      "attacks": 20,
+      "resources": 6,
+      "resource_max": 99,
+      "resource_regen": 1,
+      "upgrades": 4,
+      "forms": 4,
+      "links": 6,
+      "char_links": 8,
+      "spawn_depth": 8
+    }
+  },
+
+  "points": {
+    "form_max": 60,
+    "action_max": 15,
+    "form_input": 2,
+    "stats": {
+      "hp": { "base": 100, "mul": 0.2 },
+      "move_speed": { "base": 2.0, "mul": 6 },
+      "jump_count": { "base": 2, "mul": 4 },
+      "jump_velocity": { "base": 6.5, "mul": 2 },
+      "fly": { "frames": 60, "mul": 1.5 }
+    },
+    "attack": {
+      "max_hits": 10,
+      "spread_div": 360,
+      "count_mul": 0.8,
+      "force_div": 100,
+      "frame": { "startup_num": 20, "startup_add": 10, "recovery_num": 30, "recovery_add": 20 },
+      "swing_range_div": 80,
+      "shoot_range_cap": 480,
+      "shoot_range_div": 240,
+      "feature": { "steer": 1.3, "input": 1.1, "pierce": 1.2, "return": 1.15, "solid": 1.2, "grab": 1.3, "gravity": 0.9 },
+      "cooldown_div": 120,
+      "cost_mul": 0.8,
+      "scale": 0.25
+    },
+    "extra": {
+      "burn": 0.5,
+      "slow_div": 20,
+      "stun_div": 6,
+      "root_div": 20,
+      "silence_div": 30,
+      "armor_div": 6,
+      "invuln_div": 3,
+      "reflect_div": 5,
+      "motion_div": 3,
+      "gravity_scale_div": 30,
+      "throw_force_div": 100,
+      "throw_mul": 0.25,
+      "heal_mul": 0.6,
+      "warp": 3,
+      "deployable": { "mul": 2, "lifetime_div": 300 },
+      "goto": 1,
+      "spawn_mul": 0.5,
+      "every": { "max": 10, "mul": 0.5, "char_window": 600 },
+      "charge_mul": 0.8,
+      "upgrades_mul": 0.85
+    }
+  }
+}

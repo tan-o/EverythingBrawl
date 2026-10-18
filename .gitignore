@@ -1,0 +1,6 @@
+game/.godot/
+game/build/
+*.import
+__pycache__/
+*.pyc
+/build/

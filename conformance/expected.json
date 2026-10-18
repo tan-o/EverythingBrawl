@@ -1,0 +1,1239 @@
+{
+ "actions_move_jump.zip": {
+  "errors": [
+   "actions.move_jump"
+  ],
+  "valid": false
+ },
+ "anchor.zip": {
+  "errors": [
+   "anchor"
+  ],
+  "valid": false
+ },
+ "anim_durations_attack.zip": {
+  "errors": [
+   "anim.durations"
+  ],
+  "valid": false
+ },
+ "anim_durations_missing.zip": {
+  "errors": [
+   "anim.durations"
+  ],
+  "valid": false
+ },
+ "anim_durations_shared.zip": {
+  "errors": [
+   "anim.durations"
+  ],
+  "valid": false
+ },
+ "anim_hand_count.zip": {
+  "errors": [
+   "anim.hand"
+  ],
+  "valid": false
+ },
+ "anim_hand_held.zip": {
+  "errors": [
+   "anim.hand"
+  ],
+  "valid": false
+ },
+ "anim_hand_weapon.zip": {
+  "errors": [
+   "anim.hand"
+  ],
+  "valid": false
+ },
+ "anim_hold.zip": {
+  "errors": [
+   "anim.hold"
+  ],
+  "valid": false
+ },
+ "anim_required.zip": {
+  "errors": [
+   "anim.required"
+  ],
+  "valid": false
+ },
+ "anim_required_charge.zip": {
+  "errors": [
+   "anim.required"
+  ],
+  "valid": false
+ },
+ "anim_required_double_jump.zip": {
+  "errors": [
+   "anim.required"
+  ],
+  "valid": false
+ },
+ "anim_required_fly.zip": {
+  "errors": [
+   "anim.required"
+  ],
+  "valid": false
+ },
+ "armor_frames.zip": {
+  "errors": [
+   "armor.frames"
+  ],
+  "valid": false
+ },
+ "armor_min_startup.zip": {
+  "errors": [
+   "armor.min_startup"
+  ],
+  "valid": false
+ },
+ "armor_pose.zip": {
+  "errors": [
+   "armor.min_startup"
+  ],
+  "valid": false
+ },
+ "armor_window.zip": {
+  "errors": [
+   "armor.window"
+  ],
+  "valid": false
+ },
+ "asset_fx_frames.zip": {
+  "errors": [
+   "asset.fx_frames"
+  ],
+  "valid": false
+ },
+ "attack_active.zip": {
+  "errors": [
+   "attack.active"
+  ],
+  "valid": false
+ },
+ "attack_angle.zip": {
+  "errors": [
+   "attack.angle"
+  ],
+  "valid": false
+ },
+ "attack_damage.zip": {
+  "errors": [
+   "attack.damage"
+  ],
+  "valid": false
+ },
+ "attack_damage_startup.zip": {
+  "errors": [
+   "attack.damage_startup"
+  ],
+  "valid": false
+ },
+ "attack_force.zip": {
+  "errors": [
+   "attack.force"
+  ],
+  "valid": false
+ },
+ "attack_force_startup.zip": {
+  "errors": [
+   "attack.force_startup"
+  ],
+  "valid": false
+ },
+ "attack_force_startup_charged.zip": {
+  "errors": [
+   "attack.force_startup"
+  ],
+  "valid": false
+ },
+ "attack_hit_interval.zip": {
+  "errors": [
+   "attack.hit_interval"
+  ],
+  "valid": false
+ },
+ "attack_recovery.zip": {
+  "errors": [
+   "attack.recovery"
+  ],
+  "valid": false
+ },
+ "attack_startup_max.zip": {
+  "errors": [
+   "attack.startup"
+  ],
+  "valid": false
+ },
+ "attack_startup_min.zip": {
+  "errors": [
+   "attack.startup"
+  ],
+  "valid": false
+ },
+ "attack_sweep.zip": {
+  "errors": [
+   "attack.angle",
+   "attack.sweep"
+  ],
+  "valid": false
+ },
+ "attack_target_damage.zip": {
+  "errors": [
+   "attack.target_damage"
+  ],
+  "valid": false
+ },
+ "attack_target_damage_burn.zip": {
+  "errors": [
+   "attack.target_damage"
+  ],
+  "valid": false
+ },
+ "attack_total_frames.zip": {
+  "errors": [
+   "attack.total_frames"
+  ],
+  "valid": false
+ },
+ "beam_cooldown_min.zip": {
+  "errors": [
+   "beam.cooldown_min"
+  ],
+  "valid": false
+ },
+ "beam_damage.zip": {
+  "errors": [
+   "beam.damage"
+  ],
+  "valid": false
+ },
+ "beam_grow_min.zip": {
+  "errors": [
+   "beam.grow_min"
+  ],
+  "valid": false
+ },
+ "beam_hit_interval_min.zip": {
+  "errors": [
+   "beam.hit_interval_min"
+  ],
+  "valid": false
+ },
+ "beam_length.zip": {
+  "errors": [
+   "beam.length"
+  ],
+  "valid": false
+ },
+ "beam_lifetime.zip": {
+  "errors": [
+   "beam.lifetime"
+  ],
+  "valid": false
+ },
+ "beam_startup_min.zip": {
+  "errors": [
+   "beam.startup_min"
+  ],
+  "valid": false
+ },
+ "beam_turn_rate.zip": {
+  "errors": [
+   "beam.turn_rate"
+  ],
+  "valid": false
+ },
+ "beam_width.zip": {
+  "errors": [
+   "beam.width"
+  ],
+  "valid": false
+ },
+ "bullet_burst_count.zip": {
+  "errors": [
+   "bullet.burst_count"
+  ],
+  "valid": false
+ },
+ "bullet_burst_damage.zip": {
+  "errors": [
+   "bullet.burst_damage"
+  ],
+  "valid": false
+ },
+ "bullet_burst_spread.zip": {
+  "errors": [
+   "bullet.burst_spread"
+  ],
+  "valid": false
+ },
+ "bullet_circle_d.zip": {
+  "errors": [
+   "bullet.circle_d"
+  ],
+  "valid": false
+ },
+ "bullet_count.zip": {
+  "errors": [
+   "bullet.count"
+  ],
+  "valid": false
+ },
+ "bullet_damage.zip": {
+  "errors": [
+   "bullet.damage"
+  ],
+  "valid": false
+ },
+ "bullet_gravity.zip": {
+  "errors": [
+   "bullet.gravity"
+  ],
+  "valid": false
+ },
+ "bullet_lifetime.zip": {
+  "errors": [
+   "bullet.lifetime"
+  ],
+  "valid": false
+ },
+ "bullet_pierce.zip": {
+  "errors": [
+   "bullet.pierce"
+  ],
+  "valid": false
+ },
+ "bullet_rect_max.zip": {
+  "errors": [
+   "bullet.rect_max"
+  ],
+  "valid": false
+ },
+ "bullet_scale.zip": {
+  "errors": [
+   "bullet.scale"
+  ],
+  "valid": false
+ },
+ "bullet_speed_max.zip": {
+  "errors": [
+   "bullet.speed"
+  ],
+  "valid": false
+ },
+ "bullet_speed_min.zip": {
+  "errors": [
+   "bullet.speed"
+  ],
+  "valid": false
+ },
+ "bullet_speed_side.zip": {
+  "errors": [
+   "bullet.speed_side"
+  ],
+  "valid": false
+ },
+ "bullet_spread.zip": {
+  "errors": [
+   "bullet.spread"
+  ],
+  "valid": false
+ },
+ "bullet_turn_rate.zip": {
+  "errors": [
+   "bullet.turn_rate"
+  ],
+  "valid": false
+ },
+ "charge_max.zip": {
+  "errors": [
+   "charge.max"
+  ],
+  "valid": false
+ },
+ "charge_mult.zip": {
+  "errors": [
+   "charge.mult"
+  ],
+  "valid": false
+ },
+ "cooldown.zip": {
+  "errors": [
+   "cooldown"
+  ],
+  "valid": false
+ },
+ "deployable_damage.zip": {
+  "errors": [
+   "deployable.damage"
+  ],
+  "valid": false
+ },
+ "deployable_distance.zip": {
+  "errors": [
+   "deployable.distance"
+  ],
+  "valid": false
+ },
+ "deployable_distance_bullet.zip": {
+  "errors": [
+   "deployable.distance"
+  ],
+  "valid": false
+ },
+ "deployable_every_interval_min.zip": {
+  "errors": [
+   "deployable.every_interval_min"
+  ],
+  "valid": false
+ },
+ "deployable_hit_interval.zip": {
+  "errors": [
+   "deployable.hit_interval"
+  ],
+  "valid": false
+ },
+ "deployable_hp.zip": {
+  "errors": [
+   "deployable.hp"
+  ],
+  "valid": false
+ },
+ "deployable_hp_missing.zip": {
+  "errors": [
+   "deployable.hp"
+  ],
+  "valid": false
+ },
+ "deployable_lifetime.zip": {
+  "errors": [
+   "deployable.lifetime"
+  ],
+  "valid": false
+ },
+ "deployable_size.zip": {
+  "errors": [
+   "deployable.size"
+  ],
+  "valid": false
+ },
+ "deployable_solid_size.zip": {
+  "errors": [
+   "deployable.solid_size"
+  ],
+  "valid": false
+ },
+ "deployable_spawn_kind.zip": {
+  "errors": [
+   "deployable.spawn_kind"
+  ],
+  "valid": false
+ },
+ "every_interval_min.zip": {
+  "errors": [
+   "every.interval_min"
+  ],
+  "valid": false
+ },
+ "fly_control.zip": {
+  "errors": [
+   "fly.control"
+  ],
+  "valid": false
+ },
+ "fly_duration.zip": {
+  "errors": [
+   "fly.duration"
+  ],
+  "valid": false
+ },
+ "fly_rise_speed.zip": {
+  "errors": [
+   "fly.rise_speed"
+  ],
+  "valid": false
+ },
+ "form_anim_missing.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "form_input_ult.zip": {
+  "errors": [
+   "ultimate.input"
+  ],
+  "valid": false
+ },
+ "form_stats.zip": {
+  "errors": [
+   "stats.hp"
+  ],
+  "valid": false
+ },
+ "format.zip": {
+  "errors": [
+   "format"
+  ],
+  "valid": false
+ },
+ "grab_max_hold.zip": {
+  "errors": [
+   "grab.max_hold"
+  ],
+  "valid": false
+ },
+ "grab_reach_total.zip": {
+  "errors": [
+   "grab.reach_total"
+  ],
+  "valid": false
+ },
+ "grab_throw.zip": {
+  "errors": [
+   "grab.throw"
+  ],
+  "valid": false
+ },
+ "gravity_scale.zip": {
+  "errors": [
+   "gravity_scale"
+  ],
+  "valid": false
+ },
+ "heal_every_interval_min.zip": {
+  "errors": [
+   "heal.every_interval_min"
+  ],
+  "valid": false
+ },
+ "heal_max.zip": {
+  "errors": [
+   "heal.max"
+  ],
+  "valid": false
+ },
+ "input_move.zip": {
+  "errors": [
+   "input.move"
+  ],
+  "valid": false
+ },
+ "invuln_frames.zip": {
+  "errors": [
+   "invuln.frames"
+  ],
+  "valid": false
+ },
+ "invuln_min_cooldown.zip": {
+  "errors": [
+   "invuln.min_cooldown"
+  ],
+  "valid": false
+ },
+ "jump_max_count.zip": {
+  "errors": [
+   "jump.max_count"
+  ],
+  "valid": false
+ },
+ "jump_velocity.zip": {
+  "errors": [
+   "jump.velocity"
+  ],
+  "valid": false
+ },
+ "link_input.zip": {
+  "errors": [
+   "link.input"
+  ],
+  "valid": false
+ },
+ "link_spawn.zip": {
+  "errors": [
+   "link.spawn"
+  ],
+  "valid": false
+ },
+ "link_warp.zip": {
+  "errors": [
+   "link.warp"
+  ],
+  "valid": false
+ },
+ "link_when.zip": {
+  "errors": [
+   "link.when"
+  ],
+  "valid": false
+ },
+ "link_when_bullet_trigger.zip": {
+  "errors": [
+   "link.when"
+  ],
+  "valid": false
+ },
+ "link_window.zip": {
+  "errors": [
+   "link.window"
+  ],
+  "valid": false
+ },
+ "motion_distance.zip": {
+  "errors": [
+   "motion.distance"
+  ],
+  "valid": false
+ },
+ "motion_entries.zip": {
+  "errors": [
+   "motion.entries"
+  ],
+  "valid": false
+ },
+ "motion_speed.zip": {
+  "errors": [
+   "motion.speed"
+  ],
+  "valid": false
+ },
+ "move_accel.zip": {
+  "errors": [
+   "move.accel"
+  ],
+  "valid": false
+ },
+ "move_speed.zip": {
+  "errors": [
+   "move.speed"
+  ],
+  "valid": false
+ },
+ "pack_alpha.zip": {
+  "errors": [
+   "pack.alpha"
+  ],
+  "valid": false
+ },
+ "pack_anim_frames_max.zip": {
+  "errors": [
+   "pack.anim_frames"
+  ],
+  "valid": false
+ },
+ "pack_anim_frames_min.zip": {
+  "errors": [
+   "pack.anim_frames"
+  ],
+  "valid": false
+ },
+ "pack_asset_side.zip": {
+  "errors": [
+   "pack.asset_side"
+  ],
+  "valid": false
+ },
+ "pack_attack_anim_frames.zip": {
+  "errors": [
+   "pack.attack_anim_frames"
+  ],
+  "valid": false
+ },
+ "pack_colors.zip": {
+  "errors": [
+   "pack.colors"
+  ],
+  "valid": false
+ },
+ "pack_duration.zip": {
+  "errors": [
+   "pack.duration"
+  ],
+  "valid": false
+ },
+ "pack_duration_max.zip": {
+  "errors": [
+   "pack.duration"
+  ],
+  "valid": false
+ },
+ "pack_files.zip": {
+  "errors": [
+   "pack.files"
+  ],
+  "valid": false
+ },
+ "pack_frame_body.zip": {
+  "errors": [
+   "pack.frame_body"
+  ],
+  "valid": false
+ },
+ "pack_frame_size.zip": {
+  "errors": [
+   "pack.frame_size"
+  ],
+  "valid": false
+ },
+ "pack_idle_body.zip": {
+  "errors": [
+   "pack.idle_body"
+  ],
+  "valid": false
+ },
+ "pack_projectile_bbox.zip": {
+  "errors": [
+   "pack.projectile_bbox"
+  ],
+  "valid": false
+ },
+ "pack_read_bad_json.zip": {
+  "errors": [
+   "pack.read"
+  ],
+  "valid": false
+ },
+ "pack_read_bad_png.zip": {
+  "errors": [
+   "pack.read"
+  ],
+  "valid": false
+ },
+ "pack_read_missing_json.zip": {
+  "errors": [
+   "pack.read"
+  ],
+  "valid": false
+ },
+ "pack_sfx_count.zip": {
+  "errors": [
+   "pack.sfx_count"
+  ],
+  "valid": false
+ },
+ "pack_sfx_seconds.zip": {
+  "errors": [
+   "pack.sfx_seconds"
+  ],
+  "valid": false
+ },
+ "pack_sheet_grid.zip": {
+  "errors": [
+   "pack.sheet_grid"
+  ],
+  "valid": false
+ },
+ "pack_sheet_side.zip": {
+  "errors": [
+   "pack.sheet_side"
+  ],
+  "valid": false
+ },
+ "pack_total_frames.zip": {
+  "errors": [
+   "pack.total_frames"
+  ],
+  "valid": false
+ },
+ "pack_zip_bytes.zip": {
+  "errors": [
+   "pack.zip_bytes"
+  ],
+  "valid": false
+ },
+ "points_action.zip": {
+  "errors": [
+   "points.action"
+  ],
+  "valid": false
+ },
+ "points_form.zip": {
+  "errors": [
+   "points.form"
+  ],
+  "valid": false
+ },
+ "points_form_variant.zip": {
+  "errors": [
+   "points.form"
+  ],
+  "valid": false
+ },
+ "projectile_circle.zip": {
+  "errors": [
+   "projectile.circle"
+  ],
+  "valid": false
+ },
+ "ref_frame.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "ref_fx.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "ref_goto.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "ref_held.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "ref_hud.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "ref_image.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "ref_input.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "ref_resource.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "ref_sfx.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "reflect_frames.zip": {
+  "errors": [
+   "reflect.frames"
+  ],
+  "valid": false
+ },
+ "reflect_min_cooldown.zip": {
+  "errors": [
+   "reflect.min_cooldown"
+  ],
+  "valid": false
+ },
+ "reserved.zip": {
+  "errors": [
+   "reserved"
+  ],
+  "valid": false
+ },
+ "reserved_gain.zip": {
+  "errors": [
+   "reserved"
+  ],
+  "valid": false
+ },
+ "resource_init.zip": {
+  "errors": [
+   "resource.init"
+  ],
+  "valid": false
+ },
+ "schema_status.zip": {
+  "errors": [
+   "schema"
+  ],
+  "valid": false
+ },
+ "schema_type.zip": {
+  "errors": [
+   "schema"
+  ],
+  "valid": false
+ },
+ "schema_unknown_field.zip": {
+  "errors": [
+   "schema"
+  ],
+  "valid": false
+ },
+ "schema_upgrade.zip": {
+  "errors": [
+   "schema"
+  ],
+  "valid": false
+ },
+ "shoot_hp.zip": {
+  "errors": [
+   "shoot.hp"
+  ],
+  "valid": false
+ },
+ "stats_air_control.zip": {
+  "errors": [
+   "stats.air_control"
+  ],
+  "valid": false
+ },
+ "stats_body_frame.zip": {
+  "errors": [
+   "stats.body_frame"
+  ],
+  "valid": false
+ },
+ "stats_body_h.zip": {
+  "errors": [
+   "stats.body_h"
+  ],
+  "valid": false
+ },
+ "stats_body_w.zip": {
+  "errors": [
+   "stats.body_w"
+  ],
+  "valid": false
+ },
+ "stats_gravity.zip": {
+  "errors": [
+   "stats.gravity"
+  ],
+  "valid": false
+ },
+ "stats_hp.zip": {
+  "errors": [
+   "stats.hp"
+  ],
+  "valid": false
+ },
+ "stats_max_fall.zip": {
+  "errors": [
+   "stats.max_fall"
+  ],
+  "valid": false
+ },
+ "stats_weight.zip": {
+  "errors": [
+   "stats.weight"
+  ],
+  "valid": false
+ },
+ "status_burn_damage.zip": {
+  "errors": [
+   "status.burn.damage"
+  ],
+  "valid": false
+ },
+ "status_burn_duration_max.zip": {
+  "errors": [
+   "status.burn.duration_max"
+  ],
+  "valid": false
+ },
+ "status_burn_interval_min.zip": {
+  "errors": [
+   "status.burn.interval_min"
+  ],
+  "valid": false
+ },
+ "status_root_duration_max.zip": {
+  "errors": [
+   "status.root.duration_max"
+  ],
+  "valid": false
+ },
+ "status_silence_duration_max.zip": {
+  "errors": [
+   "status.silence.duration_max"
+  ],
+  "valid": false
+ },
+ "status_slow_duration_max.zip": {
+  "errors": [
+   "status.slow.duration_max"
+  ],
+  "valid": false
+ },
+ "status_slow_factor.zip": {
+  "errors": [
+   "status.slow.factor"
+  ],
+  "valid": false
+ },
+ "status_stun_duration_max.zip": {
+  "errors": [
+   "status.stun.duration_max"
+  ],
+  "valid": false
+ },
+ "structure_actions.zip": {
+  "errors": [
+   "structure.actions"
+  ],
+  "valid": false
+ },
+ "structure_attacks.zip": {
+  "errors": [
+   "structure.attacks"
+  ],
+  "valid": false
+ },
+ "structure_char_links.zip": {
+  "errors": [
+   "structure.char_links"
+  ],
+  "valid": false
+ },
+ "structure_forms.zip": {
+  "errors": [
+   "structure.forms"
+  ],
+  "valid": false
+ },
+ "structure_goto_cycle.zip": {
+  "errors": [
+   "structure.goto_cycle"
+  ],
+  "valid": false
+ },
+ "structure_links.zip": {
+  "errors": [
+   "structure.links"
+  ],
+  "valid": false
+ },
+ "structure_resource_max.zip": {
+  "errors": [
+   "structure.resource_max"
+  ],
+  "valid": false
+ },
+ "structure_resource_regen.zip": {
+  "errors": [
+   "structure.resource_regen"
+  ],
+  "valid": false
+ },
+ "structure_resources.zip": {
+  "errors": [
+   "structure.resources"
+  ],
+  "valid": false
+ },
+ "structure_spawn_depth.zip": {
+  "errors": [
+   "structure.spawn_depth"
+  ],
+  "valid": false
+ },
+ "structure_upgrades.zip": {
+  "errors": [
+   "structure.upgrades"
+  ],
+  "valid": false
+ },
+ "throw_damage.zip": {
+  "errors": [
+   "attack.damage"
+  ],
+  "valid": false
+ },
+ "throw_force.zip": {
+  "errors": [
+   "attack.force"
+  ],
+  "valid": false
+ },
+ "throw_frame.zip": {
+  "errors": [
+   "throw.frame"
+  ],
+  "valid": false
+ },
+ "ultimate_area.zip": {
+  "errors": [
+   "ultimate.area"
+  ],
+  "valid": false
+ },
+ "ultimate_count.zip": {
+  "errors": [
+   "ultimate.count"
+  ],
+  "valid": false
+ },
+ "ultimate_input.zip": {
+  "errors": [
+   "ultimate.input"
+  ],
+  "valid": false
+ },
+ "ultimate_screen_active.zip": {
+  "errors": [
+   "ultimate.screen.active"
+  ],
+  "valid": false
+ },
+ "ultimate_screen_damage.zip": {
+  "errors": [
+   "ultimate.screen.damage"
+  ],
+  "valid": false
+ },
+ "ultimate_screen_force.zip": {
+  "errors": [
+   "ultimate.screen.force"
+  ],
+  "valid": false
+ },
+ "ultimate_startup.zip": {
+  "errors": [
+   "ultimate.startup"
+  ],
+  "valid": false
+ },
+ "ultimate_target_damage.zip": {
+  "errors": [
+   "ultimate.target_damage"
+  ],
+  "valid": false
+ },
+ "ultimate_type.zip": {
+  "errors": [
+   "ultimate.type"
+  ],
+  "valid": false
+ },
+ "valid_base.zip": {
+  "errors": [],
+  "points": {
+   "base": {
+    "actions": {
+     "jump": -4.0,
+     "move": 0.0,
+     "shot": 2.9343,
+     "slash": 3.779
+    },
+    "total": 2.7132
+   }
+  },
+  "valid": true
+ },
+ "valid_forms.zip": {
+  "errors": [],
+  "points": {
+   "0": {
+    "actions": {
+     "heavy": 4.8341,
+     "jump": -4.0,
+     "move": 0.0,
+     "shot": 2.9343,
+     "switch": 0.0
+    },
+    "total": 9.7683
+   },
+   "1": {
+    "actions": {
+     "jump": -4.0,
+     "move": 0.0,
+     "shot": 2.9343,
+     "switch": 0.0
+    },
+    "total": 2.9343
+   },
+   "base": {
+    "actions": {
+     "jump": -4.0,
+     "move": 0.0,
+     "shot": 2.9343,
+     "slash": 3.779,
+     "switch": 0.0
+    },
+    "total": 6.7132
+   }
+  },
+  "valid": true
+ },
+ "valid_mechanics.zip": {
+  "errors": [],
+  "points": {
+   "base": {
+    "actions": {
+     "beam": 1.8635,
+     "blink": 3.4768,
+     "bomb": 1.756,
+     "dodge": 4.0667,
+     "fly": 3.0,
+     "grab": 2.3721,
+     "heavy": 8.1696,
+     "jump": 0.0,
+     "mirror": 3.2,
+     "move": 0.0,
+     "shot": 2.9343,
+     "slash": 3.1448,
+     "throw": 2.1,
+     "turret": 3.6776
+    },
+    "total": 41.5614
+   }
+  },
+  "valid": true
+ },
+ "valid_upgrades.zip": {
+  "errors": [],
+  "points": {
+   "base": {
+    "actions": {
+     "jump": -4.0,
+     "move": 0.0,
+     "shot": 2.9343,
+     "slash": 3.1689
+    },
+    "total": 2.1032
+   }
+  },
+  "valid": true
+ },
+ "warp_min_cooldown.zip": {
+  "errors": [
+   "warp.min_cooldown"
+  ],
+  "valid": false
+ },
+ "weapon_hit_range.zip": {
+  "errors": [
+   "weapon.hit_range"
+  ],
+  "valid": false
+ },
+ "weapon_length.zip": {
+  "errors": [
+   "weapon.length"
+  ],
+  "valid": false
+ },
+ "weapon_radius.zip": {
+  "errors": [
+   "weapon.radius"
+  ],
+  "valid": false
+ },
+ "weapon_reach_total.zip": {
+  "errors": [
+   "weapon.reach_total"
+  ],
+  "valid": false
+ }
+}
