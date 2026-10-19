@@ -22,7 +22,7 @@
 ## 1. 工作流程
 
 1. **看照片，定概念**：它是什么、性格、体型（决定 `stats.body`）、用什么攻击：
-   单武器 / 可切换武器 / 子弹 / 光束 / 布置物 / 发展机制（资源、升级）/ 状态 / 抓投 / 大招。
+   身体挂点直接发射 / 手持或可切换武器 / 子弹 / 光束 / 布置物 / 发展机制（资源、升级）/ 状态 / 抓投 / 大招。
    把物体的特征变成招式（例：灯泡 -> 光束、闪现；工具箱 -> 采集合成；易拉罐 -> 剑士）。
 2. **先画定稿帧**：`idle` 第 0 帧。它的非透明区域宽高必须与 `body` 相差 <= +/-25%。
    其余所有帧都在它的基础上**小幅修改**（上下浮动、前倾后仰、压扁拉伸、换眼睛、换腿），
@@ -35,7 +35,7 @@
 6. **运行校验**：`python scripts/validate.py <角色目录>`。不通过就按错误码与明细修改，直到通过。
    点数明细也会打印出来（第 6 节）。
 7. **运行预览**：`python scripts/preview.py <角色目录> --out preview.png [--gif 目录]`，
-   查看每个动画（叠加碰撞箱、anchor、hand、武器与判定），检查前后帧是否一致、武器是否拿在手上。
+   查看每个动画（叠加碰撞箱、anchor、命名挂点、武器与判定），检查前后帧是否一致、发射点是否在壶嘴等对应位置、武器是否绑定正确挂点。
 8. **打包**：`python scripts/pack.py <角色目录> [输出.zip]`（打包前会再校验一次）。
 
 依赖：`pip install pillow jsonschema`。`rules.json` 与 `character.schema.json` 是游戏规则的副本，不要修改。
@@ -80,7 +80,29 @@ zip 内只能有 `character.json` 和 `.png` 文件。
 }
 ```
 
-`held`、`resources`、`forms`、`links` 可选。schema 不允许任何未知字段（拼错字段名会被拒绝）。
+`held`、`held_socket`、`sockets`、`resources`、`forms`、`links` 可选。schema 不允许任何未知字段（拼错字段名会被拒绝）。
+
+### 命名挂点 sockets（新包优先使用）
+
+挂点是**角色帧内像素坐标**，不是武器，也不产生判定。先在原图上找出嘴、喷口、手、尾巴等功能位置，再命名。
+
+```json
+"sockets": {"mouth": [42, 27], "lid": [24, 18], "right_hand": [32, 34]},
+"anims": {
+  "pour": {"frames": [0, 1, 2], "sockets": {"mouth": [[42,27], [43,27], [41,27]]}}
+}
+```
+
+- 顶层 `sockets` 是固定默认坐标；`anims.<动画>.sockets.<名称>` 是逐帧覆盖，数量必须等于该动画的 `frames`。
+- 每处最多 16 个挂点，坐标必须在 `frame_size` 范围内。按朝右绘制；朝左时引擎同时镜像挂点、武器和攻击。
+- `shoot.socket` 选发射挂点；**不写 `weapon` 就直接从该挂点发射**。茶壶用 `socket: "mouth"`，不是给茶壶装一把假枪。
+- `swing.socket` 选武器的旋转/握持挂点；武器的 `grip` 与其对齐。`shoot` 同时有 `weapon` 时，从绑定挂点所持武器末端发射。
+- 常态武器用 `held` + `held_socket`；形态可以覆盖两者。没有常态武器就省略 `held`。
+- 动作本体发射取攻击动画索引 `1`（数组第二项，即生效姿势）；角色/动作联动取当前帧，当前动画没有命名挂点时回退到顶层或该发射动作索引 `1`。附着发射跟随当前挂点。
+- 子弹联动的 `spawn` 仍从父子弹位置发射。新挂点不绕过射程、布置距离或点数限制。
+- 旧包 `anims.*.hand` 和未写 `socket` 的动作仍兼容，默认为 `hand`；显式写出的挂点必须存在，不能靠中心点回退。
+
+可运行的无武器案例见 `examples/teapot/build.py`：`mouth` 发水滴，`lid` 发蒸汽，攻击帧的壶嘴挂点逐帧移动。
 
 ### 2.3 resources（资源）
 
@@ -107,7 +129,7 @@ zip 内只能有 `character.json` 和 `.png` 文件。
 | `sfx` | `params`：jsfxr 参数对象（`wave_type` 0方波/1锯齿/2正弦/3噪声，`p_env_attack`、`p_env_sustain`、`p_env_punch`、`p_env_decay`、`p_base_freq`、`p_freq_ramp`、`p_arp_mod`、`p_duty`、`p_vib_strength`、`p_lpf_freq`... `sound_vol`） |
 
 **武器图画法**：武器水平朝右画，握点（手握的位置）在左侧，刀尖/锤头在右。
-可以在握点处画一个小拳头--角色帧里不必画手，武器会被画在 `hand` 坐标上。
+可以在握点处画一个小拳头--角色帧里不必画手，武器会被画在动作指定的 `socket` 上（旧包默认 `hand`）。
 音效时长 = (attack^2 + sustain^2 + decay^2) x 100000 / 44100 秒，必须 <= 2 秒。
 
 ---
@@ -124,7 +146,7 @@ zip 内只能有 `character.json` 和 `.png` 文件。
 - 每个动画 3~8 帧；`durations` 每帧 1~60（帧）。`hold`：停在第几帧。`hand`：每帧手部坐标（帧内坐标）。
 - **攻击姿势动画**（被 swing/shoot 引用）**恰好 3 帧**，对应 前摇 / 生效 / 后摇，**不写 durations**（时长取动作的 startup/active/recovery）。
   同一个动画不能既当攻击姿势又当普通动画。
-- 被带 `weapon` 的动作引用的动画必须提供 `hand`；设置了 `held` 时所有必需动画都必须提供 `hand`（常态武器画在那里，固定 45度）。
+- 带 `weapon` 的动作必须能解析其 `socket`（默认 `hand`）；设置了 `held` 时所有必需动画必须能解析 `held_socket`。可用顶层固定坐标或动画逐帧坐标，常态武器固定 45 度。
 
 ### 必需动画与建议画法
 
@@ -164,7 +186,7 @@ zip 内只能有 `character.json` 和 `.png` 文件。
 | `shoot` | 见 4.2 | 生效第 1 帧发射 |
 | `pose` | `throw`（可选） | 只播放动画，用 anim 的 durations。切武器、合成、蓄气、挑衅、投掷 |
 
-通用字段：`anim`、`require`（ground/air/any）、`cost`（资源消耗）、`cooldown`、`upgrades`、`links`、`effects`（纯视觉特效，见 4.7）、
+通用字段：`name`（可选，简短技能名，用于技能展示列表）、`anim`、`require`（ground/air/any）、`cost`（资源消耗）、`cooldown`、`upgrades`、`links`、`effects`（纯视觉特效，见 4.7）、
 `motion`（`[{frame, vel:[前,上], mode:"set"/"add"}]`）、`gravity_scale`（0~1）、`armor`/`invuln`/`reflect`（`[起,止]` 帧区间，从动作第 0 帧算）、
 `sfx`（`{"start": 音效, "hit": 音效}`）、`ultimate`。
 
@@ -176,7 +198,7 @@ zip 内只能有 `character.json` 和 `.png` 文件。
 
 ### 4.2 子弹
 
-`shoot` 字段：`projectile`、`weapon`（仅显示，有则从武器末端发射，否则从 hand）、`aim`（`fixed`/`input`/`steer`）、
+`shoot` 字段：`projectile`、`socket`（发射/持械挂点）、`weapon`（可选，有则从武器末端发射，否则直接从挂点）、`aim`（`fixed`/`input`/`steer`）、
 `angle`、`turn_rate`、`speed`、`count`、`spread`、`lifetime`、`gravity`、`attach`、`grow`、`pierce`、
 `scale_over_life [始,终]`、`solid`、`return`、`hp`、`links`。
 
@@ -287,7 +309,7 @@ backdrop 每帧必须是 480x270 或 240x135（放大 2 倍铺满），横向帧
 ]
 ```
 
-按顺序累积生效（条件成立的形态依次叠加）。可覆盖 `anims`（只替换列出的）、`held`、`stats`（只替换列出的字段）、`input`（只替换列出的键）。
+按顺序累积生效（条件成立的形态依次叠加）。可覆盖 `anims`（只替换列出的）、`held`、`held_socket`、`stats`（只替换列出的字段）、`input`（只替换列出的键）。
 
 ```json
 "upgrades": [ { "if": {"tier": ">=1"}, "set": {"damage": 8, "weapon": "hammer2"} } ]
@@ -475,3 +497,9 @@ burst 是 `count: 8, spread: 360, damage: 2` 的 shoot 动作。
 | `anim.required` | 缺必需动画；`max_count >= 2` 需要 double_jump，fly 需要 fly，charge / on_release 需要 charge |
 | `jump.height_min` / `jump.reach_min` | 跳得太低或太近（场景是按这个保证设计的）。提高 velocity、降低 gravity、提高移动速度 |
 | `link.when` / `link.input` / `link.warp` | 触发器用错位置；input/window 只能用于动作联动，warp 只能用于子弹联动 |
+
+## 技能展示与快捷键
+
+为主要动作填写简短 `name`，例如“壶嘴喷水”。在 `input` 中填写真实操作绑定；展示界面从 `input`、形态 `input` 和 `ultimate` 自动推导快捷键，不能另写一份可能过期的键位表。
+键盘 A：J 攻、K 特、Space 跳、L 防、U 大招，W/A/S/D 方向。无直接按键的派生动作显示“联动触发”。
+技能展示使用独立模拟播放实际攻击、子弹和特效，重复播放不改变角色包或对战状态。

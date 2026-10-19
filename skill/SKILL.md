@@ -22,8 +22,13 @@ description: 为《像素大乱斗》把现实物体照片做成可导入的角�
 | `character.md` | 角色包：格式、动画、招式、联动、特效与大招背景、游戏规则、点数预算、各机制示例、常见错误 |
 | `stage.md` | 场景包：照片物体到地形元素的对应、格式、行为（攀爬 / 碎裂 / 弹跳 / 移动 / 危险 / 风 / 水 / 闪烁 / 可打碎）、规则 |
 | `scripts/` | `validate.py`（游戏校验器镜像）、`pack.py`、`preview.py`、`pixel.py`（像素绘制工具） |
-| `examples/` | 角色：`knight` `swissknife` `toolbox` `bulb`；场景：`stage_kitchen` `stage_desk`。每个都有从零生成的 `build.py` |
+| `examples/` | 角色：`knight` `swissknife` `toolbox` `bulb` `teapot`；场景：`stage_kitchen` `stage_desk` `stage_gallery`。每个都有从零生成的 `build.py` |
 | `rules.json` 等 | 游戏规则与结构定义的副本，不要修改 |
+
+先忠实识别原图，再做玩法设计。不要把参考照片替换成随机场景或照搬示例布局。
+角色以自身结构决定攻击挂点（茶壶嘴喷水、盖子冒蒸汽、手部拿武器）；没有武器时不要添加假武器。
+场景保留原图构图、物体位置比例、主色和地标；有合适人物/物体时，使用 `stage.md` 的 `trap` 接口让其发射或挥击。
+只有照片中有依据的物体才添加机关；没有合适对象就不添加。没有收到照片时先索要，不能声称示例是还原结果。
 
 画像素图的通用要求：Python + Pillow 逐像素画，无抗锯齿、无半透明；先画定稿帧（角色的 idle 第 0 帧 / 场景的主地面），
 其余在它基础上小改，保证风格一致。

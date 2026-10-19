@@ -50,9 +50,9 @@ func _build() -> void:
 	bar.add_child(Menus.button("返回", _back, 160))
 	var content := VBoxContainer.new()
 	content.add_theme_constant_override("separation", 10)
-	content.add_child(Menus.label("01 / 选择出战角色", 26))
+	content.add_child(Menus.label("角色", 26))
 	content.add_child(_pick_row(chars, "char"))
-	content.add_child(Menus.label("02 / 选择主场（从所有玩家选择中随机抽取）", 26))
+	content.add_child(Menus.label("场景", 26))
 	content.add_child(_pick_row(stages, "stage"))
 	room_box = VBoxContainer.new()
 	room_box.add_theme_constant_override("separation", 10)
@@ -113,10 +113,10 @@ func _refresh_room() -> void:
 
 
 func _room_list() -> void:
-	room_box.add_child(Menus.label("03 / 加入擂台", 26))
+	room_box.add_child(Menus.label("房间", 26))
 	if disc.rooms.is_empty():
 		var empty := PanelContainer.new()
-		var hint := Menus.label("正在寻找附近的擂台…\n连接同一 WiFi / 热点，或创建房间邀请朋友。", 20, true)
+		var hint := Menus.label("暂无附近房间", 20, true)
 		hint.add_theme_color_override("font_color", ArcadeTheme.MUTED)
 		empty.add_child(hint)
 		room_box.add_child(empty)

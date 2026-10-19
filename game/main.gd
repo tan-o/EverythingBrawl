@@ -26,7 +26,7 @@ func _set_screen(c: Control) -> void:
 func _show_menu() -> void:
 	var s := Menus.screen("像素大乱斗")
 	var box: VBoxContainer = s[1]
-	var tag := Menus.label("EVERYTHING BRAWL  /  万物皆可战", 18)
+	var tag := Menus.label("EVERYTHING BRAWL", 18)
 	tag.add_theme_color_override("font_color", ArcadeTheme.MUTED)
 	s[2].add_child(tag)
 	var row := HBoxContainer.new()
@@ -38,11 +38,6 @@ func _show_menu() -> void:
 	nav.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	nav.add_theme_constant_override("separation", 16)
 	row.add_child(nav)
-	var eyebrow := Menus.label("物品觉醒 / 即刻开打", 20)
-	eyebrow.add_theme_color_override("font_color", ArcadeTheme.MINT)
-	nav.add_child(eyebrow)
-	var title := Menus.label("你的日常，\n就是主场。", 48)
-	nav.add_child(title)
 	nav.add_child(ArcadeTheme.primary(Menus.button("开始游戏   >", _show_lobby, 380)))
 	var libraries := HBoxContainer.new()
 	libraries.add_child(Menus.button("管理角色", _show_library.bind("character"), 184))
@@ -57,26 +52,6 @@ func _show_menu() -> void:
 	art.showcase = true
 	art.custom_minimum_size = Vector2(400, 360)
 	hero.add_child(art)
-	var caption := VBoxContainer.new()
-	caption.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	caption.offset_left = 32
-	caption.offset_top = 32
-	caption.offset_right = -32
-	art.add_child(caption)
-	var cap := Menus.label("把身边的东西，变成对手。", 26)
-	caption.add_child(cap)
-	var sub := Menus.label("照片生成角色与场景  /  导入即可加入乱斗", 18, true)
-	sub.add_theme_color_override("font_color", ArcadeTheme.MUTED)
-	caption.add_child(sub)
-	var foot := HBoxContainer.new()
-	var hint := Menus.label("01  导入物品     02  选择场景     03  同屏开战", 18)
-	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hint.add_theme_color_override("font_color", ArcadeTheme.MUTED)
-	foot.add_child(hint)
-	var lan := Menus.label("2 - 4 人 / 局域网对战", 18)
-	lan.add_theme_color_override("font_color", ArcadeTheme.MINT)
-	foot.add_child(lan)
-	box.add_child(foot)
 	_set_screen(s[0])
 
 
@@ -108,15 +83,21 @@ func _show_library(kind: String) -> void:
 	for e in Catalog.entries(kind):
 		var sub: String = ("" if e.valid else "不合法") + ("（导入）" if e.user else "")
 		g[1].add_child(Menus.card(e.tex, e.name, sub, _show_detail.bind(kind, e)))
-	box.add_child(Menus.label("点右上角 + 导入 zip 角色包 / 场景包（电脑版也可以把 zip 拖到窗口上）", 18, true))
 	_set_screen(s[0])
 
 
 func _show_detail(kind: String, e: Dictionary) -> void:
 	if kind == "character":
-		_set_screen(CharacterDetail.build(e, _practice_with.bind("me", e.path), _delete.bind(kind, e.path), _show_library.bind(kind)))
+		_set_screen(CharacterDetail.build(e, _practice_with.bind("me", e.path), _delete.bind(kind, e.path), _show_library.bind(kind), _show_showcase.bind(e)))
 	else:
 		_set_screen(StageDetail.build(e, _practice_with.bind("stage", e.path), _delete.bind(kind, e.path), _show_library.bind(kind)))
+
+
+func _show_showcase(e: Dictionary) -> void:
+	var showcase := SkillShowcase.new()
+	showcase.pack = e.v
+	_set_screen(showcase)
+	showcase.exited.connect(_show_detail.bind("character", e))
 
 
 func _delete(kind: String, path: String) -> void:
@@ -207,7 +188,7 @@ func _show_practice() -> void:
 	bar.add_child(Menus.button("返回", _show_menu, 160))
 	var content := VBoxContainer.new()
 	content.add_theme_constant_override("separation", 12)
-	content.add_child(Menus.label("我的角色（触屏 / 键盘 A）", 26))
+	content.add_child(Menus.label("我的角色", 26))
 	content.add_child(_pick_row(chars, "me"))
 	content.add_child(Menus.label("对手", 26))
 	content.add_child(_pick_row(chars, "foe"))

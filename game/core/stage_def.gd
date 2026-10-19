@@ -2,7 +2,7 @@ class_name StageDef
 extends RefCounted
 ## 场景元素的公共判定（校验器与运行时共用）。
 
-const BEHAVIORS := ["climb", "crumble", "bounce", "friction", "conveyor", "move", "damage", "wind", "water", "blink", "breakable"]
+const BEHAVIORS := ["climb", "crumble", "bounce", "friction", "conveyor", "move", "damage", "wind", "water", "blink", "breakable", "trap"]
 
 
 static func offsets(el: Dictionary) -> Array:

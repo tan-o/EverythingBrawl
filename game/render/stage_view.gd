@@ -7,6 +7,7 @@ var bg := AnimatedSprite2D.new()
 var tiles := {}         # 资产名 -> ImageTexture
 var snap: Array = []
 var tick := 0
+var traps := {}
 
 
 static func build(v: PackValidator) -> StageView:
@@ -21,7 +22,7 @@ func _build(d: Dictionary, images: Dictionary) -> void:
 	for k in d.assets:
 		var a: Dictionary = d.assets[k]
 		var img: Image = images[a.image]
-		if a.kind == "tile":
+		if a.kind in ["tile", "hazard"]:
 			tiles[k] = ImageTexture.create_from_image(img)
 		elif k == d.background:
 			var tex := ImageTexture.create_from_image(img)
@@ -45,7 +46,8 @@ func _build(d: Dictionary, images: Dictionary) -> void:
 	bg.play("default")
 
 
-func apply(stage_snap: Array) -> void:
+func apply(stage_snap: Array, trap_snap: Dictionary = {}) -> void:
+	traps = trap_snap
 	snap = stage_snap
 	tick += 1
 	queue_redraw()
@@ -79,6 +81,8 @@ func _draw() -> void:
 		if present and crack > 0.0:
 			_draw_cracks(r, crack)
 
+	_draw_traps()
+
 
 func _draw_cracks(r: Rect2, k: float) -> void:
 	var n := int(ceil(k * 4))
@@ -92,3 +96,24 @@ func _draw_cracks(r: Rect2, k: float) -> void:
 			draw_line(Vector2(x, y), Vector2(nx, ny), c, 1.0)
 			x = nx
 			y = ny
+
+
+func _draw_traps() -> void:
+	for warning in traps.get("warnings", []):
+		var p := Vector2(warning.x, warning.y)
+		var dir := StageTraps.direction(warning.angle)
+		draw_arc(p, 8 + int(warning.phase / 6) % 3, 0, TAU, 16, Palette.GOLD, 2)
+		for i in 3:
+			draw_line(p + dir * (14 + i * 8), p + dir * (18 + i * 8), Palette.GOLD, 1)
+	for shot in traps.get("shots", []):
+		var a: Dictionary = data.elements[shot.el].trap
+		var tex: Texture2D = tiles.get(a.asset)
+		if tex != null:
+			draw_texture_rect(tex, Rect2(Vector2(shot.x, shot.y) - Vector2.ONE * a.radius, Vector2.ONE * a.radius * 2), false)
+	for swing in traps.get("swings", []):
+		var a: Dictionary = data.elements[swing.el].trap
+		var tex: Texture2D = tiles.get(a.asset)
+		if tex != null:
+			draw_set_transform(Vector2(swing.x, swing.y), -deg_to_rad(swing.angle))
+			draw_texture(tex, -Vector2(a.grip[0], a.grip[1]))
+			draw_set_transform(Vector2.ZERO)

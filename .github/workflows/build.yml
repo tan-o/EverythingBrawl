@@ -42,6 +42,17 @@ jobs:
         working-directory: game
         run: godot --headless --import || true
 
+      - name: 挂点与背景机关运行测试
+        working-directory: game
+        run: |
+          set -o pipefail
+          godot --headless --path . -s res://tests/socket_trap_test.gd 2>&1 | tee extensions.log
+          grep -q "^OK sockets" extensions.log
+          if grep -E "SCRIPT ERROR|ERROR:" extensions.log; then exit 1; fi
+          godot --headless --path . -s res://tests/showcase_test.gd 2>&1 | tee showcase.log
+          grep -q "^OK showcase" showcase.log
+          if grep -E "SCRIPT ERROR|ERROR:" showcase.log; then exit 1; fi
+
       - name: UI 页面与战斗弹层检查
         working-directory: game
         run: |
@@ -72,12 +83,12 @@ jobs:
         working-directory: game
         run: |
           set -e
-          packs=(knight swissknife toolbox bulb)
-          stages=(kitchen desk)
+          packs=(knight swissknife toolbox bulb teapot)
+          stages=(kitchen desk gallery)
           i=0
           for a in "${packs[@]}"; do for b in "${packs[@]}"; do
             if [ "$a" != "$b" ]; then
-              st=${stages[$((i % 2))]}
+              st=${stages[$((i % 3))]}
               i=$((i + 1))
               echo "== $a vs $b @ $st"
               godot --headless --path . -s res://tests/run_tests.gd -- sim data/packs/$a.zip data/packs/$b.zip 12000 res://data/stages/$st.zip
@@ -91,6 +102,13 @@ jobs:
       - name: 联机流程自检（房主 + 客户端，选包、同步、开局、对战 600 帧）
         working-directory: game
         run: godot --headless --path . -s res://tests/net_match_test.gd | tee netmatch.log && grep -q "^OK" netmatch.log
+
+      - name: 背景机关联机同步自检
+        working-directory: game
+        run: |
+          set -o pipefail
+          godot --headless --path . -s res://tests/net_match_test.gd -- traps | tee traps-net.log
+          grep -q "^OK" traps-net.log
 
   export:
     needs: test

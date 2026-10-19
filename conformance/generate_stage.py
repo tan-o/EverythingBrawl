@@ -353,6 +353,74 @@ def _(c):
     add(c, rect=[0, 120, 10, 4])
 
 
+def trap_case(c, kind="shoot"):
+    c.imgs["hazard.png"] = tile(40, 8)
+    c.d["assets"]["hazard"] = {"kind": "hazard", "image": "hazard.png"}
+    a = {"type": kind, "origin": [20, 10], "asset": "hazard", "period": 180, "warn": 30,
+         "damage": 5, "knockback": {"angle": 45, "force": 20}, "radius": 4}
+    if kind == "shoot":
+        a.update(angle=0, speed=2, lifetime=60)
+    else:
+        a.update(grip=[1, 4], length=36, active=30, **{"from": 45, "to": -45})
+    add(c, id="actor", rect=[20, 60, 48, 64], collide="none", trap=a)
+    return a
+
+@case("valid_trap_shoot", [])
+def _(c):
+    trap_case(c)
+
+@case("valid_trap_swing", [])
+def _(c):
+    trap_case(c, "swing")
+
+@case("valid_background_region", [])
+def _(c):
+    c.els[0].pop("tile")
+    c.els[0]["background_region"] = True
+
+@case("background_region_motion", ["stage.background_region"])
+def _(c):
+    c.els[1].pop("tile")
+    c.els[1].update(background_region=True, move={"path": [[0,0],[4,0]], "period": 120})
+
+@case("trap_ref", ["ref"])
+def _(c):
+    trap_case(c)["asset"] = "absent"
+
+@case("trap_warning", ["stage.trap_warn"])
+def _(c):
+    trap_case(c)["warn"] = 1
+
+@case("trap_timing", ["stage.trap_timing"])
+def _(c):
+    trap_case(c).update(period=120, warn=120)
+
+@case("trap_origin", ["stage.trap_origin"])
+def _(c):
+    trap_case(c)["origin"] = [50, 10]
+
+@case("trap_speed", ["stage.trap_speed"])
+def _(c):
+    trap_case(c)["speed"] = 7
+
+@case("trap_spawn", ["stage.trap_spawn"])
+def _(c):
+    trap_case(c)
+    c.els[-1]["rect"][1] = 170
+
+@case("trap_grip", ["stage.trap_grip"])
+def _(c):
+    trap_case(c, "swing")["grip"] = [-1, 4]
+
+@case("trap_sweep", ["stage.trap_sweep"])
+def _(c):
+    trap_case(c, "swing")["to"] = -181
+
+@case("trap_count", ["stage.trap_count"])
+def _(c):
+    for i in range(7): trap_case(c)
+
+
 def build(c):
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:

@@ -9,7 +9,7 @@ func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	resized.connect(queue_redraw)
 	if showcase:
-		for e in Catalog.valid_entries("character"):
+		for e in Catalog.valid_entries("character").slice(0, 4):
 			if e.tex != null:
 				icons.append(e.tex)
 	queue_redraw()

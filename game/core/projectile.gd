@@ -25,6 +25,7 @@ var pierce := 0
 var hits := {}           # 目标键 -> 最后命中帧
 var hp := 0.0
 var attach := false
+var origin_action: Dictionary = {}
 var offset := Vector2.ZERO  # 附着偏移（朝向空间）
 var grow := 0
 var scale_from := 1.0

@@ -96,6 +96,8 @@ func _build_overlays() -> void:
 	result_box.add_child(over_label)
 	result_box.move_child(over_label, 1)
 	over_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	over_label.custom_minimum_size.x = 480
+	over_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	over_label.add_theme_color_override("font_color", ArcadeTheme.GOLD)
 	fps_label = Label.new()
 	fps_label.position = Vector2(12, 160)
@@ -153,6 +155,11 @@ func _quit() -> void:
 	if sim != null:
 		sim.dispose()
 	exited.emit()
+
+
+func _exit_tree() -> void:
+	if sim != null:
+		sim.dispose()
 
 
 func _layout() -> void:

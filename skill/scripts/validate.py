@@ -152,9 +152,18 @@ def mask_label(mask, n):
     return "+".join(bits) if bits else "base"
 
 
+def socket_at(data, anim, index, socket="hand"):
+    if anim is not None:
+        points = anim.get("sockets", {}).get(socket, anim.get("hand", []) if socket == "hand" else [])
+        if points:
+            return points[min(index, len(points) - 1)]
+    return data.get("sockets", {}).get(socket)
+
+
 def effective_form(data, mask):
     eff = {
         "held": data.get("held"),
+        "held_socket": data.get("held_socket", "hand"),
         "anims": {},
         "stats": dict(data["stats"]),
         "input": dict(data["input"]),
@@ -162,6 +171,8 @@ def effective_form(data, mask):
     for i, f in enumerate(data.get("forms", [])):
         if not mask & (1 << i):
             continue
+        if "held_socket" in f:
+            eff["held_socket"] = f["held_socket"]
         if "held" in f:
             eff["held"] = f["held"]
         eff["anims"].update(f.get("anims", {}))
@@ -482,6 +493,8 @@ class Validator:
         ls = L["structure"]
         lp = L["pack"]
         total = self.total_frames()
+        for sn, point in d.get("sockets", {}).items():
+            self.check_socket_point(point, "sockets." + sn)
         # 动画
         for an, anim in sorted(d["anims"].items()):
             p = "anims.%s" % an
@@ -497,6 +510,11 @@ class Validator:
                     in_range(e, "pack.duration", "%s.durations.%d" % (p, i), du, lp["duration"])
             if "hand" in anim and len(anim["hand"]) != n:
                 e.add("anim.hand", p + ".hand", "hand 数量须与 frames 相同")
+            for sn, points in anim.get("sockets", {}).items():
+                if len(points) != n:
+                    e.add("anim.socket", p + ".sockets." + sn, "挂点数量须与 frames 相同")
+                for point in points:
+                    self.check_socket_point(point, p + ".sockets." + sn)
             if "hold" in anim and anim["hold"] >= n:
                 e.add("anim.hold", p + ".hold", "hold 超出帧数")
         # 资源
@@ -861,15 +879,15 @@ class Validator:
             self.check_ref("held", eff["held"], "weapon")
             for name in req:
                 anim = resolve_anim(d, eff, name)
-                if anim is not None and "hand" not in anim:
-                    e.add("anim.hand", "anims.%s" % rname(name), "设置了 held 时必需动画 %s 必须提供 hand" % rname(name))
+                if anim is not None and socket_at(d, anim, 0, eff["held_socket"]) is None:
+                    e.add("anim.hand" if eff["held_socket"] == "hand" else "ref.socket", "anims.%s" % rname(name), "缺少常态武器挂点")
         for aid, a in sorted(acts.items()):
             for m in range(1 << len(a.get("upgrades", []))):
                 ua = apply_upgrades(a, m)
-                if ua["type"] == "swing" or (ua["type"] == "shoot" and "weapon" in ua):
+                if ua["type"] == "swing" or (ua["type"] == "shoot" and ("weapon" in ua or "socket" in ua)):
                     anim = resolve_anim(d, eff, ua["anim"])
-                    if anim is not None and "hand" not in anim:
-                        e.add("anim.hand", "anims.%s" % rname(ua["anim"]), "带 weapon 的动作 %s 的动画必须提供 hand" % aid)
+                    if anim is not None and socket_at(d, anim, 1, ua.get("socket", "hand")) is None:
+                        e.add("ref.socket" if "socket" in ua else "anim.hand", "actions." + aid, "缺少动作挂点")
         # 画面与碰撞箱一致
         lp = L["pack"]
         idle = resolve_anim(d, eff, "idle")
@@ -1174,28 +1192,31 @@ class Validator:
                         continue
                     if us["type"] == "shoot" and l["when"] in BULLET_WHEN:
                         return None
-                    best = max(best, self.anim_hand_distance(us.get("anim"), eff))
+                    best = max(best, self.anim_hand_distance(us.get("anim"), eff, a.get("socket", "hand")) + (d["assets"][a["weapon"]]["length"] if "weapon" in a else 0))
         return best
 
     def body_center_distance(self, eff):
         return eff["stats"]["body"][1] / 2.0
 
-    def anim_hand_distance(self, anim_name, eff):
+    def check_socket_point(self, point, path):
+        if not (0 <= point[0] <= self.data["frame_size"][0] and 0 <= point[1] <= self.data["frame_size"][1]):
+            self.errs.add("socket.bounds", path, "挂点须位于角色帧内")
+
+    def anim_hand_distance(self, anim_name, eff, socket="hand"):
         d = self.data
         anim = resolve_anim(d, eff, anim_name) if anim_name else None
-        if anim is None or "hand" not in anim:
-            return self.body_center_distance(eff)
         ax, ay = d["anchor"]
-        return max(math.hypot(h[0] - ax, h[1] - ay) for h in anim["hand"])
+        points = [socket_at(d, anim, i, socket) for i in range(len(anim["frames"]) if anim else 1)]
+        return max(math.hypot(h[0] - ax, h[1] - ay) if h is not None else self.body_center_distance(eff) for h in points)
 
     def shoot_origin_distance(self, a, eff):
         d = self.data
         anim = resolve_anim(d, eff, a["anim"])
         ax, ay = d["anchor"]
-        if anim is None or "hand" not in anim or len(anim["hand"]) < 2:
+        h = socket_at(d, anim, 1, a.get("socket", "hand"))
+        if h is None:
             hx, hy = 0.0, -self.body_center_distance(eff)
         else:
-            h = anim["hand"][1]
             hx, hy = h[0] - ax, -(h[1] - ay)
         if "weapon" not in a:
             return math.hypot(hx, hy)
@@ -1602,7 +1623,7 @@ class StageValidator:
         for an, a in sorted(d["assets"].items()):
             im = self.images[a["image"]]
             w, h = im.size
-            if a["kind"] == "tile":
+            if a["kind"] in ("tile", "hazard"):
                 if w > SL["tile_side"] or h > SL["tile_side"]:
                     e.add("stage.tile_side", "assets.%s" % an, "地形贴图每边 <= %d（%s 为 %dx%d）" % (SL["tile_side"], an, w, h))
             else:
@@ -1623,17 +1644,24 @@ class StageValidator:
         els = self.data["elements"]
         at_most(e, "stage.elements", "elements", len(els), SL["elements"])
         n_damage = 0
+        n_traps = 0
         bx0, by0, bx1, by1 = SL["bounds"]
         for i, el in enumerate(els):
             p = "elements.%d" % i
             col = el["collide"]
-            if "tile" not in el:
+            if el.get("background_region", False):
+                if "tile" in el or not elem_static(el):
+                    e.add("stage.background_region", p, "背景区域不能同时指定 tile 或动态地形行为")
+            elif "tile" not in el:
                 e.add("stage.invisible", p, "每个元素都必须有贴图（不能有看不见的地形）")
             else:
                 self.check_ref(p + ".tile", el["tile"], "tile")
             x0, y0, x1, y1 = elem_hull(el)
             if x0 < bx0 or y0 < by0 or x1 > bx1 or y1 > by1:
                 e.add("stage.bounds", p, "元素（含移动路径）须在 %s 范围内" % SL["bounds"])
+            if "trap" in el:
+                n_traps += 1
+                self.check_trap(el, p)
             if "climb" in el and col != "solid":
                 e.add("stage.behavior", p + ".climb", "climb 只能用于 solid")
             for k in ("crumble", "bounce", "friction", "conveyor", "breakable"):
@@ -1679,7 +1707,51 @@ class StageValidator:
                 in_range(e, "stage.blink_off", p + ".blink.off", el["blink"]["off"], lb["off"])
                 if (col != "none" or "damage" in el) and el["blink"].get("warn", 0) < lb["warn"]:
                     e.add("stage.blink_warn", p + ".blink.warn", "会出现的地形或危险物须有 >= %d 帧预警" % lb["warn"])
+        at_most(e, "stage.trap_count", "elements", n_traps, SL["trap"]["count"])
         at_most(e, "stage.damage_count", "elements", n_damage, SL["damage"]["count"])
+
+    def check_trap(self, el, p):
+        a, lim, e = el["trap"], SL["trap"], self.errs
+        p += ".trap"
+        self.check_ref(p + ".asset", a["asset"], "hazard")
+        for k in ["period", "warn", "damage", "radius"]:
+            in_range(e, "stage.trap_" + k, p + "." + k, a[k], lim[k])
+        in_range(e, "stage.trap_force", p + ".knockback.force", a["knockback"]["force"], lim["force"])
+        if not (0 <= a["origin"][0] <= el["rect"][2] and 0 <= a["origin"][1] <= el["rect"][3]):
+            e.add("stage.trap_origin", p + ".origin", "发射/挥击挂点须位于元素内")
+        if a.get("offset", 0) >= a["period"]:
+            e.add("stage.trap_timing", p, "offset 必须小于 period")
+        duration = 1
+        if a["type"] == "shoot":
+            for k in ["speed", "lifetime"]:
+                in_range(e, "stage.trap_" + k, p + "." + k, a[k], lim[k])
+        else:
+            duration = a["active"]
+            for k in ["length", "active"]:
+                in_range(e, "stage.trap_" + k, p + "." + k, a[k], lim[k])
+            if abs(a["to"] - a["from"]) > 180:
+                e.add("stage.trap_sweep", p, "挥击角度变化不能超过 180 度")
+            if a["asset"] in self.data["assets"]:
+                w, h = self.images[self.data["assets"][a["asset"]]["image"]].size
+                if not (0 <= a["grip"][0] < w and 0 <= a["grip"][1] < h and a["grip"][0] + a["length"] <= w):
+                    e.add("stage.trap_grip", p, "握点和长度须与武器图片一致")
+        if a["warn"] + duration >= a["period"]:
+            e.add("stage.trap_timing", p, "预警和攻击后须留出间歇")
+        x0, y0, x1, y1 = elem_hull(el)
+        ox, oy = a["origin"]
+        x0, y0, x1, y1 = x0 + ox, y0 + oy, x1 - el["rect"][2] + ox, y1 - el["rect"][3] + oy
+        if a["type"] == "shoot":
+            r = math.radians(a["angle"])
+            dx, dy = math.cos(r) * a["speed"] * a["lifetime"], -math.sin(r) * a["speed"] * a["lifetime"]
+            x0, x1 = min(x0, x0 + dx), max(x1, x1 + dx)
+            y0, y1 = min(y0, y0 + dy), max(y1, y1 + dy)
+            grow = a["radius"]
+        else:
+            grow = a["length"] + a["radius"]
+        for sx, sy in self.data["spawns"]:
+            if x0 - grow < sx + 20 and x1 + grow > sx - 20 and y0 - grow < sy and y1 + grow > sy - 48:
+                e.add("stage.trap_spawn", p, "陷阱攻击范围不能覆盖出生区域")
+                break
 
     def check_layout(self):
         e = self.errs

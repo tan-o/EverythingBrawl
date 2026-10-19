@@ -1,0 +1,146 @@
+{
+ "format": 1,
+ "kind": "stage",
+ "name": "背景机关演示",
+ "background": "bg",
+ "spawns": [
+  [
+   100,
+   200
+  ],
+  [
+   180,
+   200
+  ],
+  [
+   280,
+   200
+  ],
+  [
+   380,
+   200
+  ]
+ ],
+ "assets": {
+  "bg": {
+   "kind": "background",
+   "image": "bg.png"
+  },
+  "ball": {
+   "kind": "hazard",
+   "image": "ball.png"
+  },
+  "bat": {
+   "kind": "hazard",
+   "image": "bat.png"
+  }
+ },
+ "elements": [
+  {
+   "rect": [
+    60,
+    200,
+    360,
+    70
+   ],
+   "collide": "solid",
+   "background_region": true
+  },
+  {
+   "rect": [
+    124,
+    166,
+    72,
+    4
+   ],
+   "collide": "platform",
+   "background_region": true
+  },
+  {
+   "rect": [
+    284,
+    166,
+    72,
+    4
+   ],
+   "collide": "platform",
+   "background_region": true
+  },
+  {
+   "rect": [
+    200,
+    134,
+    72,
+    4
+   ],
+   "collide": "platform",
+   "background_region": true
+  },
+  {
+   "id": "thrower",
+   "rect": [
+    28,
+    70,
+    48,
+    66
+   ],
+   "collide": "none",
+   "background_region": true,
+   "trap": {
+    "period": 240,
+    "warn": 45,
+    "damage": 5,
+    "knockback": {
+     "angle": 45,
+     "force": 20
+    },
+    "radius": 4,
+    "type": "shoot",
+    "origin": [
+     34,
+     29
+    ],
+    "asset": "ball",
+    "angle": 0,
+    "speed": 3,
+    "lifetime": 110
+   }
+  },
+  {
+   "id": "batter",
+   "rect": [
+    410,
+    65,
+    54,
+    71
+   ],
+   "collide": "none",
+   "background_region": true,
+   "trap": {
+    "period": 240,
+    "warn": 45,
+    "damage": 5,
+    "knockback": {
+     "angle": 45,
+     "force": 20
+    },
+    "radius": 2,
+    "type": "swing",
+    "origin": [
+     16,
+     29
+    ],
+    "asset": "bat",
+    "grip": [
+     1,
+     4
+    ],
+    "length": 38,
+    "active": 30,
+    "offset": 90,
+    "from": -60,
+    "to": -120
+   }
+  }
+ ]
+}

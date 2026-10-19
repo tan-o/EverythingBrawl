@@ -21,7 +21,7 @@ func world_to_screen(p: Vector2) -> Vector2:
 func _draw() -> void:
 	if snap.is_empty():
 		return
-	var font := ThemeDB.fallback_font
+	var font: Font = ArcadeTheme.FONT
 	var R := Rules.data()
 	var n: int = snap.fighters.size()
 	var pw: float = min(300.0, (size.x - 40) / n)

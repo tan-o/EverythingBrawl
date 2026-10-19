@@ -8,6 +8,7 @@ var name := ""
 var spawns: Array = []
 var els: Array = []     # 每项：{def, rect, delta, present, warn, stand, broken, hp, shake}
 var t := 0
+var traps := StageTraps.new()
 
 
 func _init(validated: Dictionary) -> void:
@@ -46,6 +47,7 @@ func step() -> Array:
 			e.broken = int(el.crumble.respawn)
 			events.append({"t": "stage_break", "el": i, "x": e.rect.get_center().x, "y": e.rect.get_center().y})
 	_update_blink()
+	traps.step(self)
 	return events
 
 

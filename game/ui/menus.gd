@@ -101,15 +101,22 @@ static func grid(columns := 5) -> Array:
 static func table(rows: Array, fs := 22) -> GridContainer:
 	var g := GridContainer.new()
 	g.columns = 2
-	g.add_theme_constant_override("h_separation", 24)
-	g.add_theme_constant_override("v_separation", 6)
-	for r in rows:
-		var k := label(str(r[0]), fs)
-		k.add_theme_color_override("font_color", ArcadeTheme.MUTED)
-		g.add_child(k)
-		var v := label(str(r[1]), fs, true)
-		v.custom_minimum_size.x = 520
-		g.add_child(v)
+	g.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	g.add_theme_constant_override("h_separation", 2)
+	g.add_theme_constant_override("v_separation", 2)
+	for i in rows.size():
+		var r: Array = rows[i]
+		for col in 2:
+			var cell := PanelContainer.new()
+			cell.add_theme_stylebox_override("panel", ArcadeTheme.plate(ArcadeTheme.INK if i % 2 == 0 else Color("202d43"), Color.TRANSPARENT, 0, 10))
+			var text := label(str(r[col]), fs, true)
+			text.custom_minimum_size.x = 260 if col == 0 else 480
+			if col == 0:
+				text.add_theme_color_override("font_color", ArcadeTheme.MUTED)
+			else:
+				cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			cell.add_child(text)
+			g.add_child(cell)
 	return g
 
 

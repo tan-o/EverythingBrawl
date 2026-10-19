@@ -1474,6 +1474,43 @@ def build(fn):
     return buf.getvalue()
 
 
+@case("valid_named_socket", [])
+def _(c):
+    c.d["sockets"] = {"mouth": [28, 12]}
+    c.acts["shot"]["socket"] = "mouth"
+    c.d["anims"]["cast"].pop("hand", None)
+    c.d["anims"]["cast"]["sockets"] = {"mouth": [[27, 12], [28, 11], [26, 12]]}
+
+@case("valid_held_socket", [])
+def _(c):
+    c.d.update(held="sword", held_socket="grip", sockets={"grip": [25, 20]})
+    c.acts["slash"]["socket"] = "grip"
+    for anim in c.d["anims"].values():
+        anim.pop("hand", None)
+
+@case("missing_socket", ["ref.socket"])
+def _(c):
+    c.acts["shot"]["socket"] = "mouth"
+
+@case("socket_bounds", ["socket.bounds"])
+def _(c):
+    c.d["sockets"] = {"mouth": [33, 12]}
+
+@case("socket_frames", ["anim.socket"])
+def _(c):
+    c.d["anims"]["cast"]["sockets"] = {"mouth": [[20, 12]]}
+
+@case("upgrade_socket_ref", ["ref.socket"])
+def _(c):
+    add_res(c)
+    c.acts["shot"]["upgrades"] = [{"if": {"r": ">=1"}, "set": {"socket": "missing"}}]
+
+@case("form_socket_ref", ["ref.socket"])
+def _(c):
+    add_res(c)
+    c.d["forms"] = [{"if": {"r": ">=1"}, "held": "sword", "held_socket": "missing"}]
+
+
 def main():
     freeze = "--freeze-points" in sys.argv
     os.makedirs(OUT, exist_ok=True)

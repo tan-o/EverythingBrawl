@@ -1,0 +1,577 @@
+{
+ "format": 1,
+ "name": "茶壶",
+ "frame_size": [
+  48,
+  48
+ ],
+ "anchor": [
+  24,
+  48
+ ],
+ "sockets": {
+  "mouth": [
+   42,
+   27
+  ],
+  "lid": [
+   24,
+   18
+  ]
+ },
+ "stats": {
+  "hp": 100,
+  "body": [
+   36,
+   30
+  ],
+  "weight": 4,
+  "gravity": 0.4,
+  "max_fall": 5,
+  "air_control": 0.6
+ },
+ "assets": {
+  "drop": {
+   "kind": "projectile",
+   "image": "drop.png",
+   "shape": "circle",
+   "size": [
+    8,
+    8
+   ]
+  },
+  "steam": {
+   "kind": "projectile",
+   "image": "steam.png",
+   "shape": "circle",
+   "size": [
+    10,
+    10
+   ]
+  }
+ },
+ "anims": {
+  "idle": {
+   "frames": [
+    0,
+    1,
+    2
+   ],
+   "durations": [
+    12,
+    12,
+    12
+   ],
+   "loop": true,
+   "sockets": {
+    "mouth": [
+     [
+      42,
+      27
+     ],
+     [
+      43,
+      27
+     ],
+     [
+      41,
+      27
+     ]
+    ],
+    "lid": [
+     [
+      24,
+      18
+     ],
+     [
+      25,
+      18
+     ],
+     [
+      23,
+      18
+     ]
+    ]
+   }
+  },
+  "walk": {
+   "frames": [
+    0,
+    1,
+    2
+   ],
+   "durations": [
+    12,
+    12,
+    12
+   ],
+   "loop": true,
+   "sockets": {
+    "mouth": [
+     [
+      42,
+      27
+     ],
+     [
+      43,
+      27
+     ],
+     [
+      41,
+      27
+     ]
+    ],
+    "lid": [
+     [
+      24,
+      18
+     ],
+     [
+      25,
+      18
+     ],
+     [
+      23,
+      18
+     ]
+    ]
+   }
+  },
+  "jump": {
+   "frames": [
+    0,
+    1,
+    2
+   ],
+   "durations": [
+    12,
+    12,
+    12
+   ],
+   "loop": true,
+   "sockets": {
+    "mouth": [
+     [
+      42,
+      27
+     ],
+     [
+      43,
+      27
+     ],
+     [
+      41,
+      27
+     ]
+    ],
+    "lid": [
+     [
+      24,
+      18
+     ],
+     [
+      25,
+      18
+     ],
+     [
+      23,
+      18
+     ]
+    ]
+   }
+  },
+  "fall": {
+   "frames": [
+    0,
+    1,
+    2
+   ],
+   "durations": [
+    12,
+    12,
+    12
+   ],
+   "loop": true,
+   "sockets": {
+    "mouth": [
+     [
+      42,
+      27
+     ],
+     [
+      43,
+      27
+     ],
+     [
+      41,
+      27
+     ]
+    ],
+    "lid": [
+     [
+      24,
+      18
+     ],
+     [
+      25,
+      18
+     ],
+     [
+      23,
+      18
+     ]
+    ]
+   }
+  },
+  "land": {
+   "frames": [
+    0,
+    1,
+    2
+   ],
+   "durations": [
+    12,
+    12,
+    12
+   ],
+   "loop": true,
+   "sockets": {
+    "mouth": [
+     [
+      42,
+      27
+     ],
+     [
+      43,
+      27
+     ],
+     [
+      41,
+      27
+     ]
+    ],
+    "lid": [
+     [
+      24,
+      18
+     ],
+     [
+      25,
+      18
+     ],
+     [
+      23,
+      18
+     ]
+    ]
+   }
+  },
+  "hurt": {
+   "frames": [
+    0,
+    1,
+    2
+   ],
+   "durations": [
+    12,
+    12,
+    12
+   ],
+   "loop": true,
+   "sockets": {
+    "mouth": [
+     [
+      42,
+      27
+     ],
+     [
+      43,
+      27
+     ],
+     [
+      41,
+      27
+     ]
+    ],
+    "lid": [
+     [
+      24,
+      18
+     ],
+     [
+      25,
+      18
+     ],
+     [
+      23,
+      18
+     ]
+    ]
+   }
+  },
+  "guard": {
+   "frames": [
+    0,
+    1,
+    2
+   ],
+   "durations": [
+    12,
+    12,
+    12
+   ],
+   "loop": true,
+   "sockets": {
+    "mouth": [
+     [
+      42,
+      27
+     ],
+     [
+      43,
+      27
+     ],
+     [
+      41,
+      27
+     ]
+    ],
+    "lid": [
+     [
+      24,
+      18
+     ],
+     [
+      25,
+      18
+     ],
+     [
+      23,
+      18
+     ]
+    ]
+   }
+  },
+  "ko": {
+   "frames": [
+    0,
+    1,
+    2
+   ],
+   "durations": [
+    12,
+    12,
+    12
+   ],
+   "loop": true,
+   "sockets": {
+    "mouth": [
+     [
+      42,
+      27
+     ],
+     [
+      43,
+      27
+     ],
+     [
+      41,
+      27
+     ]
+    ],
+    "lid": [
+     [
+      24,
+      18
+     ],
+     [
+      25,
+      18
+     ],
+     [
+      23,
+      18
+     ]
+    ]
+   }
+  },
+  "double_jump": {
+   "frames": [
+    0,
+    1,
+    2
+   ],
+   "durations": [
+    12,
+    12,
+    12
+   ],
+   "loop": true,
+   "sockets": {
+    "mouth": [
+     [
+      42,
+      27
+     ],
+     [
+      43,
+      27
+     ],
+     [
+      41,
+      27
+     ]
+    ],
+    "lid": [
+     [
+      24,
+      18
+     ],
+     [
+      25,
+      18
+     ],
+     [
+      23,
+      18
+     ]
+    ]
+   }
+  },
+  "pour": {
+   "frames": [
+    0,
+    1,
+    2
+   ],
+   "sockets": {
+    "mouth": [
+     [
+      42,
+      27
+     ],
+     [
+      43,
+      27
+     ],
+     [
+      41,
+      27
+     ]
+    ],
+    "lid": [
+     [
+      24,
+      18
+     ],
+     [
+      25,
+      18
+     ],
+     [
+      23,
+      18
+     ]
+    ]
+   }
+  },
+  "steam_pour": {
+   "frames": [
+    0,
+    1,
+    2
+   ],
+   "sockets": {
+    "mouth": [
+     [
+      42,
+      27
+     ],
+     [
+      43,
+      27
+     ],
+     [
+      41,
+      27
+     ]
+    ],
+    "lid": [
+     [
+      24,
+      18
+     ],
+     [
+      25,
+      18
+     ],
+     [
+      23,
+      18
+     ]
+    ]
+   }
+  }
+ },
+ "actions": {
+  "move": {
+   "type": "move",
+   "speed": 2.2,
+   "accel": 0.3
+  },
+  "jump": {
+   "type": "jump",
+   "velocity": 6.6,
+   "max_count": 2
+  },
+  "water": {
+   "type": "shoot",
+   "anim": "pour",
+   "socket": "mouth",
+   "projectile": "drop",
+   "aim": "fixed",
+   "angle": 0,
+   "speed": 3,
+   "lifetime": 40,
+   "startup": 12,
+   "active": 2,
+   "recovery": 16,
+   "damage": 4,
+   "knockback": {
+    "angle": 35,
+    "force": 15
+   },
+   "name": "壶嘴喷水"
+  },
+  "steam": {
+   "type": "shoot",
+   "anim": "steam_pour",
+   "socket": "lid",
+   "projectile": "steam",
+   "aim": "fixed",
+   "angle": 90,
+   "speed": 3,
+   "lifetime": 40,
+   "startup": 12,
+   "active": 2,
+   "recovery": 16,
+   "damage": 3,
+   "knockback": {
+    "angle": 35,
+    "force": 15
+   },
+   "name": "壶盖蒸汽"
+  }
+ },
+ "input": {
+  "attack.neutral": "water",
+  "attack.side": "water",
+  "attack.up": "steam",
+  "attack.down": "water",
+  "special.neutral": "steam",
+  "special.side": "water",
+  "special.up": "steam",
+  "special.down": "water",
+  "jump": "jump"
+ }
+}

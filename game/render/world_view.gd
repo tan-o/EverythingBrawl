@@ -49,7 +49,7 @@ func setup(p_assets: Array, p_stage: StageView) -> void:
 
 func apply(s: Dictionary) -> void:
 	last = s
-	stage_view.apply(s.stage)
+	stage_view.apply(s.stage, s.get("traps", {}))
 	for e in s.events:
 		_event(e)
 	for fs in s.fighters:

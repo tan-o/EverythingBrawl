@@ -323,6 +323,8 @@ func check_structure() -> void:
 	var ls: Dictionary = L.structure
 	var lp: Dictionary = L.pack
 	var total := total_frames()
+	for sn in d.get("sockets", {}):
+		check_socket_point(d.sockets[sn], "sockets." + sn)
 	for an in _sorted_keys(d.anims):
 		var anim: Dictionary = d.anims[an]
 		var p := "anims.%s" % an
@@ -338,6 +340,12 @@ func check_structure() -> void:
 				in_range("pack.duration", "%s.durations.%d" % [p, i], anim.durations[i], lp.duration)
 		if "hand" in anim and anim.hand.size() != n:
 			add("anim.hand", p + ".hand", "hand 数量须与 frames 相同")
+		for sn in anim.get("sockets", {}):
+			var points: Array = anim.sockets[sn]
+			if points.size() != n:
+				add("anim.socket", p + ".sockets." + sn, "挂点数量须与 frames 相同")
+			for point in points:
+				check_socket_point(point, p + ".sockets." + sn)
 		if "hold" in anim and anim.hold >= n:
 			add("anim.hold", p + ".hold", "hold 超出帧数")
 	var res: Dictionary = d.get("resources", {})
@@ -747,17 +755,17 @@ func check_form(eff: Dictionary) -> void:
 		check_ref("held", eff.held, "weapon")
 		for name in req:
 			var anim = CharDef.resolve_anim(d, eff, name)
-			if anim != null and not ("hand" in anim):
+			if anim != null and CharDef.socket_at(d, anim, 0, eff.held_socket) == null:
 				var rn := CharDef.resolve_anim_name(eff, name)
-				add("anim.hand", "anims.%s" % rn, "设置了 held 时必需动画 %s 必须提供 hand" % rn)
+				add("anim.hand" if eff.held_socket == "hand" else "ref.socket", "anims.%s" % rn, "缺少常态武器挂点 " + eff.held_socket)
 	for aid in _sorted_keys(acts):
 		var a: Dictionary = acts[aid]
 		for m in range(1 << CharDef.upgrade_count(a)):
 			var ua := CharDef.apply_upgrades(a, m)
-			if ua.type == "swing" or (ua.type == "shoot" and "weapon" in ua):
+			if ua.type == "swing" or (ua.type == "shoot" and ("weapon" in ua or "socket" in ua)):
 				var anim = CharDef.resolve_anim(d, eff, ua.anim)
-				if anim != null and not ("hand" in anim):
-					add("anim.hand", "anims.%s" % CharDef.resolve_anim_name(eff, ua.anim), "带 weapon 的动作 %s 的动画必须提供 hand" % aid)
+				if anim != null and CharDef.socket_at(d, anim, 1, ua.get("socket", "hand")) == null:
+					add("ref.socket" if "socket" in ua else "anim.hand", "actions." + aid, "缺少动作挂点 " + ua.get("socket", "hand"))
 	var idle = CharDef.resolve_anim(d, eff, "idle")
 	if idle != null and idle.frames.size() > 0 and idle.frames[0] < total_frames():
 		var ib := frame_bbox(int(idle.frames[0]))
@@ -1044,19 +1052,22 @@ func deploy_distance(aid: String, a: Dictionary, eff: Dictionary) -> float:
 					continue
 				if us.type == "shoot" and l.when in CharDef.BULLET_WHEN:
 					return -1.0
-				best = max(best, anim_hand_distance(us.get("anim", ""), eff))
+				best = max(best, anim_hand_distance(us.get("anim", ""), eff, a.get("socket", "hand")) + (float(data.assets[a.weapon].length) if "weapon" in a else 0.0))
 	return best
 
 
-func anim_hand_distance(anim_name: String, eff: Dictionary) -> float:
+func check_socket_point(point: Array, path: String) -> void:
+	if point[0] < 0 or point[1] < 0 or point[0] > data.frame_size[0] or point[1] > data.frame_size[1]:
+		add("socket.bounds", path, "挂点须位于角色帧内")
+
+
+func anim_hand_distance(anim_name: String, eff: Dictionary, socket := "hand") -> float:
 	var anim = CharDef.resolve_anim(data, eff, anim_name) if anim_name != "" else null
-	if anim == null or not ("hand" in anim):
-		return eff.stats.body[1] / 2.0
-	var ax: float = data.anchor[0]
-	var ay: float = data.anchor[1]
 	var best := 0.0
-	for h in anim.hand:
-		best = max(best, Vector2(h[0] - ax, h[1] - ay).length())
+	for i in (anim.frames.size() if anim != null else 1):
+		var h = CharDef.socket_at(data, anim, i, socket)
+		var distance: float = Vector2(h[0] - data.anchor[0], h[1] - data.anchor[1]).length() if h != null else eff.stats.body[1] / 2.0
+		best = max(best, distance)
 	return best
 
 
@@ -1066,10 +1077,10 @@ func shoot_origin_distance(a: Dictionary, eff: Dictionary) -> float:
 	var ay: float = data.anchor[1]
 	var hx := 0.0
 	var hy := 0.0
-	if anim == null or not ("hand" in anim) or anim.hand.size() < 2:
+	var h = CharDef.socket_at(data, anim, 1, a.get("socket", "hand"))
+	if h == null:
 		hy = -eff.stats.body[1] / 2.0
 	else:
-		var h: Array = anim.hand[1]
 		hx = h[0] - ax
 		hy = -(h[1] - ay)
 	if not ("weapon" in a):

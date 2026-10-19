@@ -100,8 +100,16 @@ def render_frame(data, imgs, anim_name, i, s, users):
     bw, bh = data["stats"]["body"]
     d.rectangle([pad + (ax - bw / 2.0) * s, pad + (ay - bh) * s, pad + (ax + bw / 2.0) * s - 1, pad + ay * s - 1], outline=(80, 220, 255, 255))
     d.ellipse([pad + ax * s - 3, pad + ay * s - 3, pad + ax * s + 3, pad + ay * s + 3], fill=(255, 0, 255, 255))
-    hand = anim["hand"][i] if "hand" in anim and i < len(anim["hand"]) else None
     attack = [(aid, a) for aid, a in users.get(anim_name, []) if a["type"] in ("swing", "shoot")]
+    socket = attack[0][1].get("socket", "hand") if attack else data.get("held_socket", "hand")
+    from validate import socket_at
+    hand = socket_at(data, anim, i, socket)
+    for sn in sorted(set(data.get("sockets", {})) | set(anim.get("sockets", {}))):
+        point = socket_at(data, anim, i, sn)
+        if point is not None:
+            px, py = pad + point[0] * s, pad + point[1] * s
+            d.ellipse([px - 2, py - 2, px + 2, py + 2], fill=(120, 255, 170, 255))
+            d.text((px + 3, py - 8), sn, fill=(120, 255, 170, 255))
     if hand is not None:
         if attack:
             aid, a = attack[0]

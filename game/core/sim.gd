@@ -53,6 +53,7 @@ func step(inputs: Array) -> void:
 			continue
 		f.tick()
 	_stage_hazards()
+	_stage_attacks()
 	_update_projectiles()
 	_resolve_hits()
 	_cleanup()
@@ -231,6 +232,35 @@ func _stage_hazards() -> void:
 				_knockback(f, dm.knockback.angle, dm.knockback.force, 1 if c.x >= r.get_center().x else -1, 0)
 
 
+func _stage_attacks() -> void:
+	for shot in stage.traps.shots:
+		for f in fighters:
+			if not f.targetable() or f.is_invulnerable() or f.state == "grabbed":
+				continue
+			if Geom.overlap(Geom.capsule(shot.prev, shot.pos, shot.radius), Geom.aabb(f.body_rect())):
+				_trap_hit(f, shot.def, shot.pos)
+				shot.life = 0
+				break
+	stage.traps.shots = stage.traps.shots.filter(func(s): return s.life > 0)
+	for swing in stage.traps.swings:
+		var key := "trap:%d" % swing.el
+		for f in fighters:
+			if not f.targetable() or f.is_invulnerable() or f.state == "grabbed" or f.hazard_cd.get(key, -1) == swing.cycle:
+				continue
+			if Geom.overlap(Geom.capsule(swing.pos, swing.tip, swing.def.radius), Geom.aabb(f.body_rect())):
+				f.hazard_cd[key] = swing.cycle
+				_trap_hit(f, swing.def, swing.pos)
+
+
+func _trap_hit(f: Fighter, attack: Dictionary, origin: Vector2) -> void:
+	var c := f.center()
+	apply_damage(null, f, attack.damage)
+	f.flash = 6
+	emit({"t": "hit", "i": f.idx, "tgt": f.idx, "x": c.x, "y": c.y, "dmg": attack.damage, "sfx": ""})
+	if f.alive():
+		_knockback(f, attack.knockback.angle, attack.knockback.force, 1 if c.x >= origin.x else -1, 0)
+
+
 func out_of_bounds(f: Fighter) -> bool:
 	var m: float = R.stage.blast_margin
 	var c := f.center()
@@ -351,6 +381,8 @@ func fire_shoot(f: Fighter, a: Dictionary, proj, depth: int, inst: int, charge_r
 		p.pierce = int(a.get("pierce", 0))
 		p.hp = float(a.get("hp", 0))
 		p.attach = a.get("attach", false) and proj == null
+		if p.attach and "socket" in a:
+			p.origin_action = a
 		p.offset = Vector2((p.pos.x - f.pos.x) * facing, p.pos.y - f.pos.y)
 		p.grow = int(a.get("grow", 0))
 		p.solid = a.get("solid", false)
@@ -408,7 +440,7 @@ func _update_projectiles() -> void:
 				p.dead = true
 				continue
 			p.facing = o.facing
-			p.pos = o.pos + Vector2(p.offset.x * o.facing, p.offset.y)
+			p.pos = o.shoot_origin(p.origin_action, p.fang, false) if not p.origin_action.is_empty() else o.pos + Vector2(p.offset.x * o.facing, p.offset.y)
 			p.dir = o.facing_dir(p.fang)
 		else:
 			if p.returns and not p.returning and p.age >= p.lifetime / 2.0:
@@ -745,4 +777,4 @@ func snapshot() -> Dictionary:
 			"ang": p.dir.angle(), "len": p.length(), "sc": p.scale(), "hp": p.hp,
 			"life": 1.0 - float(p.age) / max(1, p.lifetime), "shape": p.hit_shape() if debug else {},
 		})
-	return {"frame": frame, "fighters": fs, "proj": ps, "stage": stage.snapshot(), "dim": ult_dim_owner(), "ultbg": ult_backdrop(), "over": over, "winner": winner, "events": events}
+	return {"frame": frame, "fighters": fs, "proj": ps, "stage": stage.snapshot(), "traps": stage.traps.snapshot(), "dim": ult_dim_owner(), "ultbg": ult_backdrop(), "over": over, "winner": winner, "events": events}

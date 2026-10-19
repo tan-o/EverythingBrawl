@@ -25,6 +25,11 @@ func _run() -> void:
 	if not args.is_empty():
 		out = args[0]
 		DirAccess.make_dir_recursive_absolute(out)
+	for ch in "像素大乱斗攻特跳防":
+		if not ArcadeTheme.FONT.has_char(ch.unicode_at(0)):
+			push_error("Bundled font is missing Chinese glyph: " + ch)
+			quit(1)
+			return
 	root.size = Vector2i(1280, 720)
 	app = load("res://main.tscn").instantiate()
 	root.add_child(app)
@@ -39,6 +44,12 @@ func _run() -> void:
 		return
 	app._show_detail("character", chars[0])
 	await _capture("03-character-detail")
+	app._show_showcase(chars[0])
+	await _capture("03b-skill-showcase")
+	app.current.play("")
+	await _settle()
+	app.current.exited.emit()
+	await _settle()
 	app._show_library("stage")
 	await _capture("04-stages")
 	app._show_detail("stage", stages[0])
@@ -49,6 +60,7 @@ func _run() -> void:
 	await _settle()
 	app._show_practice()
 	await _capture("07-practice")
+	app.practice.foe = chars[1].path if chars.size() > 1 else chars[0].path
 	app._start_practice()
 	await _capture("08-match")
 	var match_ui: MatchScreen = app.current
@@ -61,6 +73,15 @@ func _run() -> void:
 	await _capture("10-results")
 	match_ui._quit()
 	await _settle()
+	var trap_match := MatchScreen.new()
+	app._set_screen(trap_match)
+	trap_match.start([{"validator": PackLibrary.load_pack("res://data/packs/teapot.zip"), "input":"none"}, {"validator": chars[0].v, "input":"dummy"}], PackLibrary.load_pack("res://data/stages/gallery.zip"))
+	trap_match.paused = true
+	for i in 138:
+		trap_match.sim.step([InputFrame.new(), InputFrame.new()])
+	trap_match._show(trap_match.sim.snapshot())
+	await _capture("10b-stage-traps")
+	trap_match.sim.dispose()
 	app._show_net()
 	await _capture("11-network")
 	app.current._back()

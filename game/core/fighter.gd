@@ -225,11 +225,15 @@ func _anim_by_resolved(n: String):
 	return ch.data.anims.get(n)
 
 
-func hand_world_at(anim, i: int):
-	if anim == null or not ("hand" in anim) or i >= anim.hand.size():
+func socket_world_at(anim, i: int, socket := "hand"):
+	var h = CharDef.socket_at(ch.data, anim, i, socket)
+	if h == null:
 		return null
-	var h: Array = anim.hand[i]
 	return pos + Vector2((h[0] - ch.anchor.x) * facing, h[1] - ch.anchor.y)
+
+
+func hand_world_at(anim, i: int):
+	return socket_world_at(anim, i)
 
 
 func current_hand() -> Vector2:
@@ -1262,7 +1266,7 @@ func swing_shape() -> Dictionary:
 	var ang: float = lerp(float(a.from), float(a.to), t)
 	var reach: float = lerp(float(a.reach[0]), float(a.reach[1]), t)
 	var d := facing_dir(ang)
-	var hw = hand_world_at(ch.anim(eff, a.anim), 1)
+	var hw = socket_world_at(ch.anim(eff, a.anim), 1, a.get("socket", "hand"))
 	var grip: Vector2 = hw if hw != null else center()
 	var p0: Vector2 = grip + d * (reach + w.length * w.hit_range[0])
 	var p1: Vector2 = grip + d * (reach + w.length * w.hit_range[1])
@@ -1280,24 +1284,27 @@ func weapon_visual() -> Dictionary:
 				t = 0.0 if a.active <= 1 else float(act.cur - a.startup) / float(a.active - 1)
 			elif ph == "recovery":
 				t = 1.0
-			return {"asset": a.weapon, "angle": lerp(float(a.from), float(a.to), t), "reach": lerp(float(a.reach[0]), float(a.reach[1]), t)}
+			return {"asset": a.weapon, "socket": a.get("socket", "hand"), "angle": lerp(float(a.from), float(a.to), t), "reach": lerp(float(a.reach[0]), float(a.reach[1]), t)}
 		if a.type == "shoot" and "weapon" in a:
-			return {"asset": a.weapon, "angle": float(a.angle), "reach": 0.0}
+			return {"asset": a.weapon, "socket": a.get("socket", "hand"), "angle": float(a.angle), "reach": 0.0}
 		if a.type in CharDef.ATTACK_TYPES:
 			return {}
 	if eff.held == null or not alive():
 		return {}
 	var an = _anim_by_resolved(anim_name)
-	if an == null or not ("hand" in an):
+	if CharDef.socket_at(ch.data, an, anim_idx, eff.held_socket) == null:
 		return {}
-	return {"asset": eff.held, "angle": HELD_ANGLE, "reach": 0.0}
+	return {"asset": eff.held, "socket": eff.held_socket, "angle": HELD_ANGLE, "reach": 0.0}
 
 
 ## direct = 由动作本身发射（取攻击姿势生效帧的 hand），否则取当前帧 hand。
 func shoot_origin(a: Dictionary, ang: float, direct: bool) -> Vector2:
-	var base := current_hand()
+	var hw_current = socket_world_at(_anim_by_resolved(anim_name), anim_idx, a.get("socket", "hand"))
+	if hw_current == null and "socket" in a:
+		hw_current = socket_world_at(ch.anim(eff, a.anim), 1, a.socket)
+	var base: Vector2 = hw_current if hw_current != null else center()
 	if direct:
-		var hw = hand_world_at(ch.anim(eff, a.anim), 1)
+		var hw = socket_world_at(ch.anim(eff, a.anim), 1, a.get("socket", "hand"))
 		base = hw if hw != null else center()
 	if "weapon" in a:
 		base += facing_dir(ang) * float(ch.asset(a.weapon).length)

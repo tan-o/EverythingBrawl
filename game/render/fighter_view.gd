@@ -93,10 +93,10 @@ func _update_weapon(s: Dictionary) -> void:
 		weapon.visible = false
 		return
 	var anim = assets.data.anims.get(s.a)
-	if anim == null or not ("hand" in anim):
+	var h = CharDef.socket_at(assets.data, anim, int(s.ai), w.get("socket", "hand"))
+	if h == null:
 		weapon.visible = false
 		return
-	var h: Array = anim.hand[clampi(int(s.ai), 0, anim.hand.size() - 1)]
 	var wd: Dictionary = assets.data.assets[w.asset]
 	var r := deg_to_rad(w.angle)
 	var dir := Vector2(cos(r), -sin(r))

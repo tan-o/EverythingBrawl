@@ -88,7 +88,7 @@ func _check_art() -> void:
 		var im: Image = v.images[a.image]
 		var w := im.get_width()
 		var h := im.get_height()
-		if a.kind == "tile":
+		if a.kind in ["tile", "hazard"]:
 			if w > SL.tile_side or h > SL.tile_side:
 				v.add("stage.tile_side", "assets.%s" % an, "地形贴图每边 <= %d（%s 为 %dx%d）" % [SL.tile_side, an, w, h])
 		else:
@@ -112,18 +112,25 @@ func _check_elements() -> void:
 	var els: Array = data.elements
 	v.at_most("stage.elements", "elements", els.size(), SL.elements)
 	var n_damage := 0
+	var n_traps := 0
 	var b: Array = SL.bounds
 	for i in els.size():
 		var el: Dictionary = els[i]
 		var p := "elements.%d" % i
 		var col: String = el.collide
-		if not ("tile" in el):
+		if el.get("background_region", false):
+			if "tile" in el or not StageDef.is_static(el):
+				v.add("stage.background_region", p, "背景区域不能同时指定 tile 或动态地形行为")
+		elif not ("tile" in el):
 			v.add("stage.invisible", p, "每个元素都必须有贴图（不能有看不见的地形）")
 		else:
 			_check_ref(p + ".tile", el.tile, "tile")
 		var hull := StageDef.hull(el)
 		if hull.position.x < b[0] or hull.position.y < b[1] or hull.end.x > b[2] or hull.end.y > b[3]:
 			v.add("stage.bounds", p, "元素（含移动路径）须在 %s 范围内" % [b])
+		if "trap" in el:
+			n_traps += 1
+			_check_trap(el, p)
 		if "climb" in el and col != "solid":
 			v.add("stage.behavior", p + ".climb", "climb 只能用于 solid")
 		for k in ["crumble", "bounce", "friction", "conveyor", "breakable"]:
@@ -168,7 +175,52 @@ func _check_elements() -> void:
 			v.in_range("stage.blink_off", p + ".blink.off", el.blink.off, lb.off)
 			if (col != "none" or "damage" in el) and el.blink.get("warn", 0) < lb.warn:
 				v.add("stage.blink_warn", p + ".blink.warn", "会出现的地形或危险物须有 >= %d 帧预警" % lb.warn)
+	v.at_most("stage.trap_count", "elements", n_traps, SL.trap.count)
 	v.at_most("stage.damage_count", "elements", n_damage, SL.damage.count)
+
+
+func _check_trap(el: Dictionary, p: String) -> void:
+	var a: Dictionary = el.trap
+	var lim: Dictionary = SL.trap
+	p += ".trap"
+	_check_ref(p + ".asset", a.asset, "hazard")
+	for k in ["period", "warn", "damage", "radius"]:
+		v.in_range("stage.trap_" + k, p + "." + k, a[k], lim[k])
+	v.in_range("stage.trap_force", p + ".knockback.force", a.knockback.force, lim.force)
+	if a.origin[0] < 0 or a.origin[1] < 0 or a.origin[0] > el.rect[2] or a.origin[1] > el.rect[3]:
+		v.add("stage.trap_origin", p + ".origin", "发射/挥击挂点须位于元素内")
+	if a.get("offset", 0) >= a.period:
+		v.add("stage.trap_timing", p, "offset 必须小于 period")
+	var duration := 1
+	if a.type == "shoot":
+		for k in ["speed", "lifetime"]:
+			v.in_range("stage.trap_" + k, p + "." + k, a[k], lim[k])
+	else:
+		duration = int(a.active)
+		for k in ["length", "active"]:
+			v.in_range("stage.trap_" + k, p + "." + k, a[k], lim[k])
+		if abs(a.to - a.from) > 180:
+			v.add("stage.trap_sweep", p, "挥击角度变化不能超过 180 度")
+		if a.asset in data.assets:
+			var im: Image = v.images[data.assets[a.asset].image]
+			if a.grip[0] < 0 or a.grip[1] < 0 or a.grip[0] >= im.get_width() or a.grip[1] >= im.get_height() or a.grip[0] + a.length > im.get_width():
+				v.add("stage.trap_grip", p, "握点和长度须与武器图片一致")
+	if a.warn + duration >= a.period:
+		v.add("stage.trap_timing", p, "预警和攻击后须留出间歇")
+	# Keep the full path/arc away from spawn bodies, including moving emitters.
+	for spawn in data.spawns:
+		var body := Rect2(spawn[0] - 20, spawn[1] - 48, 40, 48)
+		var hull := StageDef.hull(el)
+		var origin := hull.position + Vector2(a.origin[0], a.origin[1])
+		var area := Rect2(origin, hull.size - Vector2(el.rect[2], el.rect[3]))
+		if a.type == "shoot":
+			var end: Vector2 = area.position + StageTraps.direction(a.angle) * a.speed * a.lifetime
+			area = area.merge(Rect2(end, area.size)).grow(a.radius)
+		else:
+			area = area.grow(a.length + a.radius)
+		if area.intersects(body):
+			v.add("stage.trap_spawn", p, "陷阱攻击范围不能覆盖出生区域")
+			break
 
 
 func _check_layout() -> void:

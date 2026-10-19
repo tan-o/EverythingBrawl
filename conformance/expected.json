@@ -499,6 +499,11 @@
   "points": {},
   "valid": true
  },
+ "example_stage_gallery.zip": {
+  "errors": [],
+  "points": {},
+  "valid": true
+ },
  "example_stage_kitchen.zip": {
   "errors": [],
   "points": {},
@@ -536,6 +541,21 @@
      "sword_lunge": 4.5543
     },
     "total": 7.8047
+   }
+  },
+  "valid": true
+ },
+ "example_teapot.zip": {
+  "errors": [],
+  "points": {
+   "base": {
+    "actions": {
+     "jump": 0.2,
+     "move": 1.2,
+     "steam": 1.1261,
+     "water": 1.5014
+    },
+    "total": 4.0275
    }
   },
   "valid": true
@@ -615,6 +635,12 @@
  "form_input_ult.zip": {
   "errors": [
    "ultimate.input"
+  ],
+  "valid": false
+ },
+ "form_socket_ref.zip": {
+  "errors": [
+   "ref.socket"
   ],
   "valid": false
  },
@@ -750,6 +776,12 @@
  "link_window.zip": {
   "errors": [
    "link.window"
+  ],
+  "valid": false
+ },
+ "missing_socket.zip": {
+  "errors": [
+   "ref.socket"
   ],
   "valid": false
  },
@@ -1095,6 +1127,18 @@
   ],
   "valid": false
  },
+ "socket_bounds.zip": {
+  "errors": [
+   "socket.bounds"
+  ],
+  "valid": false
+ },
+ "socket_frames.zip": {
+  "errors": [
+   "anim.socket"
+  ],
+  "valid": false
+ },
  "stage_alpha.zip": {
   "errors": [
    "pack.alpha"
@@ -1104,6 +1148,12 @@
  "stage_background_frames.zip": {
   "errors": [
    "stage.background_frames"
+  ],
+  "valid": false
+ },
+ "stage_background_region_motion.zip": {
+  "errors": [
+   "stage.background_region"
   ],
   "valid": false
  },
@@ -1353,11 +1403,77 @@
   ],
   "valid": false
  },
+ "stage_trap_count.zip": {
+  "errors": [
+   "stage.trap_count"
+  ],
+  "valid": false
+ },
+ "stage_trap_grip.zip": {
+  "errors": [
+   "stage.trap_grip"
+  ],
+  "valid": false
+ },
+ "stage_trap_origin.zip": {
+  "errors": [
+   "stage.trap_origin"
+  ],
+  "valid": false
+ },
+ "stage_trap_ref.zip": {
+  "errors": [
+   "ref"
+  ],
+  "valid": false
+ },
+ "stage_trap_spawn.zip": {
+  "errors": [
+   "stage.trap_spawn"
+  ],
+  "valid": false
+ },
+ "stage_trap_speed.zip": {
+  "errors": [
+   "stage.trap_speed"
+  ],
+  "valid": false
+ },
+ "stage_trap_sweep.zip": {
+  "errors": [
+   "stage.trap_sweep"
+  ],
+  "valid": false
+ },
+ "stage_trap_timing.zip": {
+  "errors": [
+   "stage.trap_timing"
+  ],
+  "valid": false
+ },
+ "stage_trap_warning.zip": {
+  "errors": [
+   "stage.trap_warn"
+  ],
+  "valid": false
+ },
+ "stage_valid_background_region.zip": {
+  "errors": [],
+  "valid": true
+ },
  "stage_valid_base.zip": {
   "errors": [],
   "valid": true
  },
  "stage_valid_full.zip": {
+  "errors": [],
+  "valid": true
+ },
+ "stage_valid_trap_shoot.zip": {
+  "errors": [],
+  "valid": true
+ },
+ "stage_valid_trap_swing.zip": {
   "errors": [],
   "valid": true
  },
@@ -1633,6 +1749,12 @@
   ],
   "valid": false
  },
+ "upgrade_socket_ref.zip": {
+  "errors": [
+   "ref.socket"
+  ],
+  "valid": false
+ },
  "valid_base.zip": {
   "errors": [],
   "points": {
@@ -1683,6 +1805,21 @@
   },
   "valid": true
  },
+ "valid_held_socket.zip": {
+  "errors": [],
+  "points": {
+   "base": {
+    "actions": {
+     "jump": -4.0,
+     "move": 0.0,
+     "shot": 2.9343,
+     "slash": 3.779
+    },
+    "total": 2.7132
+   }
+  },
+  "valid": true
+ },
  "valid_mechanics.zip": {
   "errors": [],
   "points": {
@@ -1704,6 +1841,21 @@
      "turret": 3.6776
     },
     "total": 42.3614
+   }
+  },
+  "valid": true
+ },
+ "valid_named_socket.zip": {
+  "errors": [],
+  "points": {
+   "base": {
+    "actions": {
+     "jump": -4.0,
+     "move": 0.0,
+     "shot": 2.9343,
+     "slash": 3.779
+    },
+    "total": 2.7132
    }
   },
   "valid": true

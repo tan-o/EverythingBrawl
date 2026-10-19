@@ -22,12 +22,14 @@ static func key_name(k: String) -> String:
 	return s
 
 
-static func build(e: Dictionary, on_practice: Callable, on_delete: Callable, on_back: Callable) -> Control:
+static func build(e: Dictionary, on_practice: Callable, on_delete: Callable, on_back: Callable, on_showcase: Callable = Callable()) -> Control:
 	var v: PackValidator = e.v
 	var s := Menus.screen(e.name)
 	var box: VBoxContainer = s[1]
 	var bar: HBoxContainer = s[2]
 	if e.valid:
+		if on_showcase.is_valid():
+			bar.add_child(Menus.button("技能展示", on_showcase, 180))
 		bar.add_child(Menus.button("试玩", on_practice, 160))
 	if e.user:
 		bar.add_child(Menus.button("删除", on_delete, 160))

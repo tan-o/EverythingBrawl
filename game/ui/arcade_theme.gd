@@ -2,6 +2,8 @@ class_name ArcadeTheme
 extends RefCounted
 ## Shared arcade cabinet palette and hard-edged control states.
 
+const FONT = preload("res://ui/fonts/NotoSansSC.ttf")
+
 const INK := Color("101522")
 const PANEL := Color("1c263b")
 const RAISED := Color("263550")
@@ -27,6 +29,7 @@ static func plate(fill: Color, edge: Color = EDGE, width := 2, pad := 16) -> Sty
 static func build() -> Theme:
 	var t := Theme.new()
 	t.default_font_size = 24
+	t.default_font = FONT
 	for type in ["Label", "Button", "OptionButton", "CheckButton", "CheckBox", "LineEdit", "TextEdit", "PopupMenu", "TabContainer", "TabBar"]:
 		t.set_color("font_color", type, PAPER)
 		t.set_color("font_disabled_color", type, MUTED.darkened(0.3))

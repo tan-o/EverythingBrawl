@@ -102,6 +102,7 @@ static func mask_label(mask: int, n: int) -> String:
 static func effective_form(data: Dictionary, mask: int) -> Dictionary:
 	var eff := {
 		"held": data.get("held"),
+		"held_socket": data.get("held_socket", "hand"),
 		"anims": {},
 		"stats": data.stats.duplicate(true),
 		"input": data.input.duplicate(),
@@ -111,6 +112,8 @@ static func effective_form(data: Dictionary, mask: int) -> Dictionary:
 		if not mask & (1 << i):
 			continue
 		var f: Dictionary = forms[i]
+		if "held_socket" in f:
+			eff.held_socket = f.held_socket
 		if "held" in f:
 			eff.held = f.held
 		eff.anims.merge(f.get("anims", {}), true)
@@ -204,3 +207,12 @@ static func needs_charge_anim(a: Dictionary) -> bool:
 		if l.when == "on_release":
 			return true
 	return false
+
+
+## Frame-local point. Animated socket overrides static defaults; hand is a legacy alias.
+static func socket_at(data: Dictionary, anim, index: int, socket := "hand"):
+	if anim != null:
+		var points: Array = anim.get("sockets", {}).get(socket, anim.get("hand", []) if socket == "hand" else [])
+		if not points.is_empty():
+			return points[clampi(index, 0, points.size() - 1)]
+	return data.get("sockets", {}).get(socket)

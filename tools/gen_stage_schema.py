@@ -21,11 +21,22 @@ def obj(props, req):
 KB = obj({"angle": NUM, "force": NUM}, ["angle", "force"])
 RECT = {"type": "array", "prefixItems": [NUM, NUM, {"type": "number", "exclusiveMinimum": 0},
                                          {"type": "number", "exclusiveMinimum": 0}], "items": False, "minItems": 4}
+TRAP_COMMON = {"type": {"enum": ["shoot", "swing"]}, "origin": vec(), "asset": STR,
+               "period": POS, "warn": POS, "offset": NONNEG, "damage": NUM, "knockback": KB, "radius": NUM}
+TRAP = {"type": "object", "required": [k for k in TRAP_COMMON if k != "offset"],
+        "properties": TRAP_COMMON, "allOf": [
+    {"if": {"properties": {"type": {"const": "shoot"}}},
+     "then": obj(dict(TRAP_COMMON, angle=NUM, speed=NUM, lifetime=POS), ["angle", "speed", "lifetime"])},
+    {"if": {"properties": {"type": {"const": "swing"}}},
+     "then": obj(dict(TRAP_COMMON, grip=vec(), length=NUM, active=POS, **{"from": NUM, "to": NUM}), ["grip", "length", "active", "from", "to"])},
+]}
 ELEMENT = obj({
     "id": STR,
     "rect": RECT,
     "collide": {"enum": ["solid", "platform", "none"]},
     "tile": STR,
+    "background_region": {"const": True},
+    "trap": TRAP,
     "climb": obj({"max": POS}, ["max"]),
     "crumble": obj({"after": POS, "respawn": POS}, ["after", "respawn"]),
     "bounce": obj({"velocity": NUM}, ["velocity"]),
@@ -39,12 +50,14 @@ ELEMENT = obj({
     "blink": obj({"on": POS, "off": POS, "offset": NONNEG, "warn": NONNEG}, ["on", "off"]),
     "breakable": obj({"hp": NUM, "respawn": POS}, ["hp", "respawn"]),
 }, ["rect", "collide"])
-ASSET = {"type": "object", "required": ["kind"], "properties": {"kind": {"enum": ["background", "tile"]}}, "allOf": [
+ASSET = {"type": "object", "required": ["kind"], "properties": {"kind": {"enum": ["background", "tile", "hazard"]}}, "allOf": [
     {"if": {"properties": {"kind": {"const": "background"}}},
      "then": obj({"kind": {"const": "background"}, "image": STR, "frames": POS,
                   "durations": {"type": "array", "items": INT, "minItems": 1}}, ["kind", "image"])},
     {"if": {"properties": {"kind": {"const": "tile"}}},
      "then": obj({"kind": {"const": "tile"}, "image": STR}, ["kind", "image"])},
+    {"if": {"properties": {"kind": {"const": "hazard"}}},
+     "then": obj({"kind": {"const": "hazard"}, "image": STR}, ["kind", "image"])},
 ]}
 schema = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",

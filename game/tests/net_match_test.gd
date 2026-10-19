@@ -24,6 +24,11 @@ func _initialize() -> void:
 		"cs": PackLibrary.load_pack("res://data/stages/desk.zip").pack.sha256,
 	}
 
+	if OS.get_cmdline_user_args().has("traps"):
+		picks.hc = PackLibrary.load_pack("res://data/packs/teapot.zip").pack.sha256
+		picks.hs = PackLibrary.load_pack("res://data/stages/gallery.zip").pack.sha256
+		picks.cs = picks.hs
+
 
 func _screen(s: NetSession, info: Dictionary) -> MatchScreen:
 	var players := []
@@ -58,6 +63,8 @@ func _process(_d: float) -> bool:
 		"play":
 			if hs != null and hs.sim.frame >= 600:
 				var ok := cs != null and client.snaps.size() > 0 and cs._render_frame >= hs.sim.frame - 8
+				if OS.get_cmdline_user_args().has("traps"):
+					ok = ok and not cs.world.last.get("traps", {}).get("shots", []).is_empty()
 				print("客户端渲染到第 %d 帧，房主模拟到第 %d 帧" % [cs._render_frame if cs else -1, hs.sim.frame if hs else -1])
 				print("OK" if ok else "FAIL")
 				return true

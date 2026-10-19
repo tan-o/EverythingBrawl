@@ -7,6 +7,8 @@ const COLLIDE := {"solid": "实心", "platform": "单向平台", "none": "区域
 
 static func behaviors(el: Dictionary) -> String:
 	var out := PackedStringArray()
+	if "trap" in el:
+		out.append("发射陷阱" if el.trap.type == "shoot" else "挥击陷阱")
 	if "climb" in el:
 		out.append("可攀爬 %s 帧" % Menus.num(el.climb.max))
 	if "crumble" in el:

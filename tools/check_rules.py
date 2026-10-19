@@ -37,7 +37,7 @@ for group in ("stats", "move", "jump", "fly"):
         else:
             check(isinstance(v, (int, float)) and v > 0, "limits.%s.%s 应为正数" % (group, k))
 check(sorted(json.load(open(os.path.join(ROOT, "rules", "stage.schema.json"), encoding="utf-8"))["$defs"]["element"]["properties"])
-      == sorted(["id", "rect", "collide", "tile", "climb", "crumble", "bounce", "friction", "conveyor", "move", "damage",
+      == sorted(["id", "rect", "collide", "tile", "background_region", "trap", "climb", "crumble", "bounce", "friction", "conveyor", "move", "damage",
                  "wind", "water", "blink", "breakable"]), "场景元素字段变化，需要同步校验器与运行时")
 check(set(lim["stats"]) == {"hp", "body_w", "body_h", "weight", "gravity", "max_fall", "air_control"},
       "limits.stats 与 schema stats 字段不一致")

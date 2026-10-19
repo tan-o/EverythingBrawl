@@ -77,7 +77,7 @@ func _input(event: InputEvent) -> void:
 
 
 func _draw() -> void:
-	var font := ThemeDB.fallback_font
+	var font: Font = ArcadeTheme.FONT
 	if _stick_touch != -1:
 		draw_circle(_stick_origin, STICK_R, Color(0.06, 0.08, 0.13, 0.4))
 		draw_arc(_stick_origin, STICK_R, 0, TAU, 32, Color(0.46, 0.87, 0.75, 0.5), 3)
